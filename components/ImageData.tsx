@@ -10,6 +10,7 @@ export function ImageData({
 
     // Create context once
     const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+
     // Update Canvas wuth new imageData
     useEffect(() => {
         const canvasEl = canvasRef.current;

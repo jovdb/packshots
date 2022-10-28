@@ -14,11 +14,9 @@ export default function Home() {
         <meta name="description" content="Generated packshots" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <QueryClientProvider client={queryClient}>
-          <Test />
-        </QueryClientProvider>
-      </main>
-    </div>
+      <QueryClientProvider client={queryClient}>
+        <Test />
+      </QueryClientProvider>
+     </div>
   )
 }
