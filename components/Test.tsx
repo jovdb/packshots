@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync } from "../utils/image";
 import { ImageSelection } from "./FileSelection";
+import { ImageData } from "./ImageData";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -28,6 +29,9 @@ export function Test() {
                 </span>
             </div>
             Size: {imageData?.width ?? 0}x{imageData?.height ?? 0}
+
+            <ImageData imageData={imageData}/>
+
         </>
     );
 }
