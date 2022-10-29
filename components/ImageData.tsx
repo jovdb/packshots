@@ -27,6 +27,8 @@ export function ImageData({
             style={{
                 width: "100%",
                 height: "auto",
+                border: "1px solid #ddd",
+                boxShadow: "2px 2px 3px rgba(0,0,0,0.1)",
             }}
         />
     );

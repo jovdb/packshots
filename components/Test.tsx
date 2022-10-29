@@ -16,6 +16,7 @@ import { PlaneConfigurator } from "../data/shapes/plane/PlaneConfigurator";
 import create from "zustand";
 import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
+import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -95,10 +96,7 @@ export const useShapeConfig = create<IPlaneConfig>(() => initialConfig);
 
 export function Test() {
 
-    const [imageInfo, setImageInfo] = useState<{ url: string; name: string } | undefined>(undefined);
-    const { name: imageName = "", url: imageUrl = "" } = imageInfo || {};
-
-    const { isFetching, isFetched, isError, data: spreadImageData } = useImageDataFromUrl(imageUrl);
+    const { data: spreadImageData } = useSpreadImageData();
 
     const projectionData = useProjectionStore();
     const shapeConfig = useShapeConfig();
@@ -127,18 +125,23 @@ export function Test() {
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
-            <div style={{ flexGrow: 1, overflowY: "auto" }}>
+            <div style={{ flexGrow: 1, overflowY: "auto", padding: 10 }}>
                 <ImageData imageData={targetImageData} />
             </div>
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
                     <fieldset>
-                        <legend>Images:</legend>
+                        <legend>Spread:</legend>
+                        <SpreadImageConfig />
+                    </fieldset>
+                    <fieldset>
+                        <legend>Packshot:</legend>
                         <table>
                             <tbody>
                                 <tr>
-                                    <td>Spread Image:</td>
+                                    <td>Background:</td>
                                     <td>
+                                        {/*
                                         <input readOnly disabled value={imageName} style={{ marginRight: 5 }} />
                                         <ImageSelection onSelect={setImageInfo} />
                                         <span style={{ display: "inline-block", whiteSpace: "nowrap", width: 10, marginLeft: 5 }}>
@@ -146,11 +149,13 @@ export function Test() {
                                             {imageUrl && isFetched && `✔ Size: ${spreadImageData?.width ?? 0}x${spreadImageData?.height ?? 0}`}
                                             {isError && "❗"}
                                         </span>
+                                        */}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Packshot Image:</td>
+                                    <td>Overlay:</td>
                                     <td>
+                                        {/*
                                         <input readOnly disabled value={imageName} style={{ marginRight: 5 }} />
                                         <ImageSelection onSelect={setImageInfo} />
                                         <span style={{ display: "inline-block", whiteSpace: "nowrap", width: 10, marginLeft: 5 }}>
@@ -158,6 +163,7 @@ export function Test() {
                                             {imageUrl && isFetched && `✔ Size: ${spreadImageData?.width ?? 0}x${spreadImageData?.height ?? 0}`}
                                             {isError && "❗"}
                                         </span>
+                                        */}
                                     </td>
                                 </tr>
                             </tbody>
@@ -165,6 +171,19 @@ export function Test() {
                     </fieldset>
                     <fieldset>
                         <legend>Shape:</legend>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Shape:</td>
+                                    <td>
+                                        <select>
+                                            <option value="plane">Plane</option>
+                                            <option value="cone">Cylinder / Cone</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <PlaneConfigurator
                             config={shapeConfig}
                             onChange={(newConfig) => useShapeConfig.setState(newConfig)}
