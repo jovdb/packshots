@@ -17,11 +17,9 @@ export function rayTracerRenderer({
     canvasToRay: Matrix4,
     uvTransform: Matrix3,
 }) {
-	var targetBpr = targetImageData.width;
-
 	const uMax = sampler.width - 1;
 	const vMax = sampler.height - 1;
-	var xMax = targetImageData.width - 1;
+	const xMax = targetImageData.width - 1;
 
 	// TODO: Tile-based rendering for better caching?
 	for (let y = 0; y <= targetImageData.height; y++) {
@@ -29,20 +27,20 @@ export function rayTracerRenderer({
 			const rd = new Vector3(x, y, 1).applyMatrix4(canvasToRay);
 			const hit = geometry.intersect(eyePosition, rd);
 
-			if (hit.z <= 0)
-				continue;
+			if (!hit || hit.z <= 0) continue;
 
-			var uv = new Vector2(hit.x, hit.y).applyMatrix3(uvTransform);
+			const uv = new Vector2(hit.x, hit.y)
+				.applyMatrix3(uvTransform)
+				.round(); // round to sample pixel
 
-			if (hit.z <= 0 || uv.x < 0 || uv.y < 0 || uv.x >= uMax || uv.y >= vMax)
-				continue;
-
-			var col = sampler.sample(uv);
-			const index = (y * targetBpr + x) * 4;
-			targetImageData.data[index] = col.x + 200;
-			targetImageData.data[index + 1] = col.y;
-			targetImageData.data[index + 2] = col.z;
-			targetImageData.data[index + 3] = col.w;
+			if (uv.x < 0 || uv.y < 0 || uv.x >= uMax || uv.y >= vMax) continue; // outside image
+			
+			const rgba = sampler.sample(uv);
+			const index = (y * targetImageData.width + x) * 4;
+			targetImageData.data[index] = rgba.x;
+			targetImageData.data[index + 1] = rgba.y;
+			targetImageData.data[index + 2] = rgba.z;
+			targetImageData.data[index + 3] = rgba.w;
 		}
 	}
 }

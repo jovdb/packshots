@@ -10,8 +10,9 @@ export class PointTextureSampler implements ITextureSampler {
         this.height = texture.height;
     }
 
-    public sample(uv: Vector2): Vector4 {
-        const { x, y } = uv;
+    /** Get RGBA as Vector4 on a texture */
+    public sample(point: Vector2): Vector4 {
+        const { x, y } = point;
         const offset = y * (this.width * 4) + x * 4;
         return new Vector4(
             this.texture.data[offset],

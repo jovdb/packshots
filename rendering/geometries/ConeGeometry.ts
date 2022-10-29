@@ -26,6 +26,7 @@ export class ConeGeometry implements IGeometry {
 
     public intersect(cameraPosition: Vector3, rd: Vector3) {
         /*
+          ro: eye/camera position
           Point q on ray is defined as
           q = ro + t * rd
       

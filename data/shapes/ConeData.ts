@@ -19,6 +19,17 @@ export class ConeData implements IShapeData {
         this.diameterBottom = options.diameterBottom ?? options.diameterTop;
         this.height = options.height;
         
+        /**
+         * Points:
+         *         ^
+         *         5
+         *     4   |   6
+         *         |
+         * ------------------>
+         *         |
+         *         2
+         *     1   |   3 
+         */
         this.projectedPoints = [
             [-0.2, -0.4],
             [0, -0.2],
@@ -29,6 +40,8 @@ export class ConeData implements IShapeData {
         ];
     }
 
+    /*
+    */
     public getWorldPoints(): Vector3[] {
         const r1 = this.diameterTop / 2;
         const r2 = this.diameterBottom / 2;

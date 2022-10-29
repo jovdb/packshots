@@ -11,7 +11,7 @@ export function ImageSelection({
     const max = 4 * 1024 * 1024;
     return (
         <span>
-            <button onClick={() => inputRef.current && inputRef.current.click()}>File</button>
+            <button onClick={() => inputRef.current && inputRef.current.click()}>Open</button>
             <input
                 ref={inputRef}
                 type="file"

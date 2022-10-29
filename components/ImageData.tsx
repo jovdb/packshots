@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 /** Component that shows ImageData */
 export function ImageData({
@@ -7,18 +7,15 @@ export function ImageData({
     imageData: ImageData | null | undefined;
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-
-    // Create context once
     const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
     // Update Canvas wuth new imageData
-    useEffect(() => {
+    useLayoutEffect(() => {
         const canvasEl = canvasRef.current;
+        if (!canvasEl || !imageData) return;
         let ctx = ctxRef.current;
-        if (!ctx) {
-            ctx = ctxRef.current = canvasRef.current?.getContext("2d") || null;
-        }
-        if (!ctx || !canvasEl || !imageData) return;
+        if (!ctx) ctx = ctxRef.current = canvasEl.getContext("2d") || null;
+        if (!ctx) return;
         ctx.putImageData(imageData, 0, 0);
     }, [imageData]);
 
@@ -32,5 +29,5 @@ export function ImageData({
                 height: "auto",
             }}
         />
-    )
-} 
+    );
+}

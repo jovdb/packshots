@@ -2,9 +2,10 @@ import { ConeData } from "./shapes/ConeData";
 import { Vector2Data } from "./types";
 
 export interface IImageProjectionData {
-    /* Zoom power base-2, e.g. the zoom factor is 2^ZoomPower */
+    /* Zoom power base-2, e.g. the zoom factor is 2^ZoomPower in percent */
     zoom: number;
 
+    /** Shift amount in percent */
     shift: Vector2Data;
 }
 

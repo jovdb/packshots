@@ -7,8 +7,8 @@ const queryClient = new QueryClient();
 
 export default function Home() {
 
-  return (  
-    <div className={styles.container}>
+  return (
+    <>
       <Head>
         <title>Packshot generator</title>
         <meta name="description" content="Generated packshots" />
@@ -17,6 +17,6 @@ export default function Home() {
       <QueryClientProvider client={queryClient}>
         <Test />
       </QueryClientProvider>
-     </div>
-  )
+    </>
+  );
 }
