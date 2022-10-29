@@ -5,10 +5,8 @@ import { useImageDataFromUrl } from "./Test";
 
 
 export const useSpreadImageConfig = create<{
-    type: string;
     url: string;
 }>(() => ({
-    type: "checkerboard",
     url: "./checkerboard.jpg",
 }));
 
@@ -20,6 +18,7 @@ export function useSpreadImageData() {
 export function SpreadImageConfig() {
 
     const spreadImageConfig = useSpreadImageConfig();
+    const [ type, setType] = useState("checkerboard");
     const [ lastFile, setLastFile] = useState<{ url: string; name: string }>({ name: "", url: "" }); 
     const { isFetching, isFetched, isError, data: spreadImageData } = useSpreadImageData();
     const [loadFileError, setLoadFileError] = useState("");
@@ -30,10 +29,10 @@ export function SpreadImageConfig() {
                 <tr>
                     <td colSpan={2}>
                         <select
-                            value={spreadImageConfig.type}
+                            value={type}
                             onChange={(e) => {
                                 const value = e.target.value;
-                                useSpreadImageConfig.setState({ type: value });
+                                setType(value);
                                 switch (value) {
                                     case "checkerboard": {
                                         useSpreadImageConfig.setState({ url: "./checkerboard.jpg" });
@@ -61,7 +60,7 @@ export function SpreadImageConfig() {
                         {isFetching && "⌛"}
                     </td>
                 </tr>
-                {spreadImageConfig.type === "local" && (
+                {type === "local" && (
                     <tr>
                         <td colSpan={2}>
                             <input readOnly disabled value={lastFile.name} style={{ marginRight: 5 }} />
@@ -77,7 +76,7 @@ export function SpreadImageConfig() {
                 )}
                 <tr>
                     <td colSpan={2}>
-                        {isError && "Error loading"}
+                        {isError  && (loadFileError || "Error loading")}
                         {spreadImageConfig.url && isFetched && `Size: ${spreadImageData?.width ?? 0} x ${spreadImageData?.height ?? 0}`}
                     </td>
                 </tr>

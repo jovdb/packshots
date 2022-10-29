@@ -17,6 +17,7 @@ import create from "zustand";
 import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
 import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
+import { PackshotImagesConfig } from "./PackshotImagesConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -125,49 +126,18 @@ export function Test() {
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
-            <div style={{ flexGrow: 1, overflowY: "auto", padding: 10 }}>
+            <div style={{ flexGrow: 1, overflowY: "auto", padding: 10, "alignSelf": "center", "textAlign": "center" }}>
                 <ImageData imageData={targetImageData} />
             </div>
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
                     <fieldset>
-                        <legend>Spread:</legend>
-                        <SpreadImageConfig />
+                        <legend>Packshot:</legend>
+                        <PackshotImagesConfig />
                     </fieldset>
                     <fieldset>
-                        <legend>Packshot:</legend>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>Background:</td>
-                                    <td>
-                                        {/*
-                                        <input readOnly disabled value={imageName} style={{ marginRight: 5 }} />
-                                        <ImageSelection onSelect={setImageInfo} />
-                                        <span style={{ display: "inline-block", whiteSpace: "nowrap", width: 10, marginLeft: 5 }}>
-                                            {isFetching && "⌛"}
-                                            {imageUrl && isFetched && `✔ Size: ${spreadImageData?.width ?? 0}x${spreadImageData?.height ?? 0}`}
-                                            {isError && "❗"}
-                                        </span>
-                                        */}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Overlay:</td>
-                                    <td>
-                                        {/*
-                                        <input readOnly disabled value={imageName} style={{ marginRight: 5 }} />
-                                        <ImageSelection onSelect={setImageInfo} />
-                                        <span style={{ display: "inline-block", whiteSpace: "nowrap", width: 10, marginLeft: 5 }}>
-                                            {isFetching && "⌛"}
-                                            {imageUrl && isFetched && `✔ Size: ${spreadImageData?.width ?? 0}x${spreadImageData?.height ?? 0}`}
-                                            {isError && "❗"}
-                                        </span>
-                                        */}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <legend>Spread:</legend>
+                        <SpreadImageConfig />
                     </fieldset>
                     <fieldset>
                         <legend>Shape:</legend>

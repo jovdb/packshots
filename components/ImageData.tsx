@@ -29,6 +29,9 @@ export function ImageData({
                 height: "auto",
                 border: "1px solid #ddd",
                 boxShadow: "2px 2px 3px rgba(0,0,0,0.1)",
+                // scale to available size
+                maxHeight: "calc(100vh - 24px)",
+                maxWidth: "calc(100vh - 24px)",
             }}
         />
     );
