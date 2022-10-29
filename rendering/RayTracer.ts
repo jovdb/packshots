@@ -1,41 +1,47 @@
-import { Matrix3, Matrix4, Vector3, Vector2 } from "three";
+import { Matrix4, Vector3 } from "three";
 import { IGeometry } from "./geometries/IGeometry";
 import { ITextureSampler } from "./samplers/ITextureSampler";
 
 export function rayTracerRenderer({
 	geometry,
-	sampler,
-	imageData: targetImageData,
-	eyePosition,
-	canvasToRay,
-	uvTransform,
+	spreadSampler,
+	targetImageData,
+	cameraVector,
+	cameraToProjectionVector,
 }: {
-    geometry: IGeometry,
-    sampler: ITextureSampler,
-    imageData: ImageData,
-    eyePosition: Vector3,
-    canvasToRay: Matrix4,
-    uvTransform: Matrix3,
+	/** Geometry to place spread on */
+	geometry: IGeometry,
+	/** Spread sampler */
+	spreadSampler: ITextureSampler,
+	/** target to place spread pixels on */
+	targetImageData: ImageData,
+	/** Vector to place camera from origin */
+	cameraVector: Vector3,
+	/** Vector to position packshot projection relative to camera */
+	cameraToProjectionVector: Vector3,
 }) {
-	const uMax = sampler.width - 1;
-	const vMax = sampler.height - 1;
 	const xMax = targetImageData.width - 1;
+	const projectionVector = cameraVector.add(cameraToProjectionVector);
 
-	// TODO: Tile-based rendering for better caching?
 	for (let y = 0; y <= targetImageData.height; y++) {
 		for (let x = 0; x <= xMax; ++x) {
-			const rd = new Vector3(x, y, 1).applyMatrix4(canvasToRay);
-			const hit = geometry.intersect(eyePosition, rd);
+			// Cast rays through the packshot projection
+			const rayDirection = new Vector3(
+				x - targetImageData.width / 2,
+				y - targetImageData.height / 2,
+				0,
+			)
+				// Position Packshot projection
+				.add(projectionVector)
 
-			if (!hit || hit.z <= 0) continue;
+			// Check if ray intersects or geomerty (place, clone, ...)
+			const hit = geometry.intersect(cameraVector, rayDirection);
+			if (!hit) return;
 
-			const uv = new Vector2(hit.x, hit.y)
-				.applyMatrix3(uvTransform)
-				.round(); // round to sample pixel
+			// Get spread pixel at intersection
+			const rgba = spreadSampler.sample(hit);
 
-			if (uv.x < 0 || uv.y < 0 || uv.x >= uMax || uv.y >= vMax) continue; // outside image
-			
-			const rgba = sampler.sample(uv);
+			// Place spread pixel on the packshot
 			const index = (y * targetImageData.width + x) * 4;
 			targetImageData.data[index] = rgba.x;
 			targetImageData.data[index + 1] = rgba.y;

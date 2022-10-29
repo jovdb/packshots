@@ -26,3 +26,14 @@ a {
     background: black;
   }
 }
+
+fieldset {
+  border-radius: 5px;
+  border-color: #eee;
+  margin-bottom: 5px;
+}
+
+legend {
+  font-weight: bold;
+  color: #666;
+}

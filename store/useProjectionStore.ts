@@ -9,7 +9,7 @@ export const useProjectionStore = create<IProjectionData>((set) => ({
   }),
   image: {
     shift: [0, 0],
-    zoom: 1
+    zoom: 0,
   },
   isProductMaskEnabled: false,
 }));

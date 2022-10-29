@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 /** Component that shows ImageData */
 export function ImageData({
@@ -10,7 +10,7 @@ export function ImageData({
     const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
     // Update Canvas wuth new imageData
-    useLayoutEffect(() => {
+    useEffect(() => {
         const canvasEl = canvasRef.current;
         if (!canvasEl || !imageData) return;
         let ctx = ctxRef.current;
