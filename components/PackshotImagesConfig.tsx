@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import create from "zustand";
 import { ImageSelection } from "./FileSelection";
-import { useImageDataFromUrl } from "./Test";
+import { useImageDataFromUrl, useImageFromUrl } from "./Test";
 
 
 export const usePackshotImagesConfig = create<{
     backgroundUrl: string;
     showBackground: boolean;
     overlayUrl: string;
+    showOverlay: boolean;
 }>(() => ({
     backgroundUrl: "./walldeco1.jpg",
     showBackground: true,
     overlayUrl: "",
+    showOverlay: true,
 }));
 
 export function usePackshotBackgroundImageData() {
@@ -19,9 +21,19 @@ export function usePackshotBackgroundImageData() {
     return useImageDataFromUrl(url);
 }
 
+export function usePackshotBackgroundImage() {
+    const packshotBackgroundUrl = usePackshotImagesConfig(s => s.backgroundUrl);
+    return useImageFromUrl(packshotBackgroundUrl);
+}
+
 export function usePackshotOverlayImageData() {
     const url = usePackshotImagesConfig(store => store.overlayUrl);
     return useImageDataFromUrl(url);
+}
+
+export function usePackshotOverlayImage() {
+    const packshotOverlayUrl = usePackshotImagesConfig(s => s.overlayUrl);
+    return useImageFromUrl(packshotOverlayUrl);
 }
 
 export function PackshotImagesConfig() {
@@ -30,10 +42,18 @@ export function PackshotImagesConfig() {
     const [type, setType] = useState("walldeco1");
     const [lastBackgroundFile, setLastBackgroundFile] = useState<{ url: string; name: string }>({ name: "", url: "" });
     const [lastOverlayFile, setLastOverlayFile] = useState<{ url: string; name: string }>({ name: "", url: "" });
-    const { isFetching: isBackgroundFetching, isFetched: isBackgroundFetched, isBackgroundError, data: backgroundImageData } = usePackshotBackgroundImageData();
-    const { isFetching, isOverlayFetching, isFetched: isOverlayFetched, isOverlayError, data: overlayImageData } = usePackshotOverlayImageData();
+    const { isFetching: isBackgroundFetching, isFetched: isBackgroundFetched, isError: isBackgroundError, data: packshotBackgroundImage } = usePackshotBackgroundImage();
+    const { isFetching, isOverlayFetching, isFetched: isOverlayFetched, isError: isOverlayError, data: packshotOverlayImage } = usePackshotOverlayImage();
     const [loadBackgroundError, setLoadBackgroudError] = useState("");
     const [loadOverlayError, setLoadOverlayError] = useState("");
+
+    const packshotWidth = packshotBackgroundImage?.width || packshotOverlayImage?.width || 0; 
+    const packshotHeight = packshotBackgroundImage?.width || packshotOverlayImage?.width || 0;
+    const hasOverlayBadSize = packshotBackgroundImage && packshotOverlayImage && (
+        packshotBackgroundImage.width !== packshotOverlayImage.width || 
+        packshotBackgroundImage.height !== packshotOverlayImage.height
+    )
+    const errorMessage = loadBackgroundError || loadOverlayError || hasOverlayBadSize ? "Overlay should have the same size." : ""
 
     return (
         <table>
@@ -47,22 +67,42 @@ export function PackshotImagesConfig() {
                                 setType(value);
                                 switch (value) {
                                     case "house-number": {
-                                        usePackshotImagesConfig.setState({ backgroundUrl: "", overlayUrl: "./housenumber.png" });
+                                        usePackshotImagesConfig.setState({
+                                            backgroundUrl: "",
+                                            overlayUrl: "./housenumber.png",
+                                        });
                                         break;
                                     }
-                                    case "walledeco1": {
-                                        usePackshotImagesConfig.setState({ backgroundUrl: "./walldeco1.jpg", overlayUrl: "" });
+                                    case "walldeco1": {
+                                        usePackshotImagesConfig.setState({
+                                            backgroundUrl: "./walldeco1.jpg",
+                                            overlayUrl: "",
+                                        });
                                         break;
                                     }
-                                    case "walledeco2": {
-                                        usePackshotImagesConfig.setState({ backgroundUrl: "", overlayUrl: "./walldeco2.png" });
+                                    case "walldeco2": {
+                                        usePackshotImagesConfig.setState({
+                                            backgroundUrl: "",
+                                            overlayUrl: "./walldeco2.png",
+                                        });
+                                        break;
+                                    }
+                                    case "t-shirt": {
+                                        usePackshotImagesConfig.setState({
+                                            backgroundUrl: "./t-shirt.jpg",
+                                            overlayUrl: "",
+                                        });
                                         break;
                                     }
                                     case "local": {
-                                        usePackshotImagesConfig.setState({ backgroundUrl: lastBackgroundFile.url, overlayUrl: lastOverlayFile.url });
+                                        usePackshotImagesConfig.setState({
+                                            backgroundUrl: lastBackgroundFile.url,
+                                            overlayUrl: lastOverlayFile.url,
+                                        });
                                         break;
                                     }
                                     default: {
+                                        console.error("Unknown Packshot type:", value)
                                         usePackshotImagesConfig.setState({ backgroundUrl: "", overlayUrl: "" });
                                         break;
                                     }
@@ -70,6 +110,7 @@ export function PackshotImagesConfig() {
                             }}
                         >
                             <option value="local">Local file</option>
+                            <option value="t-shirt">T-shirt</option>
                             <option value="house-number">House number</option>
                             <option value="walldeco1">Wall deco 1</option>
                             <option value="walldeco2">Wall deco 2</option>
@@ -102,6 +143,7 @@ export function PackshotImagesConfig() {
                             id="show-packshot-background"
                             type="checkbox"
                             checked={packshotImagesConfig.showBackground}
+                            disabled={!packshotImagesConfig.backgroundUrl}
                             onChange={() => {
                                 usePackshotImagesConfig.setState({
                                     showBackground: !packshotImagesConfig.showBackground,
@@ -132,8 +174,24 @@ export function PackshotImagesConfig() {
                 )}
                 <tr>
                     <td colSpan={2}>
-                        {isBackgroundError || isOverlayError && (loadBackgroundError || loadOverlayError || "Error loading")}
-                        {packshotImagesConfig.backgroundUrl && isBackgroundFetched && `Size: ${backgroundImageData?.width ?? 0} x ${backgroundImageData?.height ?? 0}`}
+                        <input
+                            id="show-packshot-overlay"
+                            type="checkbox"
+                            checked={packshotImagesConfig.showOverlay}
+                            disabled={!packshotImagesConfig.overlayUrl}
+                            onChange={() => {
+                                usePackshotImagesConfig.setState({
+                                    showOverlay: !packshotImagesConfig.showOverlay,
+                                });
+                            }}
+                        />
+                        <label htmlFor="show-packshot-overlay">Show Overlay</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td colSpan={2}>
+                        {errorMessage}
+                        {packshotWidth && packshotHeight && `Size: ${packshotWidth} x ${packshotHeight}`}
                     </td>
                 </tr>
 

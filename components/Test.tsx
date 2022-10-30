@@ -1,13 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { createContext2d, getImageDataAsync } from "../utils/image";
+import { createCanvas, createContext2d, getImageDataAsync, loadImageAsync } from "../utils/image";
 import { ImageSelection } from "./FileSelection";
 import { ImageData } from "./ImageData";
 import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
 import { ConeGeometry } from "../rendering/geometries/ConeGeometry";
 import { PlaneGeometry } from "../rendering/geometries/PlaneGeometry";
 import { Matrix3, Matrix4, Vector2, Vector3 } from "three";
-import { rayTracerRenderer } from "../rendering/RayTracer";
+import { render } from "../rendering/RayTracer";
 import { IProjectionData } from "../data/ProjectionData";
 import { ConeData } from "../data/shapes/ConeData";
 import { useProjectionStore } from "../store/useProjectionStore";
@@ -17,11 +17,17 @@ import create from "zustand";
 import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
 import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
-import { PackshotImagesConfig, usePackshotBackgroundImageData, usePackshotImagesConfig, usePackshotOverlayImageData } from "./PackshotImagesConfig";
+import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotBackgroundImageData, usePackshotImagesConfig, usePackshotOverlayImage, usePackshotOverlayImageData } from "./PackshotImagesConfig";
 import { CameraConfig, useCameraVector, useProjectionVector } from "./ProjectionConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
+        refetchOnWindowFocus: false,
+    });
+}
+
+export function useImageFromUrl(url: string) {
+    return useQuery(["loadImage", url], () => url ? loadImageAsync(url) : null, {
         refetchOnWindowFocus: false,
     });
 }
@@ -99,7 +105,7 @@ export function useImageDataFromUrl(url: string) {
 //     return targetImageData;
 // }
 
-function renderPackshot(
+function renderPackshot(options: {
     /** Vector to position camera, starting from origin */
     cameraVector: Vector3,
 
@@ -110,25 +116,22 @@ function renderPackshot(
     sourceImageData: ImageData | undefined,
 
     /** Packshot Background */
-    packshotBackgroundImageData: ImageData | undefined,
+    packshotBackgroundImage: HTMLImageElement | undefined,
 
     /** Packshot Overlay */
     packshotOverlayImageData: ImageData | undefined,
 
     /** Result */
     targetImageData: ImageData,
-) {
+}) {
+    const { sourceImageData } = options;
     const sampler = sourceImageData ? new PointTextureSampler(sourceImageData) : undefined;
     const geometry = new PlaneGeometry(10, 10);
 
-    rayTracerRenderer({
+    render({
+        ...options,
         geometry,
         spreadSampler: sampler,
-        targetImageData,
-        packshotBackgroundImageData,
-        packshotOverlayImageData,
-        cameraVector,
-        cameraToProjectionVector,
     });
 
     return targetImageData;
@@ -138,53 +141,75 @@ function renderPackshot(
 export const useShapeConfig = create<IPlaneConfig>(() => initialConfig);
 
 export function Test() {
-
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    
     const { data: spreadImageData } = useSpreadImageData();
     const { data: packshotBackgroundImageData } = usePackshotBackgroundImageData();
     const { data: packshotOverlayImageData } = usePackshotOverlayImageData();
     const showPackshotBackground = usePackshotImagesConfig((s) => s.showBackground); 
-console.log(!!packshotBackgroundImageData, !!packshotOverlayImageData)
+    const showPackshotOverlay = usePackshotImagesConfig((s) => s.showOverlay); 
 
-    const targetWidth = packshotBackgroundImageData?.width ?? packshotOverlayImageData?.width ??  700;
-    const targetHeight = packshotBackgroundImageData?.height ?? packshotOverlayImageData?.height ?? 700;
+    const { data: packshotBackgroundImage } = usePackshotBackgroundImage();
+    const { data: packshotOverlayImage } = usePackshotOverlayImage();
+
+    const targetWidth = packshotBackgroundImage?.width ?? packshotOverlayImageData?.width ??  700;
+    const targetHeight = packshotBackgroundImage?.height ?? packshotOverlayImageData?.height ?? 700;
 
     // const shapeConfig = useShapeConfig();
 
     // Create a render target 
-    const targetCtx = useMemo(
-        () => {
-            return createContext2d(targetWidth, targetHeight);
-        },
-        [targetHeight, targetWidth],
-    );
-
+    const targetContext = canvasRef.current?.getContext("2d");
+            
     const cameraVector = useCameraVector();
     const projectionVector = useProjectionVector()
 
     // Redraw if render input changes 
-    const targetImageData = useMemo(
+    useEffect(
         () => {
-            if (!packshotBackgroundImageData  || !targetCtx) return;
-            const targetImageData = targetCtx.getImageData(0, 0, targetWidth, targetHeight);
-            renderPackshot(
-                cameraVector,
-                projectionVector,
-                spreadImageData || undefined,
-                showPackshotBackground ? packshotBackgroundImageData : undefined,
-                packshotOverlayImageData || undefined,
-                targetImageData,
-            );
-            return targetImageData;
+            if (!targetContext) return;
+            const renderContext = render({
+                targetContext,
+                packshotBackgroundImage: showPackshotBackground ? packshotBackgroundImage : undefined,
+                packshotOverlayImage : showPackshotOverlay ? packshotOverlayImage : undefined,
+            });
         },
-        [packshotBackgroundImageData, targetCtx, targetWidth, targetHeight, cameraVector, projectionVector, spreadImageData, showPackshotBackground, packshotOverlayImageData],
+        [packshotBackgroundImage, packshotOverlayImage, showPackshotBackground, showPackshotOverlay, targetContext, targetHeight, targetWidth]
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
-
+    const checkBoardSize = 25;
+    const checkBoardDark = "#e8e8e8";
+    const checkBoardLight = "#f8f8f8";
     return (
         <div style={{ display: "flex", height: "100vh" }}>
             <div style={{ flexGrow: 1, overflowY: "auto", padding: 10, "alignSelf": "center", "textAlign": "center" }}>
-                <ImageData imageData={targetImageData} />
+                {/*<ImageData imageData={targetImageData} /> */}
+                <canvas
+                    ref={canvasRef}
+                    width={targetWidth}
+                    height={targetHeight}
+                    style={{
+                        width: "100%",
+                        height: "auto",
+                        border: "1px solid #ddd",
+                        boxShadow: "2px 2px 3px rgba(0,0,0,0.1)",
+                        // scale to available size
+                        maxHeight: "calc(100vh - 24px)",
+                        maxWidth: "calc(100vh - 24px)",
+                        // checkboard
+                        backgroundImage: `
+                            linear-gradient(45deg, ${checkBoardDark} 25%, transparent 25%),
+                            linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
+                            linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
+                            linear-gradient(45deg, ${checkBoardDark} 25%, ${checkBoardLight} 25%)`,
+                        backgroundSize: `${checkBoardSize}px ${checkBoardSize}px`,
+                        backgroundPosition: `
+                            0 0,
+                            0 0,
+                            calc(${checkBoardSize}px * -0.5) calc(${checkBoardSize}px * -0.5),
+                            calc(${checkBoardSize}px * 0.5) calc(${checkBoardSize}px * 0.5)`,
+                    }}
+                />
             </div>
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
