@@ -17,7 +17,7 @@ import create from "zustand";
 import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
 import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
-import { PackshotImagesConfig } from "./PackshotImagesConfig";
+import { PackshotImagesConfig, usePackshotBackgroundImageData } from "./PackshotImagesConfig";
 import { ProjectionConfig, useCameraVector, useProjectionVector } from "./ProjectionConfig";
 
 export function useImageDataFromUrl(url: string) {
@@ -36,9 +36,9 @@ export function useImageDataFromUrl(url: string) {
 //     targetImageData: ImageData,
 // ) {
 //     /*
-     
+
 //      The cylinder is at the origin of the world. We look at it as follows:
-     
+
 //               ^ +z
 //               |
 //               |
@@ -46,9 +46,9 @@ export function useImageDataFromUrl(url: string) {
 //              /
 //             /
 //            +y
-           
+
 // Z is the height above the table on which products are photographed,
-      
+
 //      */
 //     const sampler = new PointTextureSampler(sourceImageData);
 //     /*
@@ -61,7 +61,7 @@ export function useImageDataFromUrl(url: string) {
 //     const geometry = new PlaneGeometry(10, 10);
 
 //     const eyePosition = new Vector3(0, 0, 0);
-    
+
 //     const rayMatrix = new Matrix3();
 //     const rayMatrixValues = rayMatrix.toArray();
 // /*
@@ -107,18 +107,22 @@ function renderPackshot(
     cameraToProjectionVector: Vector3,
 
     /** Spread Image */
-    sourceImageData: ImageData,
+    sourceImageData: ImageData | undefined,
 
     /** Packshot */
+    packshotBackgroundImageData: ImageData,
+
+    /** Result */
     targetImageData: ImageData,
 ) {
-    const sampler = new PointTextureSampler(sourceImageData);
+    const sampler = sourceImageData ? new PointTextureSampler(sourceImageData) : undefined;
     const geometry = new PlaneGeometry(10, 10);
 
     rayTracerRenderer({
         geometry,
         spreadSampler: sampler,
         targetImageData,
+        packshotBackgroundImageData,
         cameraVector,
         cameraToProjectionVector,
     });
@@ -132,17 +136,17 @@ export const useShapeConfig = create<IPlaneConfig>(() => initialConfig);
 export function Test() {
 
     const { data: spreadImageData } = useSpreadImageData();
+    const { data: packshotBackgroundImageData } = usePackshotBackgroundImageData();
 
-    const projectionData = useProjectionStore();
     const shapeConfig = useShapeConfig();
 
     // Create a render target 
     const targetCtx = useMemo(
         () => {
-            if (!spreadImageData) return undefined;
-            return createContext2d(spreadImageData.width, spreadImageData.height);
+            if (!packshotBackgroundImageData) return undefined;
+            return createContext2d(packshotBackgroundImageData.width, packshotBackgroundImageData.height);
         },
-        [spreadImageData],
+        [packshotBackgroundImageData],
     );
 
     const cameraVector = useCameraVector();
@@ -151,18 +155,18 @@ export function Test() {
     // Redraw if render input changes 
     const targetImageData = useMemo(
         () => {
-            if (!spreadImageData || !targetCtx) return;
-            const targetImageData = targetCtx.getImageData(0, 0, spreadImageData.width, spreadImageData.height);
+            if (!packshotBackgroundImageData  || !targetCtx) return;
+            const targetImageData = targetCtx.getImageData(0, 0, packshotBackgroundImageData.width, packshotBackgroundImageData.height);
             renderPackshot(
                 cameraVector,
                 projectionVector,
                 spreadImageData,
+                packshotBackgroundImageData,
                 targetImageData,
-
             );
             return targetImageData;
         },
-        [cameraVector, projectionVector, spreadImageData, targetCtx],
+        [packshotBackgroundImageData, targetCtx, cameraVector, projectionVector, spreadImageData],
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
@@ -182,7 +186,7 @@ export function Test() {
                         <legend>Spread</legend>
                         <SpreadImageConfig />
                     </fieldset>
-                    <fieldset>
+                    {/*<fieldset>
                         <legend>Shape</legend>
                         <table>
                             <tbody>
@@ -202,6 +206,7 @@ export function Test() {
                             onChange={(newConfig) => useShapeConfig.setState(newConfig)}
                         />
                     </fieldset>
+                    */}
                     <fieldset>
                         <legend>Projection</legend>
                         <ProjectionConfig />

@@ -6,7 +6,7 @@ import { Slider } from "./Slider.";
 export const useProjectionConfig = create<{
     cameraZ: number;
 }>(() => ({
-    cameraZ: 1,
+    cameraZ: 10,
 }));
 
 export function useCameraVector() {
@@ -15,7 +15,7 @@ export function useCameraVector() {
 }
 
 export function useProjectionVector() {
-    return useMemo(() => new Vector3(), []);
+    return useMemo(() => new Vector3(0, 0, 2), []);
 }
 
 export function ProjectionConfig() {
@@ -26,7 +26,7 @@ export function ProjectionConfig() {
         <table>
             <tbody>
                 <tr>
-                    <td>Position Z:</td>
+                    <td>Camera Z:</td>
                     <td>
                         <Slider
                             value={projectionConfig.cameraZ}

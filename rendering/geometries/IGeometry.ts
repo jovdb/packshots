@@ -6,5 +6,5 @@ export interface IGeometry {
      * @param cameraPosition Point where ray starts
      * @param rayDirection trough which the ray goes
      */
-    intersect(cameraPosition: Vector3, rayDirection: Vector3): Vector2;
+    intersect(cameraPosition: Vector3, rayDirection: Vector3): Vector2 | undefined;
 }

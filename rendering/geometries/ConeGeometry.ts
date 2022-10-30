@@ -92,7 +92,7 @@ export class ConeGeometry implements IGeometry {
         // we take the one closest to the camera (pointing in the negative Y
         // direction)
         const t = (-b + Math.sqrt(d)) / (2 * a);
-        const q = cameraPosition.addScalar(t).multiply(rd);
+        const q = cameraPosition.clone().addScalar(t).multiply(rd);
         const y = q.z;
 
         const side = 1;
