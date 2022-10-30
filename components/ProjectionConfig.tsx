@@ -1,26 +1,25 @@
 import { useMemo } from "react";
-import { Matrix4, Vector3 } from "three";
+import { Vector3 } from "three";
 import create from "zustand";
-import { Slider } from "./Slider.";
+import { Slider } from "./Slider";
 
-export const useProjectionConfig = create<{
+export const useCameraConfig = create<{
     cameraZ: number;
 }>(() => ({
-    cameraZ: 10,
+    cameraZ: 100,
 }));
 
 export function useCameraVector() {
-    const projectionConfig = useProjectionConfig();
+    const projectionConfig = useCameraConfig();
     return new Vector3(0, 0, projectionConfig.cameraZ);
 }
 
 export function useProjectionVector() {
-    return useMemo(() => new Vector3(0, 0, 2), []);
+    return useMemo(() => new Vector3(0, 0, 1), []);
 }
 
-export function ProjectionConfig() {
-
-    const projectionConfig = useProjectionConfig();
+export function CameraConfig() {
+    const projectionConfig = useCameraConfig();
 
     return (
         <table>
@@ -30,9 +29,11 @@ export function ProjectionConfig() {
                     <td>
                         <Slider
                             value={projectionConfig.cameraZ}
-                            defaultValue={0}
+                            defaultValue={-100}
+                            min={-1000}
+                            max={1}
                             onChange={(value) => {
-                                useProjectionConfig.setState({
+                                useCameraConfig.setState({
                                     cameraZ: value,
                                 });
                             }}

@@ -4,6 +4,6 @@ export interface IPlaneConfig {
 }
 
 export const initialConfig: IPlaneConfig = {
-    width: 10,
+    width: 15,
     height: 10,
 };

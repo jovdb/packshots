@@ -1,17 +1,24 @@
 export function Slider({
     value,
+    min = -100,
+    max = 100,
     onChange,
     defaultValue,
 }: {
     value: number;
+    min?: number;
+    max?: number;
     onChange(value: number): void;
     defaultValue?: number;
 }) {
     return (
         <>
             <input
+                type="number"
+                min={Math.min(min, value)}
+                max={Math.max(max, value)}
                 value={value}
-                style={{ width: 50, marginRight: 5 }}
+                style={{ width: 57, marginRight: 5 }}
                 onChange={(e) => {
                     const el = e.target as HTMLInputElement;
                     onChange(parseFloat(el.value) || 0);
@@ -19,10 +26,10 @@ export function Slider({
             />
             <input
                 value={value}
-                min={-100}
-                max={100}
+                min={Math.min(min, value)}
+                max={Math.max(max, value)}
                 type="range"
-                style={{ position: "relative", transform: "translateY(4px)" }}
+                style={{ position: "relative", transform: "translateY(4px)", width: 120}}
                 onChange={(e) => {
                     const el = e.target as HTMLInputElement;
                     onChange(parseFloat(el.value) || 0);
@@ -31,7 +38,7 @@ export function Slider({
             {typeof defaultValue === "number" &&
                 <button
                     onClick={() => { onChange(defaultValue); }}
-                    style={{ minWidth: 30, marginLeft: 5 }}
+                    style={{ minWidth: 30, marginLeft: 5, padding: 0 }}
                 >
                     {defaultValue}
                 </button>

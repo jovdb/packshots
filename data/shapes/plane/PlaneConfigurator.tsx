@@ -1,4 +1,4 @@
-import { Slider } from "../../../components/Slider.";
+import { Slider } from "../../../components/Slider";
 import { IPlaneConfig } from "./PlaneData";
 
 export function PlaneConfigurator({

@@ -6,9 +6,11 @@ import { useImageDataFromUrl } from "./Test";
 
 export const usePackshotImagesConfig = create<{
     backgroundUrl: string;
+    showBackground: boolean;
     overlayUrl: string;
 }>(() => ({
     backgroundUrl: "./walldeco1.jpg",
+    showBackground: true,
     overlayUrl: "",
 }));
 
@@ -44,12 +46,16 @@ export function PackshotImagesConfig() {
                                 const value = e.target.value;
                                 setType(value);
                                 switch (value) {
+                                    case "house-number": {
+                                        usePackshotImagesConfig.setState({ backgroundUrl: "", overlayUrl: "./housenumber.png" });
+                                        break;
+                                    }
                                     case "walledeco1": {
                                         usePackshotImagesConfig.setState({ backgroundUrl: "./walldeco1.jpg", overlayUrl: "" });
                                         break;
                                     }
                                     case "walledeco2": {
-                                        usePackshotImagesConfig.setState({ backgroundUrl: "./walldeco2.jpg", overlayUrl: "" });
+                                        usePackshotImagesConfig.setState({ backgroundUrl: "", overlayUrl: "./walldeco2.png" });
                                         break;
                                     }
                                     case "local": {
@@ -64,6 +70,7 @@ export function PackshotImagesConfig() {
                             }}
                         >
                             <option value="local">Local file</option>
+                            <option value="house-number">House number</option>
                             <option value="walldeco1">Wall deco 1</option>
                             <option value="walldeco2">Wall deco 2</option>
                         </select>
@@ -72,7 +79,7 @@ export function PackshotImagesConfig() {
                 </tr>
                 {type === "local" && (
                     <>
-                       <tr>
+                        <tr>
                             <td colSpan={2}><small>Background:</small></td>
                         </tr>
                         <tr>
@@ -87,6 +94,25 @@ export function PackshotImagesConfig() {
                                 />
                             </td>
                         </tr>
+                    </>
+                )}
+                <tr>
+                    <td colSpan={2}>
+                        <input
+                            id="show-packshot-background"
+                            type="checkbox"
+                            checked={packshotImagesConfig.showBackground}
+                            onChange={() => {
+                                usePackshotImagesConfig.setState({
+                                    showBackground: !packshotImagesConfig.showBackground,
+                                });
+                            }}
+                        />
+                        <label htmlFor="show-packshot-background">Show Background</label>
+                    </td>
+                </tr>
+                {type === "local" && (
+                    <>
                         <tr>
                             <td colSpan={2}><small>Overlay:</small></td>
                         </tr>

@@ -1,4 +1,4 @@
-import { Matrix4, Vector3 } from "three";
+import { Matrix4, Vector2, Vector3 } from "three";
 import { IGeometry } from "./geometries/IGeometry";
 import { ITextureSampler } from "./samplers/ITextureSampler";
 
@@ -6,6 +6,7 @@ export function rayTracerRenderer({
 	geometry,
 	spreadSampler,
 	packshotBackgroundImageData,
+	packshotOverlayImageData,
 	targetImageData,
 	cameraVector,
 	cameraToProjectionVector,
@@ -14,8 +15,10 @@ export function rayTracerRenderer({
 	geometry: IGeometry,
 	/** Spread sampler */
 	spreadSampler: ITextureSampler | undefined,
-	/* Packshot Image */
-	packshotBackgroundImageData: ImageData;
+	/* Packshot Backgound Image */
+	packshotBackgroundImageData: ImageData | undefined;
+	/* Packshot Overlay Image */
+	packshotOverlayImageData: ImageData | undefined;
 	/** target to place spread pixels on */
 	targetImageData: ImageData,
 	/** Vector to place camera from origin */
@@ -27,12 +30,10 @@ export function rayTracerRenderer({
 	const xCenter =  Math.floor(targetImageData.width / 2);
 	const yCenter =  Math.floor(targetImageData.height / 2);
 
-	const projectionVector = cameraVector
-		.clone()
-		.add(cameraToProjectionVector);
-
 	// Start with packshot image
-	targetImageData.data.set(packshotBackgroundImageData.data);
+	if (packshotBackgroundImageData) {
+		targetImageData.data.set(packshotBackgroundImageData.data);
+	}
 
 	if (!spreadSampler) return;
 	for (let y = 0; y <= targetImageData.height; y++) {
@@ -46,14 +47,15 @@ export function rayTracerRenderer({
 			)
 
 				// Position Packshot projection
-				.add(projectionVector);
+				.add(cameraToProjectionVector);
 
 			// Check if ray intersects or geomerty (place, clone, ...)
 			const hit = geometry.intersect(cameraVector, rayDirection);
 			if (!hit) continue;
 
 			// Get spread pixel at intersection
-			const rgba = spreadSampler.sample(hit);
+			const imagePos = hit.multiply(new Vector2(spreadSampler.width, spreadSampler.height)).round();
+			const rgba = spreadSampler.sample(imagePos);
 
 			// Place spread pixel on the packshot
 			// Place copy packshot pixel
@@ -65,3 +67,5 @@ export function rayTracerRenderer({
 		}
 	}
 }
+
+

@@ -11,14 +11,14 @@ import { rayTracerRenderer } from "../rendering/RayTracer";
 import { IProjectionData } from "../data/ProjectionData";
 import { ConeData } from "../data/shapes/ConeData";
 import { useProjectionStore } from "../store/useProjectionStore";
-import { Slider } from "./Slider.";
+import { Slider } from "./Slider";
 import { PlaneConfigurator } from "../data/shapes/plane/PlaneConfigurator";
 import create from "zustand";
 import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
 import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
-import { PackshotImagesConfig, usePackshotBackgroundImageData } from "./PackshotImagesConfig";
-import { ProjectionConfig, useCameraVector, useProjectionVector } from "./ProjectionConfig";
+import { PackshotImagesConfig, usePackshotBackgroundImageData, usePackshotImagesConfig, usePackshotOverlayImageData } from "./PackshotImagesConfig";
+import { CameraConfig, useCameraVector, useProjectionVector } from "./ProjectionConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -109,8 +109,11 @@ function renderPackshot(
     /** Spread Image */
     sourceImageData: ImageData | undefined,
 
-    /** Packshot */
-    packshotBackgroundImageData: ImageData,
+    /** Packshot Background */
+    packshotBackgroundImageData: ImageData | undefined,
+
+    /** Packshot Overlay */
+    packshotOverlayImageData: ImageData | undefined,
 
     /** Result */
     targetImageData: ImageData,
@@ -123,6 +126,7 @@ function renderPackshot(
         spreadSampler: sampler,
         targetImageData,
         packshotBackgroundImageData,
+        packshotOverlayImageData,
         cameraVector,
         cameraToProjectionVector,
     });
@@ -137,6 +141,8 @@ export function Test() {
 
     const { data: spreadImageData } = useSpreadImageData();
     const { data: packshotBackgroundImageData } = usePackshotBackgroundImageData();
+    const { data: packshotOverlayImageData } = usePackshotOverlayImageData();
+    const showPackshotBackground = usePackshotImagesConfig((s) => s.showBackground); 
 
     const shapeConfig = useShapeConfig();
 
@@ -160,13 +166,14 @@ export function Test() {
             renderPackshot(
                 cameraVector,
                 projectionVector,
-                spreadImageData,
-                packshotBackgroundImageData,
+                spreadImageData || undefined,
+                showPackshotBackground ? packshotBackgroundImageData : undefined,
+                packshotOverlayImageData,
                 targetImageData,
             );
             return targetImageData;
         },
-        [packshotBackgroundImageData, targetCtx, cameraVector, projectionVector, spreadImageData],
+        [packshotBackgroundImageData, targetCtx, cameraVector, projectionVector, spreadImageData, showPackshotBackground],
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
@@ -208,8 +215,8 @@ export function Test() {
                     </fieldset>
                     */}
                     <fieldset>
-                        <legend>Projection</legend>
-                        <ProjectionConfig />
+                        <legend>Camera</legend>
+                        <CameraConfig />
                     </fieldset>
                 </ConfigPanel>
             </div>
