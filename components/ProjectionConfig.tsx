@@ -4,18 +4,22 @@ import create from "zustand";
 import { Slider } from "./Slider";
 
 export const useCameraConfig = create<{
+    cameraX: number;
+    cameraY: number;
     cameraZ: number;
 }>(() => ({
-    cameraZ: 100,
+    cameraX: 0,
+    cameraY: 0,
+    cameraZ: -100,
 }));
 
 export function useCameraVector() {
     const projectionConfig = useCameraConfig();
-    return new Vector3(0, 0, projectionConfig.cameraZ);
+    return new Vector3(projectionConfig.cameraX, projectionConfig.cameraY, projectionConfig.cameraZ);
 }
 
 export function useProjectionVector() {
-    return useMemo(() => new Vector3(0, 0, 1), []);
+    return useMemo(() => new Vector3(0, 0, 10000), []);
 }
 
 export function CameraConfig() {
@@ -24,6 +28,38 @@ export function CameraConfig() {
     return (
         <table>
             <tbody>
+                <tr>
+                    <td>Camera X:</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.cameraX}
+                            defaultValue={0}
+                            min={-100}
+                            max={100}
+                            onChange={(value) => {
+                                useCameraConfig.setState({
+                                    cameraX: value,
+                                });
+                            }}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Camera Y:</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.cameraY}
+                            defaultValue={0}
+                            min={-100}
+                            max={100}
+                            onChange={(value) => {
+                                useCameraConfig.setState({
+                                    cameraY: value,
+                                });
+                            }}
+                        />
+                    </td>
+                </tr>
                 <tr>
                     <td>Camera Z:</td>
                     <td>

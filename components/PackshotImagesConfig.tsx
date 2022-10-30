@@ -186,7 +186,7 @@ export function PackshotImagesConfig() {
                 <tr>
                     <td colSpan={2}>
                         {errorMessage}
-                        {packshotWidth && packshotHeight && `Size: ${packshotWidth} x ${packshotHeight}`}
+                        {packshotWidth && packshotHeight && `Size: ${packshotWidth} x ${packshotHeight}` || ""}
                     </td>
                 </tr>
 

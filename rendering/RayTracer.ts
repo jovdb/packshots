@@ -34,7 +34,7 @@ export function render({
 	}
 
 	targetContext.clearRect(0, 0, targetSize.width, targetSize.height);
-	//targetContext.translate(0.5, 0.5);
+	// targetContext.translate(-0.5, -0.5);
 
 	// Packshot Background
 	if (packshotBackgroundImage) {
@@ -109,7 +109,6 @@ export function renderOnGeometry({
 			const hit = geometry.intersect(cameraVector, rayDirection);
 			if (!hit) continue;
 
-			console.log("hit");
 			// Get spread pixel at intersection
 			const imagePos = hit.multiply(new Vector2(spreadSampler.width, spreadSampler.height)).round();
 			const rgba = spreadSampler.sample(imagePos);
