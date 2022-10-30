@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { Vector2, Vector3 } from "three";
 import { IGeometry } from "./IGeometry";
 
 export class ConeGeometry implements IGeometry {
@@ -24,7 +24,7 @@ export class ConeGeometry implements IGeometry {
         this.invH = 1 / height;
     }
 
-    public intersect(cameraPosition: Vector3, rd: Vector3) {
+    public intersect(cameraPosition: Vector3, rayDirection: Vector3) {
         /*
           ro: eye/camera position
           Point q on ray is defined as
@@ -75,16 +75,16 @@ export class ConeGeometry implements IGeometry {
         */
 
         const dRiH = this.dR * this.invH;
-        const A = dRiH * rd.z;
+        const A = dRiH * rayDirection.z;
         const B = dRiH * cameraPosition.z + 0.5 * this.dR + this.R1;
 
-        const a = new Vector3(rd.x, rd.y, -A).dot(new Vector3(rd.x, rd.y, A));
-        const b = new Vector3(rd.x, rd.y, A).dot(new Vector3(cameraPosition.x, cameraPosition.y, -B)) * 2;
+        const a = new Vector3(rayDirection.x, rayDirection.y, -A).dot(new Vector3(rayDirection.x, rayDirection.y, A));
+        const b = new Vector3(rayDirection.x, rayDirection.y, A).dot(new Vector3(cameraPosition.x, cameraPosition.y, -B)) * 2;
         const c = new Vector3(cameraPosition.x, cameraPosition.y, B).dot(new Vector3(cameraPosition.x, cameraPosition.y, -B));
 
         // Solution of quadratic equation is (-b ± sqrt(b*b - 4*a*c))/(2*a)
         const d = b * b - 4 * a * c;
-        if (d < 0) return new Vector3(0, 0, 0);
+        if (d < 0) return undefined;
 
         const hh = this.H * 0.5;
 
@@ -92,7 +92,7 @@ export class ConeGeometry implements IGeometry {
         // we take the one closest to the camera (pointing in the negative Y
         // direction)
         const t = (-b + Math.sqrt(d)) / (2 * a);
-        const q = cameraPosition.clone().addScalar(t).multiply(rd);
+        const q = cameraPosition.clone().addScalar(t).multiply(rayDirection);
         const y = q.z;
 
         const side = 1;
@@ -109,12 +109,12 @@ export class ConeGeometry implements IGeometry {
         */
 
         if (Math.abs(y) > hh)
-            return new Vector3(0, 0, 0);
+            return undefined;
 
         const R = this.R1 + y * this.invH + 0.5 * this.dR;
         const iR = 1 / R;
 
         const rad = (Math.atan2(q.y * iR, -q.x * iR) + this.tau) % this.tau;
-        return new Vector3(rad * this.R1, y + hh, side);
+        return new Vector2(rad * this.R1, y + hh);  // side
     }
 }

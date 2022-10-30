@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import create from "zustand";
 import { ImageSelection } from "./FileSelection";
 import { useImageDataFromUrl } from "./Test";

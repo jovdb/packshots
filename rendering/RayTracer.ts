@@ -16,17 +16,17 @@ export function render({
 	/** context to draw on */
 	targetContext: CanvasRenderingContext2D,
 	/** Geometry to place spread on */
-	// geometry: IGeometry,
+	geometry: IGeometry,
 	/** Spread sampler */
-	// spreadSampler: ITextureSampler | undefined,
+	spreadSampler: ITextureSampler | undefined,
 	/* Packshot Backgound Image */
 	packshotBackgroundImage: HTMLImageElement | null | undefined;
 	/* Packshot Overlay Image */
 	packshotOverlayImage: HTMLImageElement | null | undefined;
 	/** Vector to place camera from origin */
-	// cameraVector: Vector3,
+	cameraVector: Vector3,
 	/** Vector to position packshot projection relative to camera */
-	// cameraToProjectionVector: Vector3,
+	cameraToProjectionVector: Vector3,
 }) {
 	const targetSize = {
 		width: targetContext.canvas.width ,
@@ -42,7 +42,7 @@ export function render({
 	}
 
 	// Add Spread Layer
-	const geometryContext = renderGeometry({
+	const geometryContext = renderOnGeometry({
 		geometry,
 		spreadSampler,
 		targetSize,
@@ -63,7 +63,7 @@ export function render({
 
 
 /** Render a spread with geometry on a canvas */
-export function renderGeometry({
+export function renderOnGeometry({
 	targetSize,
 	geometry,
 	spreadSampler,
@@ -80,7 +80,6 @@ export function renderGeometry({
 	/** Vector to position packshot projection relative to camera */
 	cameraToProjectionVector: Vector3;
 }) {
-
 	if (!targetSize) return undefined;
 
 	// Create context to render on
@@ -110,6 +109,7 @@ export function renderGeometry({
 			const hit = geometry.intersect(cameraVector, rayDirection);
 			if (!hit) continue;
 
+			console.log("hit");
 			// Get spread pixel at intersection
 			const imagePos = hit.multiply(new Vector2(spreadSampler.width, spreadSampler.height)).round();
 			const rgba = spreadSampler.sample(imagePos);

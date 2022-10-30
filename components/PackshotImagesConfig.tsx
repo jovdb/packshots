@@ -16,11 +16,6 @@ export const usePackshotImagesConfig = create<{
     showOverlay: true,
 }));
 
-export function usePackshotBackgroundImageData() {
-    const url = usePackshotImagesConfig(store => store.backgroundUrl);
-    return useImageDataFromUrl(url);
-}
-
 export function usePackshotBackgroundImage() {
     const packshotBackgroundUrl = usePackshotImagesConfig(s => s.backgroundUrl);
     return useImageFromUrl(packshotBackgroundUrl);
@@ -43,7 +38,7 @@ export function PackshotImagesConfig() {
     const [lastBackgroundFile, setLastBackgroundFile] = useState<{ url: string; name: string }>({ name: "", url: "" });
     const [lastOverlayFile, setLastOverlayFile] = useState<{ url: string; name: string }>({ name: "", url: "" });
     const { isFetching: isBackgroundFetching, isFetched: isBackgroundFetched, isError: isBackgroundError, data: packshotBackgroundImage } = usePackshotBackgroundImage();
-    const { isFetching, isOverlayFetching, isFetched: isOverlayFetched, isError: isOverlayError, data: packshotOverlayImage } = usePackshotOverlayImage();
+    const { isFetching: isOverlayFetching, isFetched: isOverlayFetched, isError: isOverlayError, data: packshotOverlayImage } = usePackshotOverlayImage();
     const [loadBackgroundError, setLoadBackgroudError] = useState("");
     const [loadOverlayError, setLoadOverlayError] = useState("");
 
@@ -115,7 +110,7 @@ export function PackshotImagesConfig() {
                             <option value="walldeco1">Wall deco 1</option>
                             <option value="walldeco2">Wall deco 2</option>
                         </select>
-                        {isFetching && "⌛"}
+                        {(isBackgroundFetching || isOverlayFetching) && "⌛"}
                     </td>
                 </tr>
                 {type === "local" && (

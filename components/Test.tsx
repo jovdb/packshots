@@ -1,23 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { createCanvas, createContext2d, getImageDataAsync, loadImageAsync } from "../utils/image";
-import { ImageSelection } from "./FileSelection";
-import { ImageData } from "./ImageData";
+import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
-import { ConeGeometry } from "../rendering/geometries/ConeGeometry";
 import { PlaneGeometry } from "../rendering/geometries/PlaneGeometry";
-import { Matrix3, Matrix4, Vector2, Vector3 } from "three";
 import { render } from "../rendering/RayTracer";
-import { IProjectionData } from "../data/ProjectionData";
-import { ConeData } from "../data/shapes/ConeData";
-import { useProjectionStore } from "../store/useProjectionStore";
-import { Slider } from "./Slider";
-import { PlaneConfigurator } from "../data/shapes/plane/PlaneConfigurator";
 import create from "zustand";
 import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
 import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
-import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotBackgroundImageData, usePackshotImagesConfig, usePackshotOverlayImage, usePackshotOverlayImageData } from "./PackshotImagesConfig";
+import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./PackshotImagesConfig";
 import { CameraConfig, useCameraVector, useProjectionVector } from "./ProjectionConfig";
 
 export function useImageDataFromUrl(url: string) {
@@ -105,57 +96,54 @@ export function useImageFromUrl(url: string) {
 //     return targetImageData;
 // }
 
-function renderPackshot(options: {
-    /** Vector to position camera, starting from origin */
-    cameraVector: Vector3,
+// function renderPackshot(options: {
+//     /** Vector to position camera, starting from origin */
+//     cameraVector: Vector3,
 
-    /** Vector to position projection, relative to camera */
-    cameraToProjectionVector: Vector3,
+//     /** Vector to position projection, relative to camera */
+//     cameraToProjectionVector: Vector3,
 
-    /** Spread Image */
-    sourceImageData: ImageData | undefined,
+//     /** Spread Image */
+//     sourceImageData: ImageData | undefined,
 
-    /** Packshot Background */
-    packshotBackgroundImage: HTMLImageElement | undefined,
+//     /** Packshot Background */
+//     packshotBackgroundImage: HTMLImageElement | undefined,
 
-    /** Packshot Overlay */
-    packshotOverlayImageData: ImageData | undefined,
+//     /** Packshot Overlay */
+//     packshotOverlayImageData: ImageData | undefined,
 
-    /** Result */
-    targetImageData: ImageData,
-}) {
-    const { sourceImageData } = options;
-    const sampler = sourceImageData ? new PointTextureSampler(sourceImageData) : undefined;
-    const geometry = new PlaneGeometry(10, 10);
+//     /** Result */
+//     targetImageData: ImageData,
+// }) {
+//     const { sourceImageData } = options;
+//     const sampler = sourceImageData ? new PointTextureSampler(sourceImageData) : undefined;
+//     const geometry = new PlaneGeometry(10, 10);
 
-    render({
-        ...options,
-        geometry,
-        spreadSampler: sampler,
-    });
+//     render({
+//         ...options,
+//         geometry,
+//         spreadSampler: sampler,
+        
+//     });
 
-    return targetImageData;
-}
+//     return targetImageData;
+// }
 
 // TODO: make something shape agnostic
 export const useShapeConfig = create<IPlaneConfig>(() => initialConfig);
 
 export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    
-    const { data: spreadImageData } = useSpreadImageData();
-    const { data: packshotBackgroundImageData } = usePackshotBackgroundImageData();
-    const { data: packshotOverlayImageData } = usePackshotOverlayImageData();
+
     const showPackshotBackground = usePackshotImagesConfig((s) => s.showBackground); 
     const showPackshotOverlay = usePackshotImagesConfig((s) => s.showOverlay); 
 
     const { data: packshotBackgroundImage } = usePackshotBackgroundImage();
     const { data: packshotOverlayImage } = usePackshotOverlayImage();
+    const { data: spreadImageData } = useSpreadImageData();
 
-    const targetWidth = packshotBackgroundImage?.width ?? packshotOverlayImageData?.width ??  700;
-    const targetHeight = packshotBackgroundImage?.height ?? packshotOverlayImageData?.height ?? 700;
-
-    // const shapeConfig = useShapeConfig();
+    const targetWidth = packshotBackgroundImage?.width ?? packshotOverlayImage?.width ??  700;
+    const targetHeight = packshotBackgroundImage?.height ?? packshotOverlayImage?.height ?? 700;
 
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
@@ -167,13 +155,20 @@ export function Test() {
     useEffect(
         () => {
             if (!targetContext) return;
-            const renderContext = render({
+            const spreadSampler = spreadImageData ? new PointTextureSampler(spreadImageData) : undefined;
+            const geometry = new PlaneGeometry(10, 10);
+
+            render({
                 targetContext,
                 packshotBackgroundImage: showPackshotBackground ? packshotBackgroundImage : undefined,
                 packshotOverlayImage : showPackshotOverlay ? packshotOverlayImage : undefined,
+                geometry,
+                spreadSampler,
+                cameraVector,
+                cameraToProjectionVector: projectionVector,
             });
         },
-        [packshotBackgroundImage, packshotOverlayImage, showPackshotBackground, showPackshotOverlay, targetContext, targetHeight, targetWidth]
+        [cameraVector, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImageData, targetContext, targetHeight, targetWidth]
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
