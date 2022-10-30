@@ -143,16 +143,19 @@ export function Test() {
     const { data: packshotBackgroundImageData } = usePackshotBackgroundImageData();
     const { data: packshotOverlayImageData } = usePackshotOverlayImageData();
     const showPackshotBackground = usePackshotImagesConfig((s) => s.showBackground); 
+console.log(!!packshotBackgroundImageData, !!packshotOverlayImageData)
 
-    const shapeConfig = useShapeConfig();
+    const targetWidth = packshotBackgroundImageData?.width ?? packshotOverlayImageData?.width ??  700;
+    const targetHeight = packshotBackgroundImageData?.height ?? packshotOverlayImageData?.height ?? 700;
+
+    // const shapeConfig = useShapeConfig();
 
     // Create a render target 
     const targetCtx = useMemo(
         () => {
-            if (!packshotBackgroundImageData) return undefined;
-            return createContext2d(packshotBackgroundImageData.width, packshotBackgroundImageData.height);
+            return createContext2d(targetWidth, targetHeight);
         },
-        [packshotBackgroundImageData],
+        [targetHeight, targetWidth],
     );
 
     const cameraVector = useCameraVector();
@@ -162,18 +165,18 @@ export function Test() {
     const targetImageData = useMemo(
         () => {
             if (!packshotBackgroundImageData  || !targetCtx) return;
-            const targetImageData = targetCtx.getImageData(0, 0, packshotBackgroundImageData.width, packshotBackgroundImageData.height);
+            const targetImageData = targetCtx.getImageData(0, 0, targetWidth, targetHeight);
             renderPackshot(
                 cameraVector,
                 projectionVector,
                 spreadImageData || undefined,
                 showPackshotBackground ? packshotBackgroundImageData : undefined,
-                packshotOverlayImageData,
+                packshotOverlayImageData || undefined,
                 targetImageData,
             );
             return targetImageData;
         },
-        [packshotBackgroundImageData, targetCtx, cameraVector, projectionVector, spreadImageData, showPackshotBackground],
+        [packshotBackgroundImageData, targetCtx, targetWidth, targetHeight, cameraVector, projectionVector, spreadImageData, showPackshotBackground, packshotOverlayImageData],
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);

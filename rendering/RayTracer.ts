@@ -64,6 +64,19 @@ export function rayTracerRenderer({
 			targetImageData.data[index + 1] = rgba.y;
 			targetImageData.data[index + 2] = rgba.z;
 			targetImageData.data[index + 3] = rgba.w; // TODO: Apply transparency
+
+			// TODO: Normal transparancy (QUICK AND DIRTY)
+			if (packshotOverlayImageData && packshotOverlayImageData.data[index + 3] > 128) {
+				targetImageData.data[index] = packshotOverlayImageData.data[index];
+				targetImageData.data[index + 1] = packshotOverlayImageData.data[index + 1];
+				targetImageData.data[index + 2] = packshotOverlayImageData.data[index + 1];
+				targetImageData.data[index + 3] = packshotOverlayImageData.data[index + 1];
+			} else {
+				targetImageData.data[index] = rgba.x;
+				targetImageData.data[index + 1] = rgba.y;
+				targetImageData.data[index + 2] = rgba.z;
+				targetImageData.data[index + 3] = rgba.w; // TODO: Apply transparency
+			}
 		}
 	}
 }

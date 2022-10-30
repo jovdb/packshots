@@ -13,7 +13,9 @@ export function loadImageAsync(url: string) {
     });
 }
 
-export function createContext2d(width: number, height: number, dpr = devicePixelRatio) {
+export function createContext2d(width: number, height: number, dpr?: number) {
+    dpr = typeof window !== "undefined" ? window?.devicePixelRatio || 1 : 1;
+    if (typeof document === "undefined") return undefined;
     const canvas = document.createElement("canvas");
     canvas.width = width * dpr;
     canvas.height = height * dpr;
