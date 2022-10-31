@@ -28,42 +28,37 @@ export function renderOnGeometry({
 	if (!renderContext || !renderImageData) return undefined;
 
 	const xMax = targetSize.width - 1;
-	const xCenter =  Math.floor(targetSize.width / 2);
-	const yCenter =  Math.floor(targetSize.height / 2);
+	const xCenter =  targetSize.width / 2;
+	const yCenter =  targetSize.height / 2;
 	const spreadSize = new Vector2(spreadSampler.width, spreadSampler.height);
-/*
-	const projectionMatrix = new Vector3()
-		.add(new Vector3(0, 0, camera.viewPortDistance))
-		.multiply(new Vector3(
-			camera.viewPortSize.x / spreadSampler.width,
-			camera.viewPortSize.y / spreadSampler.height,
-			1,
-		));
-*/
-let min = 0.5, max = 0.5;
+
+	const centerImage = new Vector3(
+		-xCenter,
+		-yCenter,
+		0,
+	)
+	const pixelsToWorldCmScale = new Vector3(
+		camera.viewPortSize.x / targetSize.width,
+		camera.viewPortSize.y / targetSize.height,
+		1,
+	)
+
+	const moveViewPortal = new Vector3(0, 0, camera.viewPortDistance)
+
 	for (let y = 0; y <= targetSize.height; y++) {
 		for (let x = 0; x <= xMax; ++x) {
 
 			// Cast rays through the packshot projection
-			const rayDirection = new Vector3(
-				x - xCenter,
-				y - yCenter,
-				0,
-			)
+			const rayDirection = new Vector3(x, y, 0)
+				.add(centerImage) // top/left to center
+				.multiply(pixelsToWorldCmScale)
+				.add(moveViewPortal)
+				.add(camera.direction);
 
-				// Position Packshot projection
-				.multiply(new Vector3(
-					camera.viewPortSize.x / targetSize.width,
-					camera.viewPortSize.y / targetSize.height,
-					1,
-				))
-				.add(new Vector3(0, 0, camera.viewPortDistance));
 			// Check if ray intersects on geomerty (plane, clone, ...)
 			const hit = geometry.intersect(camera.position, rayDirection);
 			if (!hit) continue;
 
-			min = Math.min(min, hit.x);
-			max = Math.max(max, hit.x);
 			// Get spread pixel at intersection
 			// (Currently we stretch the spread image)
 			const imagePos = hit.multiply(spreadSize).round();
@@ -78,8 +73,6 @@ let min = 0.5, max = 0.5;
 			renderImageData.data[index + 3] = rgba.w;
 		}
 	}
-
-	console.log(min, max, spreadSize)
 
 	renderContext.putImageData(renderImageData, 0, 0);
 	return renderContext;
