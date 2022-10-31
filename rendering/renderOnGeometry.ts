@@ -1,77 +1,15 @@
-import { Matrix4, Vector2, Vector3 } from "three";
+import { Matrix3, Vector2, Vector3 } from "three";
+import { ICamera } from "../components/ProjectionConfig";
 import { createContext2d, loadImageAsync } from "../utils/image";
 import { IGeometry } from "./geometries/IGeometry";
 import { ITextureSampler } from "./samplers/ITextureSampler";
 
-export function render({
-	targetContext,
-	packshotBackgroundImage,
-	packshotOverlayImage,
-	
-	spreadSampler,
-	geometry,
-	camera,
-	cameraToProjectionVector,
-}: {
-	/** context to draw on */
-	targetContext: CanvasRenderingContext2D;
-	/** Geometry to place spread on */
-	geometry: IGeometry;
-	/** Spread sampler */
-	spreadSampler: ITextureSampler | undefined;
-	/* Packshot Backgound Image */
-	packshotBackgroundImage: HTMLImageElement | null | undefined;
-	/* Packshot Overlay Image */
-	packshotOverlayImage: HTMLImageElement | null | undefined;
-	/** Vector to place camera from origin */
-	camera: {
-		position: Vector3;
-		direction: Vector3;
-	};
-	/** Vector to position packshot projection relative to camera */
-	cameraToProjectionVector: Vector3;
-}) {
-	const targetSize = {
-		width: targetContext.canvas.width ,
-		height: targetContext.canvas.height,
-	}
-
-	targetContext.clearRect(0, 0, targetSize.width, targetSize.height);
-	// targetContext.translate(-0.5, -0.5);
-
-	// Packshot Background
-	if (packshotBackgroundImage) {
-		targetContext.drawImage(packshotBackgroundImage, 0, 0);
-	}
-
-	// Add Spread Layer
-	const geometryContext = renderOnGeometry({
-		geometry,
-		spreadSampler,
-		targetSize,
-		cameraToProjectionVector,
-		camera,
-	});
-	if (geometryContext) {
-		targetContext.drawImage(geometryContext.canvas, 0, 0);
-	}
-
-	// Add Packshot Overlay
-	if (packshotOverlayImage) {
-		targetContext.drawImage(packshotOverlayImage, 0, 0);
-	}
-
-	return targetContext;
-}
-
-
-/** Render a spread with geometry on a canvas */
+/** Render a spread with geometry on a canvas (using RayTracing) */
 export function renderOnGeometry({
 	targetSize,
 	geometry,
 	spreadSampler,
 	camera,
-	cameraToProjectionVector,
 }: {
 	targetSize: { width: number; height: number} | undefined;
 	/** Geometry to place spread on */
@@ -79,14 +17,10 @@ export function renderOnGeometry({
 	/** Spread sampler */
 	spreadSampler: ITextureSampler | undefined;
 	/** Camera information */
-	camera: {
-		position: Vector3;
-		direction: Vector3;
-	};
-	/** Vector to position packshot projection relative to camera */
-	cameraToProjectionVector: Vector3;
+	camera: ICamera;
 }) {
 	if (!targetSize) return undefined;
+	// https://gabrielgambetta.com/computer-graphics-from-scratch/02-basic-raytracing.html
 
 	// Create context to render on
 	const renderContext = createContext2d(targetSize.width, targetSize.height);
@@ -96,6 +30,14 @@ export function renderOnGeometry({
 	const xMax = renderImageData.width - 1;
 	const xCenter =  Math.floor(renderImageData.width / 2);
 	const yCenter =  Math.floor(renderImageData.height / 2);
+	
+	const projectionMatrix = 
+	new Vector3()	.add(new Vector3(0, 0, camera.viewPortDistance))
+				.multiply(new Vector3(
+					camera.viewPortSize.x / targetSize.width,
+					camera.viewPortSize.y / targetSize.height,
+					1,
+				));
 
 	if (!spreadSampler) return;
 	for (let y = 0; y <= renderImageData.height; y++) {
@@ -109,7 +51,12 @@ export function renderOnGeometry({
 			)
 
 				// Position Packshot projection
-				.add(cameraToProjectionVector);
+				.multiply(new Vector3(
+					camera.viewPortSize.x / targetSize.width,
+					camera.viewPortSize.y / targetSize.height,
+					1,
+				))
+				.add(new Vector3(0, 0, camera.viewPortDistance));
 
 			// Check if ray intersects on geomerty (plane, clone, ...)
 			const hit = geometry.intersect(camera.position, rayDirection);

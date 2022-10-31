@@ -1,30 +1,54 @@
 import { useMemo } from "react";
-import { Vector3 } from "three";
+import { Matrix3, Vector2, Vector3 } from "three";
 import create from "zustand";
 import { Slider } from "./Slider";
+/*
+ camera    viewport           geometry
+  eye        |\
+             | \
+             |  \                /\
+  <o------------ |------------- /__\
+             |   |               ||
+              \  |
+               \ |
+                \|
+*/
 
 export const useCameraConfig = create<{
+    /** Position of the camera in world units, origin is at geometry (cm)*/
     position: [x: number, y: number, z: number];
+    /** A direction vector for the camera */
     direction: [x: number, y: number, z: number];
+    /** Size of the viewport in world units (cm) */
+    viewportSize: [w: number, height: number];
+    /** Distance from the camera to the viewPort in world units (cm) */
+    viewportDistance: number;
+
+    // Camera angle needed?
 }>(() => ({
+    /** Position of camera in cm */
     position: [0, 0, -100],
     direction: [0, 0, 0],
+    viewportSize: [15, 10],
+    viewportDistance: 100,
 }));
 
 export function useProjectionVector() {
     return useMemo(() => new Vector3(0, 0, 10000), []);
 }
 
-export const useCameraPosition = () => new Vector3(...useCameraConfig(s => s.position));
-export const useCameraDirection = () => new Vector3(...useCameraConfig(s => s.direction));
-
+/** Raw configuration of the camera */
 export const useCamera = () => {
     const cameraConfig = useCameraConfig();
     return useMemo(() => ({
         position: new Vector3(...cameraConfig.position),
         direction: new Vector3(...cameraConfig.direction),
+        viewPortSize: new Vector2(...cameraConfig.viewportSize),
+        viewPortDistance: cameraConfig.viewportDistance,
     }), [cameraConfig]);
 }
+
+export type ICamera = ReturnType<typeof useCamera>;
 
 export function CameraConfig() {
     const projectionConfig = useCameraConfig();
@@ -80,6 +104,7 @@ export function CameraConfig() {
                         />
                     </td>
                 </tr>
+                <tr><td colSpan={2}><hr /></td></tr>
                 <tr>
                     <td>Direction X:</td>
                     <td>
@@ -90,7 +115,7 @@ export function CameraConfig() {
                             max={100}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
-                                    direction: [value, state.position[1], state.position[2]],
+                                    direction: [value, state.direction[1], state.direction[2]],
                                 }));
                             }}
                         />
@@ -106,7 +131,7 @@ export function CameraConfig() {
                             max={100}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
-                                    direction: [state.position[0], value, state.position[2]],
+                                    direction: [state.direction[0], value, state.direction[2]],
                                 }));
                             }}
                         />
@@ -122,8 +147,55 @@ export function CameraConfig() {
                             max={1}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
-                                    direction: [state.position[0], state.position[1], value],
+                                    direction: [state.direction[0], state.direction[1], value],
                                 }));
+                            }}
+                        />
+                    </td>
+                </tr>
+                <tr><td colSpan={2}><hr /></td></tr>
+                <tr>
+                    <td>Viewport width:</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.viewportSize[0]}
+                            defaultValue={15}
+                            min={0}
+                            max={100}
+                            onChange={(value) => {
+                                useCameraConfig.setState((state) => ({
+                                    viewportSize: [value, state.viewportSize[1]],
+                                }));
+                            }}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Viewport height:</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.viewportSize[1]}
+                            defaultValue={10}
+                            min={0}
+                            max={100}
+                            onChange={(value) => {
+                                useCameraConfig.setState((state) => ({
+                                    viewportSize: [state.viewportSize[0], value],
+                                }));
+                            }}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Viewport distance:</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.viewportDistance}
+                            defaultValue={10}
+                            min={0}
+                            max={500}
+                            onChange={(value) => {
+                                useCameraConfig.setState({ viewportDistance: value });
                             }}
                         />
                     </td>
