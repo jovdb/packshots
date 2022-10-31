@@ -4,22 +4,26 @@ import create from "zustand";
 import { Slider } from "./Slider";
 
 export const useCameraConfig = create<{
-    cameraX: number;
-    cameraY: number;
-    cameraZ: number;
+    position: [x: number, y: number, z: number];
+    direction: [x: number, y: number, z: number];
 }>(() => ({
-    cameraX: 0,
-    cameraY: 0,
-    cameraZ: -100,
+    position: [0, 0, -100],
+    direction: [0, 0, 0],
 }));
-
-export function useCameraVector() {
-    const projectionConfig = useCameraConfig();
-    return new Vector3(projectionConfig.cameraX, projectionConfig.cameraY, projectionConfig.cameraZ);
-}
 
 export function useProjectionVector() {
     return useMemo(() => new Vector3(0, 0, 10000), []);
+}
+
+export const useCameraPosition = () => new Vector3(...useCameraConfig(s => s.position));
+export const useCameraDirection = () => new Vector3(...useCameraConfig(s => s.direction));
+
+export const useCamera = () => {
+    const cameraConfig = useCameraConfig();
+    return useMemo(() => ({
+        position: new Vector3(...cameraConfig.position),
+        direction: new Vector3(...cameraConfig.direction),
+    }), [cameraConfig]);
 }
 
 export function CameraConfig() {
@@ -29,49 +33,97 @@ export function CameraConfig() {
         <table>
             <tbody>
                 <tr>
-                    <td>Camera X:</td>
+                    <td>Position X:</td>
                     <td>
                         <Slider
-                            value={projectionConfig.cameraX}
+                            value={projectionConfig.position[0]}
                             defaultValue={0}
                             min={-100}
                             max={100}
                             onChange={(value) => {
-                                useCameraConfig.setState({
-                                    cameraX: value,
-                                });
+                                useCameraConfig.setState((state) => ({
+                                    position: [value, state.position[1], state.position[2]],
+                                }));
                             }}
                         />
                     </td>
                 </tr>
                 <tr>
-                    <td>Camera Y:</td>
+                    <td>Position Y:</td>
                     <td>
                         <Slider
-                            value={projectionConfig.cameraY}
+                            value={projectionConfig.position[1]}
                             defaultValue={0}
                             min={-100}
                             max={100}
                             onChange={(value) => {
-                                useCameraConfig.setState({
-                                    cameraY: value,
-                                });
+                                useCameraConfig.setState((state) => ({
+                                    position: [state.position[0], value, state.position[2]],
+                                }));
                             }}
                         />
                     </td>
                 </tr>
                 <tr>
-                    <td>Camera Z:</td>
+                    <td>Position Z:</td>
                     <td>
                         <Slider
-                            value={projectionConfig.cameraZ}
+                            value={projectionConfig.position[2]}
                             defaultValue={-100}
                             min={-1000}
                             max={1}
                             onChange={(value) => {
-                                useCameraConfig.setState({
-                                    cameraZ: value,
-                                });
+                                useCameraConfig.setState((state) => ({
+                                    position: [state.position[0], state.position[1], value],
+                                }));
+                            }}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Direction X:</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.direction[0]}
+                            defaultValue={0}
+                            min={-100}
+                            max={100}
+                            onChange={(value) => {
+                                useCameraConfig.setState((state) => ({
+                                    direction: [value, state.position[1], state.position[2]],
+                                }));
+                            }}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Direction Y:</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.direction[1]}
+                            defaultValue={0}
+                            min={-100}
+                            max={100}
+                            onChange={(value) => {
+                                useCameraConfig.setState((state) => ({
+                                    direction: [state.position[0], value, state.position[2]],
+                                }));
+                            }}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Direction Z:</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.direction[2]}
+                            defaultValue={0}
+                            min={-1000}
+                            max={1}
+                            onChange={(value) => {
+                                useCameraConfig.setState((state) => ({
+                                    direction: [state.position[0], state.position[1], value],
+                                }));
                             }}
                         />
                     </td>

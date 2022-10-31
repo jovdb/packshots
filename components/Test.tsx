@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
@@ -9,7 +9,7 @@ import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
 import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
 import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./PackshotImagesConfig";
-import { CameraConfig, useCameraVector, useProjectionVector } from "./ProjectionConfig";
+import { CameraConfig, useCamera, useCameraConfig, useProjectionVector } from "./ProjectionConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -22,112 +22,6 @@ export function useImageFromUrl(url: string) {
         refetchOnWindowFocus: false,
     });
 }
-
-// function renderPackshot(
-//     projectionData: IProjectionData,
-
-//     /** Spread Image */
-//     sourceImageData: ImageData,
-
-//     /** Packshot */
-//     targetImageData: ImageData,
-// ) {
-//     /*
-
-//      The cylinder is at the origin of the world. We look at it as follows:
-
-//               ^ +z
-//               |
-//               |
-//      +x <-----o 
-//              /
-//             /
-//            +y
-
-// Z is the height above the table on which products are photographed,
-
-//      */
-//     const sampler = new PointTextureSampler(sourceImageData);
-//     /*
-//     const geometry = new ConeGeometry({
-//         topDiameter: projectionData.shape.diameterTop,
-//         bottomDiameter: projectionData.shape.diameterBottom,
-//         height: projectionData.shape.height,
-//     });
-//     */
-//     const geometry = new PlaneGeometry(10, 10);
-
-//     const eyePosition = new Vector3(0, 0, 0);
-
-//     const rayMatrix = new Matrix3();
-//     const rayMatrixValues = rayMatrix.toArray();
-// /*
-//     var canvasToRay = new Matrix4().fromArray([ // Matrix3 to Matrix4
-//         rayMatrixValues[0], rayMatrixValues[1], rayMatrixValues[2], 0,
-//         rayMatrixValues[3], rayMatrixValues[4], rayMatrixValues[5], 0,
-//         rayMatrixValues[6], rayMatrixValues[7], rayMatrixValues[8], 0,
-//         0, 0, 0, 1
-//     ]);
-// */
-//     const canvasToRay = new Matrix4();
-
-//     // We want to zoom around the center of the image
-//     /*
-//     const sourceImageCenterX = sourceImageData.width * 0.5;
-//     const sourceImageCenterY = sourceImageData.height * 0.5;
-//     const sourceimageTranslateX = sourceImageData.width * projectionData.image.shift[0] / 100;
-//     const sourceImageTranslateY = sourceImageData.height * projectionData.image.shift[1] / 100;
-//     const sourceImageZoomFactor = Math.pow(2, projectionData.image.zoom / 100);
-//     const shapeHeight = projectionData.shape.height;
-
-//     const uvTransform = new Matrix3()
-//         .scale(sourceImageData.height / shapeHeight, sourceImageData.height / shapeHeight)
-//         .translate(-sourceImageCenterX, -sourceImageCenterY)
-//         .scale(sourceImageZoomFactor, sourceImageZoomFactor)
-//         .translate(sourceImageCenterX, sourceImageCenterY)
-//         .translate(sourceimageTranslateX, sourceImageTranslateY);
-// */
-//     const uvTransform = new Matrix3();
-
-//     rayTracerRenderer({
-//         geometry, spreadSampler: sampler, imageData: targetImageData, cameraPosition: eyePosition, canvasToRay, uvTransform
-//     });
-
-//     return targetImageData;
-// }
-
-// function renderPackshot(options: {
-//     /** Vector to position camera, starting from origin */
-//     cameraVector: Vector3,
-
-//     /** Vector to position projection, relative to camera */
-//     cameraToProjectionVector: Vector3,
-
-//     /** Spread Image */
-//     sourceImageData: ImageData | undefined,
-
-//     /** Packshot Background */
-//     packshotBackgroundImage: HTMLImageElement | undefined,
-
-//     /** Packshot Overlay */
-//     packshotOverlayImageData: ImageData | undefined,
-
-//     /** Result */
-//     targetImageData: ImageData,
-// }) {
-//     const { sourceImageData } = options;
-//     const sampler = sourceImageData ? new PointTextureSampler(sourceImageData) : undefined;
-//     const geometry = new PlaneGeometry(10, 10);
-
-//     render({
-//         ...options,
-//         geometry,
-//         spreadSampler: sampler,
-        
-//     });
-
-//     return targetImageData;
-// }
 
 // TODO: make something shape agnostic
 export const useShapeConfig = create<IPlaneConfig>(() => initialConfig);
@@ -148,8 +42,9 @@ export function Test() {
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
             
-    const cameraVector = useCameraVector();
     const projectionVector = useProjectionVector()
+
+    const camera = useCamera();
 
     // Redraw if render input changes 
     useEffect(
@@ -164,11 +59,11 @@ export function Test() {
                 packshotOverlayImage : showPackshotOverlay ? packshotOverlayImage : undefined,
                 geometry,
                 spreadSampler,
-                cameraVector,
+                camera,
                 cameraToProjectionVector: projectionVector,
             });
         },
-        [cameraVector, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImageData, targetContext, targetHeight, targetWidth]
+        [camera, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImageData, targetContext, targetHeight, targetWidth]
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);

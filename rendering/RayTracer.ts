@@ -10,23 +10,26 @@ export function render({
 	
 	spreadSampler,
 	geometry,
-	cameraVector,
+	camera,
 	cameraToProjectionVector,
 }: {
 	/** context to draw on */
-	targetContext: CanvasRenderingContext2D,
+	targetContext: CanvasRenderingContext2D;
 	/** Geometry to place spread on */
-	geometry: IGeometry,
+	geometry: IGeometry;
 	/** Spread sampler */
-	spreadSampler: ITextureSampler | undefined,
+	spreadSampler: ITextureSampler | undefined;
 	/* Packshot Backgound Image */
 	packshotBackgroundImage: HTMLImageElement | null | undefined;
 	/* Packshot Overlay Image */
 	packshotOverlayImage: HTMLImageElement | null | undefined;
 	/** Vector to place camera from origin */
-	cameraVector: Vector3,
+	camera: {
+		position: Vector3;
+		direction: Vector3;
+	};
 	/** Vector to position packshot projection relative to camera */
-	cameraToProjectionVector: Vector3,
+	cameraToProjectionVector: Vector3;
 }) {
 	const targetSize = {
 		width: targetContext.canvas.width ,
@@ -47,7 +50,7 @@ export function render({
 		spreadSampler,
 		targetSize,
 		cameraToProjectionVector,
-		cameraVector,
+		camera,
 	});
 	if (geometryContext) {
 		targetContext.drawImage(geometryContext.canvas, 0, 0);
@@ -67,7 +70,7 @@ export function renderOnGeometry({
 	targetSize,
 	geometry,
 	spreadSampler,
-	cameraVector,
+	camera,
 	cameraToProjectionVector,
 }: {
 	targetSize: { width: number; height: number} | undefined;
@@ -75,8 +78,11 @@ export function renderOnGeometry({
 	geometry: IGeometry;
 	/** Spread sampler */
 	spreadSampler: ITextureSampler | undefined;
-	/** Vector to place camera from origin */
-	cameraVector: Vector3;
+	/** Camera information */
+	camera: {
+		position: Vector3;
+		direction: Vector3;
+	};
 	/** Vector to position packshot projection relative to camera */
 	cameraToProjectionVector: Vector3;
 }) {
@@ -106,7 +112,7 @@ export function renderOnGeometry({
 				.add(cameraToProjectionVector);
 
 			// Check if ray intersects on geomerty (plane, clone, ...)
-			const hit = geometry.intersect(cameraVector, rayDirection);
+			const hit = geometry.intersect(camera.position, rayDirection);
 			if (!hit) continue;
 
 			// Get spread pixel at intersection
