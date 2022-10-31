@@ -50,7 +50,6 @@ export function Test() {
         () => {
             if (!targetContext) return;
             const spreadSampler = spreadImageData ? new PointTextureSampler(spreadImageData) : undefined;
-
             render({
                 targetContext,
                 packshotBackgroundImage: showPackshotBackground ? packshotBackgroundImage : undefined,

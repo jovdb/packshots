@@ -30,6 +30,7 @@ export function renderOnGeometry({
 	const xMax = targetSize.width - 1;
 	const xCenter =  Math.floor(targetSize.width / 2);
 	const yCenter =  Math.floor(targetSize.height / 2);
+	const spreadSize = new Vector2(spreadSampler.width, spreadSampler.height);
 /*
 	const projectionMatrix = new Vector3()
 		.add(new Vector3(0, 0, camera.viewPortDistance))
@@ -39,6 +40,7 @@ export function renderOnGeometry({
 			1,
 		));
 */
+let min = 0.5, max = 0.5;
 	for (let y = 0; y <= targetSize.height; y++) {
 		for (let x = 0; x <= xMax; ++x) {
 
@@ -56,14 +58,15 @@ export function renderOnGeometry({
 					1,
 				))
 				.add(new Vector3(0, 0, camera.viewPortDistance));
-			console.log(targetSize.width);
 			// Check if ray intersects on geomerty (plane, clone, ...)
 			const hit = geometry.intersect(camera.position, rayDirection);
 			if (!hit) continue;
 
+			min = Math.min(min, hit.x);
+			max = Math.max(max, hit.x);
 			// Get spread pixel at intersection
-			// (spread images is stretch to the planeà
-			const imagePos = hit.multiply(new Vector2(spreadSampler.width, spreadSampler.height)).round();
+			// (Currently we stretch the spread image)
+			const imagePos = hit.multiply(spreadSize).round();
 			const rgba = spreadSampler.sample(imagePos);
 
 			// Place spread pixel on the packshot
@@ -75,6 +78,8 @@ export function renderOnGeometry({
 			renderImageData.data[index + 3] = rgba.w;
 		}
 	}
+
+	console.log(min, max, spreadSize)
 
 	renderContext.putImageData(renderImageData, 0, 0);
 	return renderContext;

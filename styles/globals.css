@@ -30,7 +30,7 @@ a {
 fieldset {
   border-radius: 5px;
   border-color: #eee;
-  margin-bottom: 5px;
+  margin: 5px 2px;
 }
 
 legend {

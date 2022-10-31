@@ -18,7 +18,7 @@ export function ConfigPanel({
             <div style={{
                 visibility: isOpen ? "visible" : "hidden",
                 position: isOpen ? undefined : "absolute",
-                minWidth: 320,
+                minWidth: 375,
             }}>
                 {children}
             </div>

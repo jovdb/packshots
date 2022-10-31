@@ -43,7 +43,7 @@ export function PackshotImagesConfig() {
     const [loadOverlayError, setLoadOverlayError] = useState("");
 
     const packshotWidth = packshotBackgroundImage?.width || packshotOverlayImage?.width || 0; 
-    const packshotHeight = packshotBackgroundImage?.width || packshotOverlayImage?.width || 0;
+    const packshotHeight = packshotBackgroundImage?.height || packshotOverlayImage?.height || 0;
     const hasOverlayBadSize = packshotBackgroundImage && packshotOverlayImage && (
         packshotBackgroundImage.width !== packshotOverlayImage.width || 
         packshotBackgroundImage.height !== packshotOverlayImage.height

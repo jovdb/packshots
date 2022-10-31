@@ -2,9 +2,9 @@ import { Vector2, Vector3 } from "three";
 
 export interface IGeometry {
     /** 
-     * Normalized point on spread image (in spread coordinates) where ray intersects,
-     * (0, 0): top-left pixel of the image
-     * (1, 1): bottom-right pixel of the image 
+     * Returns the normalized point on the spread image where ray intersects,
+     * (0, 0): top-left pixel of the spread image
+     * (1, 1): bottom-right pixel of the spread image 
      * undefined: no intersection
      * @param cameraPosition Point where ray starts
      * @param rayDirection trough which the ray goes
