@@ -45,16 +45,18 @@ export function render({
 	}
 
 	// Add Spread Layer
-	const geometryContext = renderOnGeometry({
-		geometry,
-		spreadSampler,
-		targetSize,
-		cameraToProjectionVector,
-		camera,
-	});
-	if (geometryContext) {
-		targetContext.drawImage(geometryContext.canvas, 0, 0);
-	}
+    if (spreadSampler) {
+        const geometryContext = renderOnGeometry({
+            geometry,
+            spreadSampler,
+            targetSize,
+            cameraToProjectionVector,
+            camera,
+        });
+        if (geometryContext) {
+            targetContext.drawImage(geometryContext.canvas, 0, 0);
+        }
+    }
 
 	// Add Packshot Overlay
 	if (packshotOverlayImage) {

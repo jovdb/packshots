@@ -1,4 +1,4 @@
-import { Matrix3, Vector2, Vector3 } from "three";
+import { Matrix3, Vector2, Vector3, Vector4 } from "three";
 import { ICamera } from "../components/ProjectionConfig";
 import { createContext2d, loadImageAsync } from "../utils/image";
 import { IGeometry } from "./geometries/IGeometry";
@@ -15,7 +15,7 @@ export function renderOnGeometry({
 	/** Geometry to place spread on */
 	geometry: IGeometry;
 	/** Spread sampler */
-	spreadSampler: ITextureSampler | undefined;
+	spreadSampler: ITextureSampler;
 	/** Camera information */
 	camera: ICamera;
 }) {
@@ -24,23 +24,22 @@ export function renderOnGeometry({
 
 	// Create context to render on
 	const renderContext = createContext2d(targetSize.width, targetSize.height);
-	const renderImageData = renderContext?.getImageData(0, 0, targetSize?.width, targetSize?.height);
+	const renderImageData = renderContext?.getImageData(0, 0, targetSize.width, targetSize.height);
 	if (!renderContext || !renderImageData) return undefined;
 
-	const xMax = renderImageData.width - 1;
-	const xCenter =  Math.floor(renderImageData.width / 2);
-	const yCenter =  Math.floor(renderImageData.height / 2);
-	
-	const projectionMatrix = 
-	new Vector3()	.add(new Vector3(0, 0, camera.viewPortDistance))
-				.multiply(new Vector3(
-					camera.viewPortSize.x / targetSize.width,
-					camera.viewPortSize.y / targetSize.height,
-					1,
-				));
-
-	if (!spreadSampler) return;
-	for (let y = 0; y <= renderImageData.height; y++) {
+	const xMax = targetSize.width - 1;
+	const xCenter =  Math.floor(targetSize.width / 2);
+	const yCenter =  Math.floor(targetSize.height / 2);
+/*
+	const projectionMatrix = new Vector3()
+		.add(new Vector3(0, 0, camera.viewPortDistance))
+		.multiply(new Vector3(
+			camera.viewPortSize.x / spreadSampler.width,
+			camera.viewPortSize.y / spreadSampler.height,
+			1,
+		));
+*/
+	for (let y = 0; y <= targetSize.height; y++) {
 		for (let x = 0; x <= xMax; ++x) {
 
 			// Cast rays through the packshot projection
@@ -57,12 +56,13 @@ export function renderOnGeometry({
 					1,
 				))
 				.add(new Vector3(0, 0, camera.viewPortDistance));
-
+			console.log(targetSize.width);
 			// Check if ray intersects on geomerty (plane, clone, ...)
 			const hit = geometry.intersect(camera.position, rayDirection);
 			if (!hit) continue;
 
 			// Get spread pixel at intersection
+			// (spread images is stretch to the planeà
 			const imagePos = hit.multiply(new Vector2(spreadSampler.width, spreadSampler.height)).round();
 			const rgba = spreadSampler.sample(imagePos);
 

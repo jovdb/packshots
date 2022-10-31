@@ -4,12 +4,11 @@ import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
 import { PlaneGeometry } from "../rendering/geometries/PlaneGeometry";
 import { render } from "../rendering/render";
-import create from "zustand";
-import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
 import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
 import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./PackshotImagesConfig";
-import { CameraConfig, useCamera, useCameraConfig, useProjectionVector } from "./ProjectionConfig";
+import { CameraConfig, useCamera, useProjectionVector } from "./ProjectionConfig";
+import { PlaneConfig, usePlaneConfig } from "../data/shapes/plane/PlaneConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -22,9 +21,6 @@ export function useImageFromUrl(url: string) {
         refetchOnWindowFocus: false,
     });
 }
-
-// TODO: make something shape agnostic
-export const useShapeConfig = create<IPlaneConfig>(() => initialConfig);
 
 export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,11 +35,14 @@ export function Test() {
     const targetWidth = packshotBackgroundImage?.width ?? packshotOverlayImage?.width ??  700;
     const targetHeight = packshotBackgroundImage?.height ?? packshotOverlayImage?.height ?? 700;
 
+    // Get Geometry
+    // TODO: Make geometry agnostic
+    const geometryConfig = usePlaneConfig();
+    const geometry = useMemo(() => new PlaneGeometry(geometryConfig.width, geometryConfig.height), [geometryConfig]);
+
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
-            
     const projectionVector = useProjectionVector()
-
     const camera = useCamera();
 
     // Redraw if render input changes 
@@ -51,7 +50,6 @@ export function Test() {
         () => {
             if (!targetContext) return;
             const spreadSampler = spreadImageData ? new PointTextureSampler(spreadImageData) : undefined;
-            const geometry = new PlaneGeometry(10, 10);
 
             render({
                 targetContext,
@@ -63,7 +61,7 @@ export function Test() {
                 cameraToProjectionVector: projectionVector,
             });
         },
-        [camera, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImageData, targetContext, targetHeight, targetWidth]
+        [camera, geometry, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImageData, targetContext, targetHeight, targetWidth]
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
@@ -111,7 +109,7 @@ export function Test() {
                         <legend>Spread</legend>
                         <SpreadImageConfig />
                     </fieldset>
-                    {/*<fieldset>
+                    <fieldset>
                         <legend>Shape</legend>
                         <table>
                             <tbody>
@@ -126,12 +124,8 @@ export function Test() {
                                 </tr>
                             </tbody>
                         </table>
-                        <PlaneConfigurator
-                            config={shapeConfig}
-                            onChange={(newConfig) => useShapeConfig.setState(newConfig)}
-                        />
+                        <PlaneConfig />
                     </fieldset>
-                    */}
                     <fieldset>
                         <legend>Camera</legend>
                         <CameraConfig />
