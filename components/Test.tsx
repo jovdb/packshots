@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
 import { PlaneGeometry } from "../rendering/geometries/PlaneGeometry";
-import { render } from "../rendering/RayTracer";
+import { render } from "../rendering/render";
 import create from "zustand";
 import { initialConfig, IPlaneConfig } from "../data/shapes/plane/PlaneData";
 import { ConfigPanel } from "./ConfigPanel";
