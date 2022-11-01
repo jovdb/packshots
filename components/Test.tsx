@@ -9,6 +9,9 @@ import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
 import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./PackshotImagesConfig";
 import { CameraConfig, useCamera, useProjectionVector } from "./ProjectionConfig";
 import { PlaneConfig, usePlaneConfig } from "../data/shapes/plane/PlaneConfig";
+import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
+import { useElementSize } from "../hooks/useElementSize";
+import { fitRectTransform } from "../utils/rect";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -24,15 +27,16 @@ export function useImageFromUrl(url: string) {
 
 export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const drawPolygonRef = useRef<typeof DrawPolygon>(null);
 
-    const showPackshotBackground = usePackshotImagesConfig((s) => s.showBackground); 
-    const showPackshotOverlay = usePackshotImagesConfig((s) => s.showOverlay); 
+    const showPackshotBackground = usePackshotImagesConfig((s) => s.showBackground);
+    const showPackshotOverlay = usePackshotImagesConfig((s) => s.showOverlay);
 
     const { data: packshotBackgroundImage } = usePackshotBackgroundImage();
     const { data: packshotOverlayImage } = usePackshotOverlayImage();
     const { data: spreadImageData } = useSpreadImageData();
 
-    const targetWidth = packshotBackgroundImage?.width ?? packshotOverlayImage?.width ??  700;
+    const targetWidth = packshotBackgroundImage?.width ?? packshotOverlayImage?.width ?? 700;
     const targetHeight = packshotBackgroundImage?.height ?? packshotOverlayImage?.height ?? 700;
 
     // Get Geometry
@@ -45,6 +49,37 @@ export function Test() {
     const projectionVector = useProjectionVector()
     const camera = useCamera();
 
+    const previewAreaRef = useRef<HTMLDivElement>(null);
+    const previewAreaRect = useElementSize(previewAreaRef);
+    const margin = 10;
+    const centerPreviewToPreviewArea = fitRectTransform({
+        top: 0,
+        left: 0,
+        width: targetWidth,
+        height: targetHeight,
+    }, {
+        top: margin,
+        left: margin,
+        width: previewAreaRect.width - margin * 2,
+        height: previewAreaRect.height - margin * 2,
+    });
+
+    const [pointsInTargetCoordinates, setPointsInTargetCoordinates] = useState([
+        [20, 20],
+        [20, 50],
+        [50, 50],
+        [50, 20],
+    ]);
+
+    const pointsInScreenCoordinates = pointsInTargetCoordinates.map(point => [point[0] * centerPreviewToPreviewArea.scale, point[1] * centerPreviewToPreviewArea.scale] as [number, number])
+    const bind = useDrawPolygon(
+        drawPolygonRef,
+        pointsInScreenCoordinates,
+        (newPointsInScreenCoordinates) => {
+            const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => [point[0] / centerPreviewToPreviewArea.scale, point[1] / centerPreviewToPreviewArea.scale] as [number, number])
+            setPointsInTargetCoordinates(newPointsInTargetCoordinates)
+        });
+
     // Redraw if render input changes 
     useEffect(
         () => {
@@ -53,7 +88,7 @@ export function Test() {
             render({
                 targetContext,
                 packshotBackgroundImage: showPackshotBackground ? packshotBackgroundImage : undefined,
-                packshotOverlayImage : showPackshotOverlay ? packshotOverlayImage : undefined,
+                packshotOverlayImage: showPackshotOverlay ? packshotOverlayImage : undefined,
                 geometry,
                 spreadSampler,
                 camera,
@@ -69,20 +104,27 @@ export function Test() {
     const checkBoardLight = "#f8f8f8";
     return (
         <div style={{ display: "flex", height: "100vh" }}>
-            <div style={{ flexGrow: 1, overflowY: "auto", padding: 10, "alignSelf": "center", "textAlign": "center" }}>
-                {/*<ImageData imageData={targetImageData} /> */}
+            <div
+                ref={previewAreaRef}
+                style={{
+                    flexGrow: 1,
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                }}
+            >
                 <canvas
                     ref={canvasRef}
                     width={targetWidth}
                     height={targetHeight}
                     style={{
-                        width: "100%",
-                        height: "auto",
-                        border: "1px solid #ddd",
-                        boxShadow: "2px 2px 3px rgba(0,0,0,0.1)",
-                        // scale to available size
-                        maxHeight: "calc(100vh - 24px)",
-                        maxWidth: "calc(100vh - 24px)",
+                        position: "absolute",
+                        width: targetWidth * centerPreviewToPreviewArea.scale,
+                        height: targetHeight * centerPreviewToPreviewArea.scale,
+                        left: centerPreviewToPreviewArea.x,
+                        top: centerPreviewToPreviewArea.y,
+                        outline: "1px solid #ddd",
+                        boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
                         // checkboard
                         backgroundImage: `
                             linear-gradient(45deg, ${checkBoardDark} 25%, transparent 25%),
@@ -96,6 +138,17 @@ export function Test() {
                             calc(${checkBoardSize}px * -0.5) calc(${checkBoardSize}px * -0.5),
                             calc(${checkBoardSize}px * 0.5) calc(${checkBoardSize}px * 0.5)`,
                     }}
+                    {...bind()}
+                />
+                <DrawPolygon
+                    ref={drawPolygonRef}
+                    style={{
+                        width: targetWidth * centerPreviewToPreviewArea.scale,
+                        height: targetHeight * centerPreviewToPreviewArea.scale,
+                        left: centerPreviewToPreviewArea.x,
+                        top: centerPreviewToPreviewArea.y,
+                    }}
+                    points={pointsInScreenCoordinates}
                 />
             </div>
             <div>

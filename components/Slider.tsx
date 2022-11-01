@@ -2,12 +2,14 @@ export function Slider({
     value,
     min = -100,
     max = 100,
+    step = 1,
     onChange,
     defaultValue,
 }: {
     value: number;
     min?: number;
     max?: number;
+    step?: number;
     onChange(value: number): void;
     defaultValue?: number;
 }) {
@@ -17,6 +19,7 @@ export function Slider({
                 type="number"
                 min={Math.min(min, value)}
                 max={Math.max(max, value)}
+                step={step}
                 value={value}
                 style={{ width: 57, marginRight: 5 }}
                 onChange={(e) => {
@@ -28,6 +31,7 @@ export function Slider({
                 value={value}
                 min={Math.min(min, value)}
                 max={Math.max(max, value)}
+                step={step}
                 type="range"
                 style={{ position: "relative", transform: "translateY(4px)", width: 120}}
                 onChange={(e) => {

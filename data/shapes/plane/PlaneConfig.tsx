@@ -15,12 +15,13 @@ export function PlaneConfig() {
         <table>
             <tbody>
                 <tr>
-                    <td>Width:</td>
+                    <td>Width (cm):</td>
                     <td>
                         <Slider
                             min={0}
                             max={200}
                             defaultValue={10}
+                            step={0.1}
                             value={planeConfig.width}
                             onChange={(newWidth) => {
                                 usePlaneConfig.setState({
@@ -31,12 +32,13 @@ export function PlaneConfig() {
                     </td>
                 </tr>
                 <tr>
-                    <td>Height:</td>
+                    <td>Height (cm):</td>
                     <td>
                         <Slider
                             value={planeConfig.height}
                             min={0}
                             max={200}
+                            step={0.1}
                             defaultValue={10}
                             onChange={(newHeight) => {
                                 usePlaneConfig.setState({

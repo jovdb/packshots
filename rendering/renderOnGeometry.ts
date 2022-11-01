@@ -37,7 +37,9 @@ export function renderOnGeometry({
 		-yCenter,
 		0,
 	)
-	const pixelsToWorldCmScale = new Vector3(
+
+	/** Scale factor for pixels to cm */
+	const pixelsToWorldScale = new Vector3(
 		camera.viewPortSize.x / targetSize.width,
 		camera.viewPortSize.y / targetSize.height,
 		1,
@@ -50,8 +52,8 @@ export function renderOnGeometry({
 
 			// Cast rays through the packshot projection
 			const rayDirection = new Vector3(x, y, 0)
-				.add(centerImage) // top/left to center
-				.multiply(pixelsToWorldCmScale)
+				.add(centerImage) // center image on 0,0
+				.multiply(pixelsToWorldScale)
 				.add(moveViewPortal)
 				.add(camera.direction);
 
