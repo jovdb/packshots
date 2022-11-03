@@ -37,7 +37,7 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
         camera.position.x = this.config.camera.position.x;
         camera.position.y = this.config.camera.position.y;
         camera.position.z = this.config.camera.position.z;
-        // TODO: Diretion
+        // TODO: Add Direction
 
         // --------------------
         // Renderer
@@ -45,18 +45,14 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
         const renderer = new WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(this.targetSize.width, this.targetSize.height);
 
-        // Add the canvas to the DOM
-        // document.body.appendChild(renderer.domElement);
-
         // --------------------
         // Scene
         // --------------------
         const geometry = new PlaneGeometry(this.config.geometry.width, this.config.geometry.height);
         const texture = new Texture(this.image);
         texture.needsUpdate = true;
-        const material = new MeshBasicMaterial({  map: texture, side: DoubleSide });
+        const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
         const mesh = new Mesh(geometry, material);
-        mesh.position.set(0, 0, 0)
         scene.add(mesh);
 
         return {
@@ -68,8 +64,6 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
     }
 
     public render(): WebGLRenderingContext {
-
-        // Render
         this.renderer.render(this.scene, this.camera);
         return this.renderer.getContext();
     }
@@ -82,21 +76,23 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
     ] {
         // Get 3D Corners
         const corners3d: Vector3[] = [];
-        const positionAttribute  = this.geometry.getAttribute("position"); // read vertex
-        for ( let i = 0; i < positionAttribute.count; i ++ ) {
+        const positionAttribute = this.geometry.getAttribute("position"); // read vertex
+        for (let i = 0; i < positionAttribute.count; i++) {
             const vertex = new Vector3();
-            vertex.fromBufferAttribute( positionAttribute, i ); // read vertex
+            vertex.fromBufferAttribute(positionAttribute, i); // read vertex
             corners3d.push(vertex);
         }
 
         // Convert to 2D corners
         this.camera.updateMatrixWorld();
-        return corners3d.map(v => {
+        const corners2d = corners3d.map(v => {
             const projected = v.clone().project(this.camera);
             return new Vector2(
-                Math.round( (projected.x + 1 ) * this.targetSize.width  / 2 ),
-                Math.round( (-projected.y + 1 ) * this.targetSize.height / 2 ),
+                Math.round((projected.x + 1) * this.targetSize.width / 2),
+                Math.round((-projected.y + 1) * this.targetSize.height / 2),
             );
-        }) as any;
+        });
+
+        return [corners2d[0], corners2d[1], corners2d[3], corners2d[2]]
     }
 }

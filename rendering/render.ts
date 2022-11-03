@@ -13,6 +13,7 @@ export function render({
 	geometry,
 	camera,
 	cameraToProjectionVector,
+	planeRenderer,
 }: {
 	/** context to draw on */
 	targetContext: CanvasRenderingContext2D;
@@ -33,6 +34,7 @@ export function render({
 	};
 	/** Vector to position packshot projection relative to camera */
 	cameraToProjectionVector: Vector3;
+	planeRenderer: PlaneRenderer | null | undefined;
 }) {
 	const targetSize = {
 		width: targetContext.canvas.width,
@@ -61,22 +63,14 @@ export function render({
 		}
 	}
 
+	if (planeRenderer) {
+		const ctx = planeRenderer.render();
+		targetContext.drawImage(ctx.canvas, 0, 0);
+	}
+
 	// Add Packshot Overlay
 	if (packshotOverlayImage) {
 		targetContext.drawImage(packshotOverlayImage, 0, 0);
-	}
-
-	if (spreadImage) {
-		const renderer = new PlaneRenderer(
-			targetSize,
-			spreadImage, 
-			{
-				geometry,
-				camera,
-			},
-		);
-		const ctx = renderer.render();
-		targetContext.drawImage(ctx.canvas, 0, 0);
 	}
 
 	return targetContext;

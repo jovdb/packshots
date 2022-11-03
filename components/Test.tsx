@@ -12,6 +12,7 @@ import { PlaneConfig, usePlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
+import { PlaneRenderer } from "../rendering/PlaneRenderer";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -65,11 +66,11 @@ export function Test() {
         height: previewAreaRect.height - margin * 2,
     });
 
-    const [pointsInTargetCoordinates, setPointsInTargetCoordinates] = useState([
+    const [pointsInTargetCoordinates, setPointsInTargetCoordinates] = useState<>([
         [20, 20],
-        [20, 50],
-        [50, 50],
         [50, 20],
+        [50, 50],
+        [20, 50],
     ]);
 
     const pointsInScreenCoordinates = pointsInTargetCoordinates.map(point => [point[0] * centerPreviewToPreviewArea.scale, point[1] * centerPreviewToPreviewArea.scale] as [number, number])
@@ -86,6 +87,21 @@ export function Test() {
         () => {
             if (!targetContext) return;
             const spreadSampler = spreadImageData ? new PointTextureSampler(spreadImageData) : undefined;
+
+            const targetSize = {
+                width: targetContext.canvas.width,
+                height: targetContext.canvas.height,
+            };
+
+            const planeRenderer = new PlaneRenderer(
+                targetSize,
+                spreadImage, 
+                {
+                    geometry,
+                    camera,
+                },
+            );
+
             render({
                 targetContext,
                 packshotBackgroundImage: showPackshotBackground ? packshotBackgroundImage : undefined,
@@ -95,9 +111,11 @@ export function Test() {
                 spreadSampler,
                 camera,
                 cameraToProjectionVector: projectionVector,
+                planeRenderer,
             });
 
-            
+            const corners2d = planeRenderer.getCorners2d().map(p => [p.x, p.y]);
+            setPointsInTargetCoordinates(corners2d);
         },
         [camera, geometry, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImage, spreadImageData, targetContext, targetHeight, targetWidth]
     );
