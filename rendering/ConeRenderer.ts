@@ -1,24 +1,24 @@
-import { BoxGeometry, Camera, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { BoxGeometry, Camera, ConeGeometry, CylinderGeometry, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { ICamera } from "../components/CameraConfig";
 import { IPlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { IRenderer } from "./IRenderer";
 
-export interface IPlaneRendererProps {
+export interface IConeRendererProps {
     geometry: IPlaneConfig,
     camera: ICamera;
 }
 
-export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
+export class ConeRenderer implements IRenderer<IConeRendererProps> {
 
     private scene: Scene;
-    private geometry: PlaneGeometry;
+    private geometry: ConeGeometry;
     private camera: Camera;
     private renderer: WebGLRenderer;
 
     constructor(
         private targetSize: { width: number; height: number; },
         private image: HTMLImageElement,
-        private config: IPlaneRendererProps,
+        private config: IConeRendererProps,
     ) {
         const info = this.createScene();
         this.scene = info.scene;
@@ -49,12 +49,13 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
         // --------------------
         // Scene
         // --------------------
-        const geometry = new PlaneGeometry(this.config.geometry.width, this.config.geometry.height);
+        const geometry = new CylinderGeometry(10, 10, 15, 60);
         const texture = new Texture(this.image);
         if (this.image?.complete) texture.needsUpdate = true;
 
         const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
-        const mesh = new Mesh(geometry, material);
+        const mesh = new Mesh(geometry, [material, null, null]);
+        // https://stackoverflow.com/questions/8315546/texturing-a-cylinder-in-three-js
         scene.add(mesh);
 
         return {

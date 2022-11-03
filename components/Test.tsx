@@ -13,6 +13,7 @@ import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { PlaneRenderer } from "../rendering/PlaneRenderer";
+import { ConeRenderer } from "../rendering/ConeRenderer";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -102,6 +103,20 @@ export function Test() {
                 },
             );
 
+            const coneRenderer = new ConeRenderer(
+                targetSize,
+                spreadImage, 
+                {
+                    geometry,
+                    camera,
+                },
+            );
+
+            const layers = [
+                planeRenderer,
+                coneRenderer,
+            ];
+
             render({
                 targetContext,
                 packshotBackgroundImage: showPackshotBackground ? packshotBackgroundImage : undefined,
@@ -111,11 +126,15 @@ export function Test() {
                 spreadSampler,
                 camera,
                 cameraToProjectionVector: projectionVector,
-                planeRenderer,
+                layers,
             });
 
-            const corners2d = planeRenderer.getCorners2d().map(p => [p.x, p.y]);
+            const cornersVector2 = planeRenderer.getCorners2d();
+            const corners2d = cornersVector2.map(p => [p.x, p.y]);
             setPointsInTargetCoordinates(corners2d);
+
+            const camera2 = planeRenderer.getCamera(cornersVector2);
+
         },
         [camera, geometry, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImage, spreadImageData, targetContext, targetHeight, targetWidth]
     );
@@ -184,11 +203,11 @@ export function Test() {
                         <SpreadImageConfig />
                     </fieldset>
                     <fieldset>
-                        <legend>Shape</legend>
+                        <legend>Geometry</legend>
                         <table>
                             <tbody>
                                 <tr>
-                                    <td>Shape:</td>
+                                    <td>Geometry:</td>
                                     <td>
                                         <select>
                                             <option value="plane">Plane</option>

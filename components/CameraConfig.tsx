@@ -30,12 +30,12 @@ export const useCameraConfig = create<{
     aspectRatio: number;
 }>(() => ({
     /** Position of camera in cm */
-    position: [0, 0, 5],
+    position: [0, 0, 50],
     direction: [0, 0, 0],
     viewportSize: [15, 10],
-    viewportDistance: 100,
+    viewportDistance: 50,
     
-    fieldOfViewInDeg: 75,
+    fieldOfViewInDeg: 20,
     aspectRatio: 1.5,
 }));
 
@@ -103,8 +103,8 @@ export function CameraConfig() {
                     <td>
                         <Slider
                             value={projectionConfig.position[2]}
-                            defaultValue={-100}
-                            min={-1000}
+                            defaultValue={50}
+                            min={1000}
                             max={1}
                             step={0.1}
                             onChange={(value) => {
@@ -168,6 +168,7 @@ export function CameraConfig() {
                     </td>
                 </tr>
                 <tr><td colSpan={2}><hr /></td></tr>
+                {/*
                 <tr>
                     <td>Viewport width:</td>
                     <td>
@@ -214,6 +215,7 @@ export function CameraConfig() {
                         />
                     </td>
                 </tr>
+                */}
                 <tr>
                     <td>Field of View (deg):</td>
                     <td>

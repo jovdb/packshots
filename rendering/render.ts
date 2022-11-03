@@ -1,5 +1,6 @@
 import { Vector3 } from "three";
 import { IGeometry } from "./geometries/IGeometry";
+import { IRenderer } from "./IRenderer";
 import { PlaneRenderer } from "./PlaneRenderer";
 import { renderOnGeometry } from "./renderOnGeometry";
 import { ITextureSampler } from "./samplers/ITextureSampler";
@@ -13,7 +14,7 @@ export function render({
 	geometry,
 	camera,
 	cameraToProjectionVector,
-	planeRenderer,
+	layers,
 }: {
 	/** context to draw on */
 	targetContext: CanvasRenderingContext2D;
@@ -34,7 +35,7 @@ export function render({
 	};
 	/** Vector to position packshot projection relative to camera */
 	cameraToProjectionVector: Vector3;
-	planeRenderer: PlaneRenderer | null | undefined;
+	layers: IRenderer[];
 }) {
 	const targetSize = {
 		width: targetContext.canvas.width,
@@ -63,10 +64,10 @@ export function render({
 		}
 	}
 
-	if (planeRenderer) {
-		const ctx = planeRenderer.render();
+	layers?.forEach(layer => {
+		const ctx = layer.render();
 		targetContext.drawImage(ctx.canvas, 0, 0);
-	}
+	});
 
 	// Add Packshot Overlay
 	if (packshotOverlayImage) {
