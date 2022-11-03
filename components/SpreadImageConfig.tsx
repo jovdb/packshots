@@ -1,7 +1,7 @@
 import { useState } from "react";
 import create from "zustand";
 import { ImageSelection } from "./FileSelection";
-import { useImageDataFromUrl } from "./Test";
+import { useImageDataFromUrl, useImageFromUrl } from "./Test";
 
 
 export const useSpreadImageConfig = create<{
@@ -9,6 +9,11 @@ export const useSpreadImageConfig = create<{
 }>(() => ({
     url: "./checkerboard.jpg",
 }));
+
+export function useSpreadImage() {
+    const url = useSpreadImageConfig(store => store.url);
+    return useImageFromUrl(url);
+}
 
 export function useSpreadImageData() {
     const url = useSpreadImageConfig(store => store.url);

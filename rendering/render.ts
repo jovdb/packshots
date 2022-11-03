@@ -1,5 +1,6 @@
 import { Vector3 } from "three";
 import { IGeometry } from "./geometries/IGeometry";
+import { PlaneRenderer } from "./PlaneRenderer";
 import { renderOnGeometry } from "./renderOnGeometry";
 import { ITextureSampler } from "./samplers/ITextureSampler";
 
@@ -7,7 +8,7 @@ export function render({
 	targetContext,
 	packshotBackgroundImage,
 	packshotOverlayImage,
-	
+	spreadImage,
 	spreadSampler,
 	geometry,
 	camera,
@@ -19,6 +20,8 @@ export function render({
 	geometry: IGeometry;
 	/** Spread sampler */
 	spreadSampler: ITextureSampler | undefined;
+	/* Spread Image */
+	spreadImage: HTMLImageElement | null | undefined;
 	/* Packshot Backgound Image */
 	packshotBackgroundImage: HTMLImageElement | null | undefined;
 	/* Packshot Overlay Image */
@@ -32,7 +35,7 @@ export function render({
 	cameraToProjectionVector: Vector3;
 }) {
 	const targetSize = {
-		width: targetContext.canvas.width ,
+		width: targetContext.canvas.width,
 		height: targetContext.canvas.height,
 	}
 
@@ -45,22 +48,35 @@ export function render({
 	}
 
 	// Add Spread Layer
-    if (spreadSampler) {
-        const geometryContext = renderOnGeometry({
-            geometry,
-            spreadSampler,
-            targetSize,
-            cameraToProjectionVector,
-            camera,
-        });
-        if (geometryContext) {
-            targetContext.drawImage(geometryContext.canvas, 0, 0);
-        }
-    }
+	if (spreadSampler) {
+		const geometryContext = renderOnGeometry({
+			geometry,
+			spreadSampler,
+			targetSize,
+			cameraToProjectionVector,
+			camera,
+		});
+		if (geometryContext) {
+			targetContext.drawImage(geometryContext.canvas, 0, 0);
+		}
+	}
 
 	// Add Packshot Overlay
 	if (packshotOverlayImage) {
 		targetContext.drawImage(packshotOverlayImage, 0, 0);
+	}
+
+	if (spreadImage) {
+		const renderer = new PlaneRenderer(
+			targetSize,
+			spreadImage, 
+			{
+				geometry,
+				camera,
+			},
+		);
+		const ctx = renderer.render();
+		targetContext.drawImage(ctx.canvas, 0, 0);
 	}
 
 	return targetContext;

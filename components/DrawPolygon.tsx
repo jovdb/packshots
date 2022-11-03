@@ -17,7 +17,7 @@ export function useDrawPolygon(
         if (state.first) {
             let min = Infinity;
             let indexMin = -1;
-            const snapDistance = 8;
+            const snapDistance = 16;
             if (!rect) return;
             points
                 .forEach(([px, py], i) => {

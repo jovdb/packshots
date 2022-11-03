@@ -1,4 +1,4 @@
-import { Vector2, Vector3, Vector4 } from "three";
+import { Matrix3, Vector2, Vector3, Vector4 } from "three";
 import { ICamera } from "../components/CameraConfig";
 import { createContext2d, loadImageAsync } from "../utils/image";
 import { IGeometry } from "./geometries/IGeometry";
@@ -79,3 +79,5 @@ export function renderOnGeometry({
 	renderContext.putImageData(renderImageData, 0, 0);
 	return renderContext;
 }
+
+

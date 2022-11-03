@@ -1,12 +1,16 @@
 import create from "zustand";
 import { Slider } from "../../../components/Slider";
 
+export interface IPlaneConfig {
+    width: number;
+    height: number;
+}
+
 // TODO: make something shape agnostic
-export const usePlaneConfig = create(() => ({
+export const usePlaneConfig = create<IPlaneConfig>(() => ({
     width: 10,
     height: 10,
 }));
-
 
 export function PlaneConfig() {
 

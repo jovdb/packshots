@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Matrix3, Vector2, Vector3 } from "three";
+import { Vector2, Vector3 } from "three";
 import create from "zustand";
 import { Slider } from "./Slider";
 /*
@@ -24,13 +24,19 @@ export const useCameraConfig = create<{
     /** Distance from the camera to the viewPort in world units (cm) */
     viewportDistance: number;
 
-    // Camera angle needed?
+    // Camera angle/tilt needed?
+
+    fieldOfViewInDeg: number;
+    aspectRatio: number;
 }>(() => ({
     /** Position of camera in cm */
-    position: [0, 0, -100],
+    position: [0, 0, 5],
     direction: [0, 0, 0],
     viewportSize: [15, 10],
     viewportDistance: 100,
+    
+    fieldOfViewInDeg: 75,
+    aspectRatio: 1.5,
 }));
 
 export function useProjectionVector() {
@@ -45,6 +51,8 @@ export const useCamera = () => {
         direction: new Vector3(...cameraConfig.direction),
         viewPortSize: new Vector2(...cameraConfig.viewportSize),
         viewPortDistance: cameraConfig.viewportDistance,
+        fieldOfViewInDeg: cameraConfig.fieldOfViewInDeg,
+        aspectRatio: cameraConfig.aspectRatio,
     }), [cameraConfig]);
 }
 
@@ -196,6 +204,22 @@ export function CameraConfig() {
                             max={500}
                             onChange={(value) => {
                                 useCameraConfig.setState({ viewportDistance: value });
+                            }}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Field of View (deg):</td>
+                    <td>
+                        <Slider
+                            value={projectionConfig.fieldOfViewInDeg}
+                            defaultValue={75}
+                            min={1}
+                            max={180}
+                            onChange={(value) => {
+                                useCameraConfig.setState((state) => ({
+                                    fieldOfViewInDeg: value,
+                                }));
                             }}
                         />
                     </td>
