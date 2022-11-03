@@ -37,6 +37,7 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
         camera.position.x = this.config.camera.position.x;
         camera.position.y = this.config.camera.position.y;
         camera.position.z = this.config.camera.position.z;
+        camera.lookAt(this.config.camera.direction);
         // TODO: Add Direction
 
         // --------------------
@@ -94,5 +95,13 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
         });
 
         return [corners2d[0], corners2d[1], corners2d[3], corners2d[2]]
+    }
+
+    public getCamera(corners2d: [
+        topLeft: Vector2,
+        topRight: Vector2,
+        bottomRight: Vector2,
+        bottomLeft: Vector2,
+    ]): ICamera {
     }
 }

@@ -72,6 +72,7 @@ export function CameraConfig() {
                             defaultValue={0}
                             min={-100}
                             max={100}
+                            step={0.1}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
                                     position: [value, state.position[1], state.position[2]],
@@ -88,6 +89,7 @@ export function CameraConfig() {
                             defaultValue={0}
                             min={-100}
                             max={100}
+                            step={0.1}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
                                     position: [state.position[0], value, state.position[2]],
@@ -104,6 +106,7 @@ export function CameraConfig() {
                             defaultValue={-100}
                             min={-1000}
                             max={1}
+                            step={0.1}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
                                     position: [state.position[0], state.position[1], value],
@@ -121,6 +124,7 @@ export function CameraConfig() {
                             defaultValue={0}
                             min={-100}
                             max={100}
+                            step={0.1}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
                                     direction: [value, state.direction[1], state.direction[2]],
@@ -137,6 +141,7 @@ export function CameraConfig() {
                             defaultValue={0}
                             min={-100}
                             max={100}
+                            step={0.1}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
                                     direction: [state.direction[0], value, state.direction[2]],
@@ -153,6 +158,7 @@ export function CameraConfig() {
                             defaultValue={0}
                             min={-1000}
                             max={1}
+                            step={0.1}
                             onChange={(value) => {
                                 useCameraConfig.setState((state) => ({
                                     direction: [state.direction[0], state.direction[1], value],
