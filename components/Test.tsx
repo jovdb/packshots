@@ -5,9 +5,9 @@ import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
 import { PlaneGeometry } from "../rendering/geometries/PlaneGeometry";
 import { render } from "../rendering/render";
 import { ConfigPanel } from "./ConfigPanel";
-import { SpreadImageConfig, useSpreadImageData } from "./SpreadImageConfig";
+import { SpreadImageConfig, useSpreadImage, useSpreadImageData } from "./SpreadImageConfig";
 import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./PackshotImagesConfig";
-import { CameraConfig, useCamera, useProjectionVector } from "./ProjectionConfig";
+import { CameraConfig, useCamera, useProjectionVector } from "./CameraConfig";
 import { PlaneConfig, usePlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
@@ -34,6 +34,7 @@ export function Test() {
 
     const { data: packshotBackgroundImage } = usePackshotBackgroundImage();
     const { data: packshotOverlayImage } = usePackshotOverlayImage();
+    const { data: spreadImage } = useSpreadImage();
     const { data: spreadImageData } = useSpreadImageData();
 
     const targetWidth = packshotBackgroundImage?.width ?? packshotOverlayImage?.width ?? 700;
@@ -89,13 +90,16 @@ export function Test() {
                 targetContext,
                 packshotBackgroundImage: showPackshotBackground ? packshotBackgroundImage : undefined,
                 packshotOverlayImage: showPackshotOverlay ? packshotOverlayImage : undefined,
+                spreadImage,
                 geometry,
                 spreadSampler,
                 camera,
                 cameraToProjectionVector: projectionVector,
             });
+
+            
         },
-        [camera, geometry, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImageData, targetContext, targetHeight, targetWidth]
+        [camera, geometry, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImage, spreadImageData, targetContext, targetHeight, targetWidth]
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
