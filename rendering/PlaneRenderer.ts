@@ -9,7 +9,7 @@ export interface IPlaneRendererProps {
     image: HTMLImageElement
 }
 
-export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
+export class PlaneRenderer implements IRenderer {
 
     private scene: Scene;
     private geometry: PlaneGeometry;

@@ -58,8 +58,8 @@ export const DrawPolygon = forwardRef(({
                 points
                     .map(([x, y], i) => (
                         <>
-                            <circle key={`${i}_1`} cx={x} cy={y} r={5} stroke="blue" strokeWidth="1" fill="transparent" />
-                            <circle key={`${i}_2`} cx={x} cy={y} r={6} stroke="white" strokeWidth="1" fill="transparent" />
+                            <circle key={`${i}_1`} cx={x} cy={y} r={5} stroke="rgba(255,255,255,0.8)" strokeWidth="3" fill="transparent" />
+                            <circle key={`${i}_2`} cx={x} cy={y} r={5} stroke="blue" strokeWidth="1" fill="transparent" />
                         </>
                     ))
             }{

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
 import { PlaneGeometry } from "../rendering/geometries/PlaneGeometry";
-import { render } from "../rendering/render";
+import { loadRenders, render } from "../rendering/render";
 import { ConfigPanel } from "./ConfigPanel";
 import { SpreadImageConfig, useSpreadImage, useSpreadImageData } from "./config/SpreadImageConfig";
 import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./config/PackshotImagesConfig";
@@ -12,7 +12,7 @@ import { PlaneConfig, usePlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
-import { createRenderer } from "../rendering/factory"; 
+import { createRenderer } from "../rendering/factory";
 import { ConeRenderer } from "../rendering/ConeRenderer";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { BackgroundConfig } from "./config/BackgroundConfig";
@@ -20,6 +20,8 @@ import { ActionBar } from "./config/ActionBar";
 import { IRenderer } from "../rendering/IRenderer";
 import { ImageRenderer } from "../rendering/ImageRenderer";
 import { PlaneRenderer } from "../rendering/PlaneRenderer";
+import { useLayersConfig } from "../state/layers";
+import { getConfigComponent } from "./config/factory";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -89,74 +91,19 @@ export function Test() {
             setPointsInTargetCoordinates(newPointsInTargetCoordinates)
         });
 
+    const layers = useLayersConfig(s => s.layers);
+    const deleteLayer = useLayersConfig(s => s.deleteLayer);
+    const updateConfig = useLayersConfig(s => s.updateConfig);
+
+    const { data: renderers } = useQuery<IRenderer[]>(["renderers", layers], () => loadRenders(targetContext, layers));
+
     // Redraw if render input changes 
     useEffect(
         () => {
-            if (!targetContext) return;
-            const spreadSampler = spreadImageData ? new PointTextureSampler(spreadImageData) : undefined;
-
-            const targetSize = {
-                width: targetContext.canvas.width,
-                height: targetContext.canvas.height,
-            };
-
-            const renderLayers: IRenderer[] = [];
-
-            if (packshotBackgroundImage) {
-                const renderer = createRenderer("image", {
-                    image: packshotBackgroundImage,
-                }, targetSize);
-                renderLayers.push(renderer);
-            }
-
-            const placeRenderer = createRenderer("plane", {
-                geometry: planeGeometryConfig,
-                camera,
-                image: spreadImage,
-            }, targetSize);
-            renderLayers.push(placeRenderer);
-
-/*
-            const coneRenderer = createRenderer("cone", {
-                    geometry,
-                    camera,
-                    image: spreadImage,
-                },
-                targetSize,
-            );
-            renderLayers.push(coneRenderer);       
-            */     
-
-            if (packshotOverlayImage) {
-                const renderer = createRenderer("image", {
-                    image: packshotOverlayImage,
-                }, targetSize);
-                renderLayers.push(renderer);
-            }
-
-            render({
-                targetContext,
-                packshotBackgroundImage: showPackshotBackground ? packshotBackgroundImage : undefined,
-                packshotOverlayImage: showPackshotOverlay ? packshotOverlayImage : undefined,
-                spreadImage,
-                geometry,
-                spreadSampler,
-                camera,
-                cameraToProjectionVector: projectionVector,
-                layers: renderLayers,
-            });
-
-            const planeRenderer = renderLayers.find(l => l instanceof PlaneRenderer) as PlaneRenderer;
-            if (planeRenderer) {
-                const cornersVector2 = planeRenderer.getCorners2d();
-                const corners2d = cornersVector2.map(p => [p.x, p.y]);
-                setPointsInTargetCoordinates(corners2d);
-
-                const camera2 = planeRenderer.getCamera(cornersVector2);
-            }
-
+            if (!targetContext || !renderers) return;
+            render(targetContext, renderers);
         },
-        [camera, geometry, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImage, spreadImageData, targetContext, targetHeight, targetWidth]
+        [renderers, targetContext]
     );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
@@ -215,6 +162,24 @@ export function Test() {
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
                     <ActionBar />
+                    {
+                        // Like photoshop, top layer is also on top in panel
+                        layers.slice().reverse().map((layer, i) => {
+                            const ConfigComponent = getConfigComponent(layer);
+                            return (
+                                <Accordion key={i} title={layer.name} right={
+                                    <AccordionButton onClick={() => deleteLayer(i)} title="Remove overlay">✕</AccordionButton>
+                                }>
+                                    <AccordionPanel>
+                                        {ConfigComponent && <ConfigComponent config={layer.config} onChange={(config) => {
+                                            updateConfig(i, config);
+                                        }} />}
+                                    </AccordionPanel>
+                                </Accordion>
+                            );
+                        })
+                    }
+                    <hr />
                     <Accordion title={"Overlay"} right={
                         <AccordionButton onClick={() => alert('delete')} title="Remove overlay">✕</AccordionButton>
                     }>
@@ -247,8 +212,7 @@ export function Test() {
                             </AccordionPanel>
                         </Accordion>
                     }
-                    <hr/>
-                    <hr/>
+                    <hr />
                     <div style={{ padding: 5 }}>
                         <fieldset>
                             <legend>Packshot</legend>

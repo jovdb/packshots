@@ -1,79 +1,28 @@
-import { Vector3 } from "three";
-import { IGeometry } from "./geometries/IGeometry";
-import { ImageRenderer } from "./ImageRenderer";
-import type { IRenderer } from "./IRenderer";
-import { ITextureSampler } from "./samplers/ITextureSampler";
+import { ILayerState } from "../state/Layer";
+import { createRenderer } from "./factory";
+import { IRenderer } from "./IRenderer";
 
-export function render({
-	targetContext,
-	packshotBackgroundImage,
-	packshotOverlayImage,
-	spreadImage,
-	spreadSampler,
-	geometry,
-	camera,
-	cameraToProjectionVector,
-	layers,
-}: {
-	/** context to draw on */
-	targetContext: CanvasRenderingContext2D;
-	/** Geometry to place spread on */
-	geometry: IGeometry;
-	/** Spread sampler */
-	spreadSampler: ITextureSampler | undefined;
-	/* Spread Image */
-	spreadImage: HTMLImageElement | null | undefined;
-	/* Packshot Backgound Image */
-	packshotBackgroundImage: HTMLImageElement | null | undefined;
-	/* Packshot Overlay Image */
-	packshotOverlayImage: HTMLImageElement | null | undefined;
-	/** Vector to place camera from origin */
-	camera: {
-		position: Vector3;
-		direction: Vector3;
-	};
-	/** Vector to position packshot projection relative to camera */
-	cameraToProjectionVector: Vector3;
-	layers: IRenderer[];
-}) {
+export async function loadRenders(
+	targetContext: CanvasRenderingContext2D | null | undefined,
+	layers: ILayerState[],
+) {
+	if (!targetContext) return [];
 	const targetSize = {
 		width: targetContext.canvas.width,
 		height: targetContext.canvas.height,
 	}
 
-	targetContext.clearRect(0, 0, targetSize.width, targetSize.height);
+	const renderers = layers.map(layer => createRenderer(layer.type, layer.config, targetSize));
+	await Promise.allSettled(renderers.map(r => r.loadAsync?.()));
 
-	/*
-	// Packshot Background
-	if (packshotBackgroundImage) {
-		const renderer = new ImageRenderer(packshotBackgroundImage);
-		renderer.render(targetContext);
-	}
-/*
-	// Add Spread Layer
-	if (spreadSampler) {
-		const geometryContext = renderOnGeometry({
-			geometry,
-			spreadSampler,
-			targetSize,
-			cameraToProjectionVector,
-			camera,
-		});
-		if (geometryContext) {
-			targetContext.drawImage(geometryContext.canvas, 0, 0);
-		}
-	}
-	*/
+	return renderers;
+}
 
-	layers?.forEach(layer => {
-		layer.render(targetContext);
-	});
-
-	/*
-	if (packshotOverlayImage) {
-		const renderer = new ImageRenderer(packshotOverlayImage);
-		renderer.render(targetContext);
-	}*/
-
-	return targetContext;
+export async function render(
+	targetContext: CanvasRenderingContext2D,
+	renderers: IRenderer[],
+) {
+	if (!targetContext) return;
+	targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
+	renderers.forEach(renderer => renderer.render(targetContext));
 }

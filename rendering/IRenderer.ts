@@ -1,8 +1,7 @@
-export interface IRenderer<TConfig = unknown> {
+export interface IRenderer {
     render(
         targetContext: CanvasRenderingContext2D,
-        //targetSize: { width: number; height: number },
-        //image: HTMLImageElement,
-        config: TConfig,
     ): void;
+
+    loadAsync?(): Promise<void>;
 }

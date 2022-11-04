@@ -18,7 +18,7 @@ export function PlaneConfig() {
     return (
         <>
             <fieldset>
-                <legend>Dimentions</legend>
+                <legend>Physical dimensions</legend>
                 <table style={{ width: "100%" }}>
                     <tbody>
                         <tr>

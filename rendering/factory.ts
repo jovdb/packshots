@@ -1,12 +1,13 @@
 import { ConeRenderer } from "./ConeRenderer";
 import { ImageRenderer } from "./ImageRenderer";
+import { IRenderer } from "./IRenderer";
 import { PlaneRenderer } from "./PlaneRenderer";
 
 export function createRenderer(
     type: "image" | "plane" | "cone",
     config: unknown,
     targetSize: { width: number; height: number; },
-) {
+): IRenderer {
     switch (type) {
         case "image": return new ImageRenderer(config as any);
         case "plane": return new PlaneRenderer(targetSize, config as any);

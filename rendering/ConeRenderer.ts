@@ -9,7 +9,7 @@ export interface IConeRendererProps {
     image: HTMLImageElement;
 }
 
-export class ConeRenderer implements IRenderer<IConeRendererProps> {
+export class ConeRenderer implements IRenderer {
 
     private scene: Scene;
     private geometry: ConeGeometry;
