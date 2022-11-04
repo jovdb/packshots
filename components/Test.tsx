@@ -5,9 +5,9 @@ import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
 import { PlaneGeometry } from "../rendering/geometries/PlaneGeometry";
 import { render } from "../rendering/render";
 import { ConfigPanel } from "./ConfigPanel";
-import { SpreadImageConfig, useSpreadImage, useSpreadImageData } from "./SpreadImageConfig";
-import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./PackshotImagesConfig";
-import { CameraConfig, useCamera, useProjectionVector } from "./CameraConfig";
+import { SpreadImageConfig, useSpreadImage, useSpreadImageData } from "./config/SpreadImageConfig";
+import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./config/PackshotImagesConfig";
+import { CameraConfig, useCamera, useProjectionVector } from "./config/CameraConfig";
 import { PlaneConfig, usePlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
@@ -15,7 +15,8 @@ import { fitRectTransform } from "../utils/rect";
 import { PlaneRenderer } from "../rendering/PlaneRenderer";
 import { ConeRenderer } from "../rendering/ConeRenderer";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
-import { BackgroundConfig } from "./BackgroundConfig";
+import { BackgroundConfig } from "./config/BackgroundConfig";
+import { ActionBar } from "./config/ActionBar";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -196,13 +197,17 @@ export function Test() {
             </div>
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
-                    <button>+</button>
-                    <Accordion title={"Overlay"} right={<AccordionButton onClick={() => alert('delete')}>✕</AccordionButton>}>
+                    <ActionBar />
+                    <Accordion title={"Overlay"} right={
+                        <AccordionButton onClick={() => alert('delete')} title="Remove overlay">✕</AccordionButton>
+                    }>
                         <AccordionPanel>
                             TODO
                         </AccordionPanel>
                     </Accordion>
-                    <Accordion title={"Spread on Plane"} right={<AccordionButton onClick={() => alert('delete')}>✕</AccordionButton>}>
+                    <Accordion title={"Spread on Plane"} right={
+                        <AccordionButton onClick={() => alert('delete')} title="Remove spread">✕</AccordionButton>
+                    }>
                         <AccordionPanel>
                             <PlaneConfig />
                         </AccordionPanel>
@@ -216,6 +221,7 @@ export function Test() {
                                 >👁</AccordionButton>
                                 <AccordionButton
                                     onClick={() => { usePackshotImagesConfig.setState({ backgroundUrl: "" }) }}
+                                    title="Remove background"
                                 >✕</AccordionButton>
                             </>
                         }>
@@ -224,6 +230,8 @@ export function Test() {
                             </AccordionPanel>
                         </Accordion>
                     }
+                    <hr/>
+                    <hr/>
                     <div style={{ padding: 5 }}>
                         <fieldset>
                             <legend>Packshot</legend>

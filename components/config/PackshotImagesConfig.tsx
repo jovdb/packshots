@@ -1,7 +1,7 @@
 import { useState } from "react";
 import create from "zustand";
-import { ImageSelection } from "./FileSelection";
-import { useImageDataFromUrl, useImageFromUrl } from "./Test";
+import { ImageSelection } from "../FileSelection";
+import { useImageDataFromUrl, useImageFromUrl } from "../Test";
 
 
 export const usePackshotImagesConfig = create<{

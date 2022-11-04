@@ -1,5 +1,5 @@
 import { BoxGeometry, Camera, ConeGeometry, CylinderGeometry, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
-import { ICamera } from "../components/CameraConfig";
+import { ICamera } from "../components/config/CameraConfig";
 import { IPlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { IRenderer } from "./IRenderer";
 

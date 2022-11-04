@@ -1,5 +1,5 @@
 import { Vector2, Vector3, Vector4 } from "three";
-import { ICamera } from "../components/CameraConfig";
+import { ICamera } from "../components/config/CameraConfig";
 import { createContext2d, loadImageAsync } from "../utils/image";
 import { IGeometry } from "./geometries/IGeometry";
 import { ITextureSampler } from "./samplers/ITextureSampler";

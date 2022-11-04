@@ -1,5 +1,6 @@
 import { Vector3 } from "three";
 import { IGeometry } from "./geometries/IGeometry";
+import { ImageRenderer } from "./ImageRenderer";
 import { IRenderer } from "./IRenderer";
 import { PlaneRenderer } from "./PlaneRenderer";
 import { renderOnGeometry } from "./renderOnGeometry";
@@ -47,9 +48,10 @@ export function render({
 
 	// Packshot Background
 	if (packshotBackgroundImage) {
-		targetContext.drawImage(packshotBackgroundImage, 0, 0);
+		const renderer = new ImageRenderer(packshotBackgroundImage);
+		renderer.render(targetContext);
 	}
-
+/*
 	// Add Spread Layer
 	if (spreadSampler) {
 		const geometryContext = renderOnGeometry({
@@ -63,15 +65,15 @@ export function render({
 			targetContext.drawImage(geometryContext.canvas, 0, 0);
 		}
 	}
+	*/
 
 	layers?.forEach(layer => {
-		const ctx = layer.render();
-		targetContext.drawImage(ctx.canvas, 0, 0);
+		layer.render(targetContext);
 	});
 
-	// Add Packshot Overlay
 	if (packshotOverlayImage) {
-		targetContext.drawImage(packshotOverlayImage, 0, 0);
+		const renderer = new ImageRenderer(packshotOverlayImage);
+		renderer.render(targetContext);
 	}
 
 	return targetContext;

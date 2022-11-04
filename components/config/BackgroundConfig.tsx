@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ImageSelection } from "./FileSelection";
+import { ImageSelection } from "../FileSelection";
 import { usePackshotBackgroundImage, usePackshotImagesConfig } from "./PackshotImagesConfig";
 
 export function BackgroundConfig() {

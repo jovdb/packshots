@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Vector2, Vector3 } from "three";
 import create from "zustand";
-import { Slider } from "./Slider";
+import { Slider } from "../Slider";
 /*
  camera    viewport           geometry
   eye        |\

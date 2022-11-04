@@ -1,5 +1,5 @@
 import { BoxGeometry, Camera, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
-import { ICamera } from "../components/CameraConfig";
+import { ICamera } from "../components/config/CameraConfig";
 import { IPlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { IRenderer } from "./IRenderer";
 
@@ -65,9 +65,9 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
         }
     }
 
-    public render(): WebGLRenderingContext {
+    public render(targetContext: CanvasRenderingContext2D) {
         this.renderer.render(this.scene, this.camera);
-        return this.renderer.getContext();
+        targetContext.drawImage(this.renderer.getContext().canvas, 0, 0);
     }
 
     public getCorners2d(): [
@@ -108,6 +108,5 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
         // https://docs.opencv.org/4.x/d7/d53/tutorial_py_pose.html
 
         if (corners2d?.length !== 4) throw new Error("Four corner points expected");
-
     }
 }
