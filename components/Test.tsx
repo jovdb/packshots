@@ -12,11 +12,14 @@ import { PlaneConfig, usePlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
-import { PlaneRenderer } from "../rendering/PlaneRenderer";
+import { createRenderer } from "../rendering/factory"; 
 import { ConeRenderer } from "../rendering/ConeRenderer";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { BackgroundConfig } from "./config/BackgroundConfig";
 import { ActionBar } from "./config/ActionBar";
+import { IRenderer } from "../rendering/IRenderer";
+import { ImageRenderer } from "../rendering/ImageRenderer";
+import { PlaneRenderer } from "../rendering/PlaneRenderer";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -47,8 +50,8 @@ export function Test() {
 
     // Get Geometry
     // TODO: Make geometry agnostic
-    const geometryConfig = usePlaneConfig();
-    const geometry = useMemo(() => new PlaneGeometry(geometryConfig.width, geometryConfig.height), [geometryConfig]);
+    const planeGeometryConfig = usePlaneConfig();
+    const geometry = useMemo(() => new PlaneGeometry(planeGeometryConfig.width, planeGeometryConfig.height), [planeGeometryConfig]);
 
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
@@ -97,28 +100,39 @@ export function Test() {
                 height: targetContext.canvas.height,
             };
 
-            const planeRenderer = new PlaneRenderer(
-                targetSize,
-                spreadImage,
-                {
+            const renderLayers: IRenderer[] = [];
+
+            if (packshotBackgroundImage) {
+                const renderer = createRenderer("image", {
+                    image: packshotBackgroundImage,
+                }, targetSize);
+                renderLayers.push(renderer);
+            }
+
+            const placeRenderer = createRenderer("plane", {
+                geometry: planeGeometryConfig,
+                camera,
+                image: spreadImage,
+            }, targetSize);
+            renderLayers.push(placeRenderer);
+
+/*
+            const coneRenderer = createRenderer("cone", {
                     geometry,
                     camera,
+                    image: spreadImage,
                 },
-            );
-
-            const coneRenderer = new ConeRenderer(
                 targetSize,
-                spreadImage,
-                {
-                    geometry,
-                    camera,
-                },
             );
+            renderLayers.push(coneRenderer);       
+            */     
 
-            const layers = [
-                planeRenderer,
-                coneRenderer,
-            ];
+            if (packshotOverlayImage) {
+                const renderer = createRenderer("image", {
+                    image: packshotOverlayImage,
+                }, targetSize);
+                renderLayers.push(renderer);
+            }
 
             render({
                 targetContext,
@@ -129,14 +143,17 @@ export function Test() {
                 spreadSampler,
                 camera,
                 cameraToProjectionVector: projectionVector,
-                layers,
+                layers: renderLayers,
             });
 
-            const cornersVector2 = planeRenderer.getCorners2d();
-            const corners2d = cornersVector2.map(p => [p.x, p.y]);
-            setPointsInTargetCoordinates(corners2d);
+            const planeRenderer = renderLayers.find(l => l instanceof PlaneRenderer) as PlaneRenderer;
+            if (planeRenderer) {
+                const cornersVector2 = planeRenderer.getCorners2d();
+                const corners2d = cornersVector2.map(p => [p.x, p.y]);
+                setPointsInTargetCoordinates(corners2d);
 
-            const camera2 = planeRenderer.getCamera(cornersVector2);
+                const camera2 = planeRenderer.getCamera(cornersVector2);
+            }
 
         },
         [camera, geometry, packshotBackgroundImage, packshotOverlayImage, projectionVector, showPackshotBackground, showPackshotOverlay, spreadImage, spreadImageData, targetContext, targetHeight, targetWidth]

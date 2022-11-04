@@ -6,6 +6,7 @@ import { IRenderer } from "./IRenderer";
 export interface IConeRendererProps {
     geometry: IPlaneConfig,
     camera: ICamera;
+    image: HTMLImageElement;
 }
 
 export class ConeRenderer implements IRenderer<IConeRendererProps> {
@@ -17,7 +18,6 @@ export class ConeRenderer implements IRenderer<IConeRendererProps> {
 
     constructor(
         private targetSize: { width: number; height: number; },
-        private image: HTMLImageElement,
         private config: IConeRendererProps,
     ) {
         const info = this.createScene();
@@ -50,8 +50,8 @@ export class ConeRenderer implements IRenderer<IConeRendererProps> {
         // Scene
         // --------------------
         const geometry = new CylinderGeometry(10, 10, 15, 60);
-        const texture = new Texture(this.image);
-        if (this.image?.complete) texture.needsUpdate = true;
+        const texture = new Texture(this.config.image);
+        if (this.config.image?.complete) texture.needsUpdate = true;
 
         const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
         const mesh = new Mesh(geometry, [material, null, null]);

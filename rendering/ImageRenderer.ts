@@ -1,4 +1,4 @@
-import { IRenderer } from "./IRenderer";
+import type { IRenderer } from "./IRenderer";
 
 export interface IImageRendererProps {
     image: HTMLImageElement;
@@ -6,13 +6,13 @@ export interface IImageRendererProps {
 
 export class ImageRenderer implements IRenderer<IImageRendererProps> {
     constructor(
-        private image: HTMLImageElement,
+        private config: IImageRendererProps,
     ) {
     }
 
     public render(targetContext: CanvasRenderingContext2D) {
-        if (this.image) {
-            targetContext.drawImage(this.image, 0, 0);
+        if (this.config.image) {
+            targetContext.drawImage(this.config.image, 0, 0);
         }
     }
 }

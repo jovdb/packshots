@@ -1,9 +1,7 @@
 import { Vector3 } from "three";
 import { IGeometry } from "./geometries/IGeometry";
 import { ImageRenderer } from "./ImageRenderer";
-import { IRenderer } from "./IRenderer";
-import { PlaneRenderer } from "./PlaneRenderer";
-import { renderOnGeometry } from "./renderOnGeometry";
+import type { IRenderer } from "./IRenderer";
 import { ITextureSampler } from "./samplers/ITextureSampler";
 
 export function render({
@@ -44,8 +42,8 @@ export function render({
 	}
 
 	targetContext.clearRect(0, 0, targetSize.width, targetSize.height);
-	// targetContext.translate(-0.5, -0.5);
 
+	/*
 	// Packshot Background
 	if (packshotBackgroundImage) {
 		const renderer = new ImageRenderer(packshotBackgroundImage);
@@ -71,10 +69,11 @@ export function render({
 		layer.render(targetContext);
 	});
 
+	/*
 	if (packshotOverlayImage) {
 		const renderer = new ImageRenderer(packshotOverlayImage);
 		renderer.render(targetContext);
-	}
+	}*/
 
 	return targetContext;
 }

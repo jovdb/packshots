@@ -1,11 +1,12 @@
 import { BoxGeometry, Camera, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { ICamera } from "../components/config/CameraConfig";
 import { IPlaneConfig } from "../data/shapes/plane/PlaneConfig";
-import { IRenderer } from "./IRenderer";
+import type { IRenderer } from "./IRenderer";
 
 export interface IPlaneRendererProps {
     geometry: IPlaneConfig,
     camera: ICamera;
+    image: HTMLImageElement
 }
 
 export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
@@ -17,9 +18,9 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
 
     constructor(
         private targetSize: { width: number; height: number; },
-        private image: HTMLImageElement,
         private config: IPlaneRendererProps,
     ) {
+        console.log("plane", config);
         const info = this.createScene();
         this.scene = info.scene;
         this.geometry = info.geometry;
@@ -50,8 +51,8 @@ export class PlaneRenderer implements IRenderer<IPlaneRendererProps> {
         // Scene
         // --------------------
         const geometry = new PlaneGeometry(this.config.geometry.width, this.config.geometry.height);
-        const texture = new Texture(this.image);
-        if (this.image?.complete) texture.needsUpdate = true;
+        const texture = new Texture(this.config.image);
+        if (this.config.image?.complete) texture.needsUpdate = true;
 
         const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
         const mesh = new Mesh(geometry, material);
