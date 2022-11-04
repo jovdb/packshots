@@ -14,6 +14,8 @@ import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { PlaneRenderer } from "../rendering/PlaneRenderer";
 import { ConeRenderer } from "../rendering/ConeRenderer";
+import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
+import { BackgroundConfig } from "./BackgroundConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -96,7 +98,7 @@ export function Test() {
 
             const planeRenderer = new PlaneRenderer(
                 targetSize,
-                spreadImage, 
+                spreadImage,
                 {
                     geometry,
                     camera,
@@ -105,7 +107,7 @@ export function Test() {
 
             const coneRenderer = new ConeRenderer(
                 targetSize,
-                spreadImage, 
+                spreadImage,
                 {
                     geometry,
                     camera,
@@ -194,38 +196,67 @@ export function Test() {
             </div>
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
-                    <fieldset>
-                        <legend>Packshot</legend>
-                        <PackshotImagesConfig />
-                    </fieldset>
-                    <fieldset>
-                        <legend>Spread</legend>
-                        <SpreadImageConfig />
-                    </fieldset>
-                    <fieldset>
-                        <legend>Geometry</legend>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>Geometry:</td>
-                                    <td>
-                                        <select>
-                                            <option value="plane">Plane</option>
-                                            <option value="cone">Cylinder / Cone</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <PlaneConfig />
-                    </fieldset>
-                    <fieldset>
-                        <legend>Camera</legend>
-                        <CameraConfig />
-                    </fieldset>
+                    <button>+</button>
+                    <Accordion title={"Overlay"} right={<AccordionButton onClick={() => alert('delete')}>✕</AccordionButton>}>
+                        <AccordionPanel>
+                            TODO
+                        </AccordionPanel>
+                    </Accordion>
+                    <Accordion title={"Spread on Plane"} right={<AccordionButton onClick={() => alert('delete')}>✕</AccordionButton>}>
+                        <AccordionPanel>
+                            <PlaneConfig />
+                        </AccordionPanel>
+                    </Accordion>
+                    {usePackshotImagesConfig.getState().backgroundUrl &&
+                        <Accordion title={"Background"} right={
+                            <>
+                                <AccordionButton
+                                    onClick={() => { usePackshotImagesConfig.setState((prev) => ({ showBackground: !prev.showBackground })) }}
+                                    style={{ opacity: usePackshotImagesConfig.getState().showBackground ? 1 : 0.5 }}
+                                >👁</AccordionButton>
+                                <AccordionButton
+                                    onClick={() => { usePackshotImagesConfig.setState({ backgroundUrl: "" }) }}
+                                >✕</AccordionButton>
+                            </>
+                        }>
+                            <AccordionPanel>
+                                <BackgroundConfig />
+                            </AccordionPanel>
+                        </Accordion>
+                    }
+                    <div style={{ padding: 5 }}>
+                        <fieldset>
+                            <legend>Packshot</legend>
+                            <PackshotImagesConfig />
+                        </fieldset>
+                        <fieldset>
+                            <legend>Spread</legend>
+                            <SpreadImageConfig />
+                        </fieldset>
+                        <fieldset>
+                            <legend>Geometry</legend>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>Geometry:</td>
+                                        <td>
+                                            <select>
+                                                <option value="plane">Plane</option>
+                                                <option value="cone">Cylinder / Cone</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <PlaneConfig />
+                        </fieldset>
+                        <fieldset>
+                            <legend>Camera</legend>
+                            <CameraConfig />
+                        </fieldset>
+                    </div>
                 </ConfigPanel>
             </div>
         </div>
     );
 }
-
