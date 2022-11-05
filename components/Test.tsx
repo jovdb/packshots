@@ -38,6 +38,7 @@ export function Test() {
     // Load renderers
     const { data: renderers } = useQuery<IRenderer[]>(["renderers", layers], () => loadRenders(targetContext, layers));
 
+    
     // Get size from image
     const firstImageRenderer = renderers?.find(r => r instanceof ImageRenderer) as ImageRenderer | undefined;
     const targetWidth = firstImageRenderer?.image?.width || 700;
@@ -178,9 +179,14 @@ export function Test() {
                                     </>}
                                 >
                                     <AccordionPanel>
-                                        {ConfigComponent && <ConfigComponent config={layer.config} onChange={(config) => {
-                                            updateConfig(i, config);
-                                        }} />}
+                                        {ConfigComponent && (
+                                            <ConfigComponent
+                                                config={layer.config}
+                                                onChange={(config) => {
+                                                    updateConfig(i, config);
+                                                }}
+                                            />
+                                        )}
                                     </AccordionPanel>
                                 </Accordion>
                             );
