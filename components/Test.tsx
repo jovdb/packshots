@@ -154,7 +154,7 @@ export function Test() {
                                     title={layer.name}
                                     isExpanded={!!layer.ui?.isExpanded}
                                     setIsExpanded={(value) => {
-                                        updateUi(i, {...layer, isExpanded: value});
+                                        updateUi(i, { isExpanded: value });
                                     }}
                                     right={<>
                                         <AccordionButton
@@ -162,7 +162,7 @@ export function Test() {
                                             style={{ opacity: (layer.ui?.isVisible ?? true) ? 1 : 0.5 }}
                                             onClick={() => {
                                                 const isVisible = layer.ui?.isVisible ?? true;
-                                                updateUi(i, { ...layer.ui || {}, isVisible: !isVisible });
+                                                updateUi(i, { isVisible: !isVisible });
                                             }}>
                                             👁
                                         </AccordionButton>

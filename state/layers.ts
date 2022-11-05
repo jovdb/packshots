@@ -54,9 +54,11 @@ export const useLayersConfig = create<{
     updateConfig(index, config) {
         set((state) => {
             const newLayers = state.layers.slice();
+            const oldLayer = newLayers[index];
+            const oldConfig = oldLayer?.config || {};
             const newLayer = {
-                ...newLayers[index],
-                config,
+                ...oldLayer,
+                config: {...oldConfig, ...config},
             };
             newLayers.splice(index, 1, newLayer);
             return {
@@ -67,9 +69,11 @@ export const useLayersConfig = create<{
     updateUi(index, ui) {
         set((state) => {
             const newLayers = state.layers.slice();
+            const oldLayer = newLayers[index];
+            const oldUi = oldLayer?.ui || {};
             const newLayer = {
-                ...newLayers[index],
-                ui,
+                ...oldLayer,
+                ui: {...oldUi, ...ui},
             };
             newLayers.splice(index, 1, newLayer);
             return {
