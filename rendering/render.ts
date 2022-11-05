@@ -21,7 +21,7 @@ export async function loadRenders(
 }
 
 export async function render(
-	targetContext: CanvasRenderingContext2D,
+	targetContext: CanvasRenderingContext2D | null | undefined,
 	renderers: IRenderer[],
 ) {
 	if (!targetContext) return;

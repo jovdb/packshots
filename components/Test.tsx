@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { loadRenders, render } from "../rendering/render";
@@ -35,17 +35,28 @@ export function Test() {
     const updateConfig = useLayersConfig(s => s.updateConfig);
     const updateUi = useLayersConfig(s => s.updateUi);
 
-    // Load renderers
-    const { data: renderers } = useQuery<IRenderer[]>(["renderers", layers], () => loadRenders(targetContext, layers));
-
-    
     // Get size from image
+    /*
     const firstImageRenderer = renderers?.find(r => r instanceof ImageRenderer) as ImageRenderer | undefined;
+    */
+    const firstImageRenderer: any = undefined;
     const targetWidth = firstImageRenderer?.image?.width || 700;
     const targetHeight = firstImageRenderer?.image?.height || 700;
 
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
+
+    // Render
+    useEffect(() => {
+        loadRenders(targetContext, layers)
+            .then(renderers => {
+                try {
+                    render(targetContext, renderers);
+                } finally {
+                    renderers.forEach(r => r.dispose?.());
+                } 
+            });
+    }, [layers, targetContext]);
 
     // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);
@@ -78,15 +89,6 @@ export function Test() {
             const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => [point[0] / centerPreviewToPreviewArea.scale, point[1] / centerPreviewToPreviewArea.scale] as [number, number])
             setPointsInTargetCoordinates(newPointsInTargetCoordinates)
         });
-
-    // Redraw if render input changes 
-    useEffect(
-        () => {
-            if (!targetContext || !renderers) return;
-            render(targetContext, renderers);
-        },
-        [renderers, targetContext]
-    );
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
     const checkBoardSize = 25;

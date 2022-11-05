@@ -4,4 +4,6 @@ export interface IRenderer {
     ): void;
 
     loadAsync?(): Promise<void>;
+
+    dispose?(): void;
 }
