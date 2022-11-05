@@ -1,27 +1,30 @@
-import { BoxGeometry, Camera, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
-import { ICamera } from "../components/config/CameraConfig";
-import { IPlaneConfig } from "../data/shapes/plane/PlaneConfig";
+import { Camera, DoubleSide, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { cameraDefaultConfig, ICameraConfig } from "../components/config/CameraConfig";
+import { IPlaneConfig } from "../components/config/PlaneConfig";
 import { loadImageAsync } from "../utils/image";
 import type { IRenderer } from "./IRenderer";
 
-export interface IPlaneRendererProps {
-    geometry: IPlaneConfig,
-    camera: ICamera;
-    imageUrl: string;
-}
-
 export class PlaneRenderer implements IRenderer {
 
+    private config: IPlaneConfig
     private scene: Scene;
     private geometry: PlaneGeometry;
     private camera: Camera;
     private renderer: WebGLRenderer;
     public image: HTMLImageElement | null | undefined;
+    private texture: Texture | undefined;
 
     constructor(
         private targetSize: { width: number; height: number; },
-        private config: IPlaneRendererProps,
+        config: IPlaneConfig,
     ) {
+
+        this.config = {
+            plane: config.plane || { width: 10, height: 10 },
+            camera: config.camera || cameraDefaultConfig,
+            image: config.image || { url: "" },
+        };
+
         const info = this.createScene();
         this.scene = info.scene;
         this.geometry = info.geometry;
@@ -31,15 +34,19 @@ export class PlaneRenderer implements IRenderer {
 
     private createScene() {
         const scene = new Scene();
+        const {
+            plane,
+            camera: cameraConfig,
+        } = this.config;
 
         // --------------------
         // Camera
         // --------------------
-        const camera = new PerspectiveCamera(this.config.camera?.fieldOfViewInDeg ?? 75, this.targetSize.width / this.targetSize.height);
-        camera.position.x = this.config.camera?.position?.x ?? 0;
-        camera.position.y = this.config.camera?.position?.y ?? 0;
-        camera.position.z = this.config.camera?.position?.z ?? 50;
-        if (this.config.camera?.direction) camera.lookAt(this.config.camera.direction);
+        const camera = new PerspectiveCamera(cameraConfig?.fieldOfViewInDeg ?? 75, this.targetSize.width / this.targetSize.height);
+        camera.position.x = cameraConfig.position[0] ?? 0;
+        camera.position.y = cameraConfig.position[1] ?? 0;
+        camera.position.z = cameraConfig.position[2] ?? 50;
+        if (cameraConfig.direction) camera.lookAt(new Vector3(cameraConfig.direction[0], cameraConfig.direction[1], cameraConfig.direction[2]));
 
         // --------------------
         // Renderer
@@ -50,11 +57,12 @@ export class PlaneRenderer implements IRenderer {
         // --------------------
         // Scene
         // --------------------
-        const geometry = new PlaneGeometry(this.config.geometry?.width ?? 10, this.config.geometry?.height ?? 10);
-        const texture = this.image ? new Texture(this.image) : null;
-        if (texture && this.image?.complete) texture.needsUpdate = true;
-
-        const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
+        const geometry = new PlaneGeometry(plane.width ?? 10, plane.height ?? 10);
+        //const texture = this.image ? new Texture(this.image) : null;
+        if (this.texture) this.texture.needsUpdate = true;
+// console.log(this.image);
+console.log(this.texture);
+        const material = new MeshBasicMaterial({ map: this.texture, side: DoubleSide });
         const mesh = new Mesh(geometry, material);
         scene.add(mesh);
 
@@ -67,9 +75,12 @@ export class PlaneRenderer implements IRenderer {
     }
 
     async loadAsync() {
-        const url = this.config?.imageUrl ?? "";
-        if (!url) return;
-        this.image = await loadImageAsync(url);
+        const url = this.config?.image?.url ?? "";
+
+        const loader = new TextureLoader();
+        this.texture = url ? await loader.loadAsync(url) : undefined;
+        // this.image = url ? await loadImageAsync(url) : undefined;
+        console.log(this.texture);
     }
 
     public render(targetContext: CanvasRenderingContext2D) {
@@ -105,7 +116,7 @@ export class PlaneRenderer implements IRenderer {
         return [corners2d[0], corners2d[1], corners2d[3], corners2d[2]]
     }
 
-    public getCamera(corners2d: Vector2[]): ICamera {
+    public getCamera(corners2d: Vector2[]): ICameraConfig {
         // Camera Calibration: https://www.analyticsvidhya.com/blog/2021/10/a-comprehensive-guide-for-camera-calibration-in-computer-vision/
         // https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript
         // https://se.mathworks.com/matlabcentral/answers/410103-how-to-find-projective-transformation-with-4-points
@@ -115,5 +126,11 @@ export class PlaneRenderer implements IRenderer {
         // https://docs.opencv.org/4.x/d7/d53/tutorial_py_pose.html
 
         if (corners2d?.length !== 4) throw new Error("Four corner points expected");
+    }
+
+    public dispose() {
+        this.geometry?.dispose();
+        this.texture?.dispose();
+        this.renderer.dispose();
     }
 }

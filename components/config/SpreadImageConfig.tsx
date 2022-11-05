@@ -1,32 +1,19 @@
 import { useState } from "react";
-import create from "zustand";
 import { ImageSelection } from "../FileSelection";
-import { useImageDataFromUrl, useImageFromUrl } from "../Test";
+import { ConfigComponent } from "./factory";
 
+export interface ISpreadImageConfig {
+    url: string,
+};
 
-export const useSpreadImageConfig = create<{
-    url: string;
-}>(() => ({
-    url: "./checkerboard.jpg",
-}));
-
-export function useSpreadImage() {
-    const url = useSpreadImageConfig(store => store.url);
-    return useImageFromUrl(url);
+export const spreadImageDefaultConfig = {
+    url: "",
 }
 
-export function useSpreadImageData() {
-    const url = useSpreadImageConfig(store => store.url);
-    return useImageDataFromUrl(url);
-}
-
-export function SpreadImageConfig() {
-
-    const spreadImageConfig = useSpreadImageConfig();
-    const [ type, setType] = useState("checkerboard");
-    const [ lastFile, setLastFile] = useState<{ url: string; name: string }>({ name: "", url: "" }); 
-    const { isFetching, isFetched, isError, data: spreadImageData } = useSpreadImageData();
-    const [loadFileError, setLoadFileError] = useState("");
+export const SpreadImageConfig: ConfigComponent<ISpreadImageConfig> = ({ config, onChange }) => {
+    let type = "local";
+    if (config.url === "./checkerboard.jpg") type = "checkerboard" ;
+    if (config.url === "./card.jpg") type = "test1" ;
 
     return (
         <table>
@@ -37,22 +24,33 @@ export function SpreadImageConfig() {
                             value={type}
                             onChange={(e) => {
                                 const value = e.target.value;
-                                setType(value);
                                 switch (value) {
                                     case "checkerboard": {
-                                        useSpreadImageConfig.setState({ url: "./checkerboard.jpg" });
+                                        onChange({
+                                            ...config,
+                                            url: "./checkerboard.jpg",
+                                        });
                                         break;
                                     }
                                     case "test1": {
-                                        useSpreadImageConfig.setState({ url: "./card.jpg" });
+                                        onChange({
+                                            ...config,
+                                            url: "./card.jpg",
+                                        });
                                         break;
                                     }
                                     case "local": {
-                                        useSpreadImageConfig.setState({ url: lastFile.url });
+                                        onChange({
+                                            ...config,
+                                            url: "",
+                                        });
                                         break;
                                     }
                                     default: {
-                                        useSpreadImageConfig.setState({ url: "" });
+                                        onChange({
+                                            ...config,
+                                            url: "",
+                                        });
                                         break;
                                     }
                                 } 
@@ -62,31 +60,24 @@ export function SpreadImageConfig() {
                             <option value="checkerboard">Checker board</option>
                             <option value="test1">Test Image 1</option>
                         </select>
-                        {isFetching && "⌛"}
                     </td>
                 </tr>
                 {type === "local" && (
                     <tr>
                         <td colSpan={2}>
-                            <input readOnly disabled value={lastFile.name} style={{ marginRight: 5 }} />
+                            <input readOnly disabled value={config.url} style={{ marginRight: 5 }} />
                             <ImageSelection 
                                 onSelect={(info) => {
-                                    setLastFile(info);
-                                    useSpreadImageConfig.setState({ url: info.url });
+                                    onChange({
+                                        ...config,
+                                        url: info.url,
+                                    });
                                 }}
-                                onSelectError={setLoadFileError}
                             />
                         </td>
                     </tr>
                 )}
-                <tr>
-                    <td colSpan={2}>
-                        {isError  && (loadFileError || "Error loading")}
-                        {spreadImageConfig.url && isFetched && `Size: ${spreadImageData?.width ?? 0} x ${spreadImageData?.height ?? 0}`}
-                    </td>
-                </tr>
-
             </tbody>
         </table>
     );
-}
+};

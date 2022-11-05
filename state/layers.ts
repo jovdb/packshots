@@ -10,7 +10,7 @@ export const useLayersConfig = create<{
     updateConfig(index: number, config: {}): void;
     updateUi(index: number, ui: ILayerState["ui"]): void;
 }>((set, get) => ({
-    layers: [
+    layers: [],/*
         {
             name: "Background",
             type: "image",
@@ -22,10 +22,13 @@ export const useLayersConfig = create<{
             name: "Spread 1 on a plane",
             type: "plane",
             config: {
-                imageUrl: "./t-shirt.jpg",
+                image: {
+                    url: "./card.jpg"
+                },
             }
         }
-    ]  as any,
+    ]  as any,*/
+
     addLayer(layer, insertIndex) {
         set((state) => {
             const newLayers = state.layers.slice();

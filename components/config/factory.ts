@@ -1,10 +1,10 @@
-import { PlaneConfig } from "../../data/shapes/plane/PlaneConfig";
 import { ILayerState } from "../../state/Layer";
 import { ImageConfig } from "./ImageConfig";
+import { PlaneConfig } from "./PlaneConfig";
 
 export type ConfigComponent<T extends {}> = React.FC<{
     config: T;
-    onChange: (config: Partial<T>) => void;
+    onChange: (config: T) => void;
 }>;
 
 

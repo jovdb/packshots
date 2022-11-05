@@ -69,9 +69,8 @@ export class ConeRenderer implements IRenderer {
     }
 
     async loadAsync() {
-        const url = this.config?.imageUrl ?? "";
-        if (!url) return;
-        this.image = await loadImageAsync(url);
+        const url = this.config?.image?.url ?? "";
+        this.image = url ? await loadImageAsync(url) : undefined;
     }
 
     public render(): WebGLRenderingContext {

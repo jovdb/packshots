@@ -26,5 +26,5 @@ export async function render(
 ) {
 	if (!targetContext) return;
 	targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
-	renderers.slice().reverse().forEach(renderer => renderer.render(targetContext));
+	renderers.forEach(renderer => renderer.render(targetContext));
 }

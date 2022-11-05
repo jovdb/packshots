@@ -12,15 +12,15 @@ export function ActionBar() {
 
     return (
         <Accordion
+            isExpanded={!!action}
             title=""
-            isExpandable={false}
             right={
                 <AccordionButton onClick={() => setAction(action === "add" ? "" : "add")} title="Add layer">＋ Add</AccordionButton>
             }
         >
             {action === "add" && (<>
                 <AccordionPanel style={{ textAlign: "right"}}>
-                    <select defaultValue="" onChange={(e) => {
+                    <select defaultValue="" autoFocus onChange={(e) => {
                         const type = e.target.value;
                         switch (type) {
                             case "background": {
@@ -64,7 +64,7 @@ export function ActionBar() {
                         }
                         setAction("");
                     }}>
-                        <option value="" disabled>Select your option</option>
+                        <option value="" disabled>What do you want to add?</option>
                         <option value="background" disabled={hasBackground}>Background</option>
                         <option value="plane">Plane</option>
                         <option value="cone">Cone</option>

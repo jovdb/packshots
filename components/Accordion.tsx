@@ -4,16 +4,15 @@ export function Accordion({
     title,
     isExpanded = false,
     children,
-    isExpandable = !!children,
     right,
     setIsExpanded,
 }: PropsWithChildren<{
     title: string;
     isExpanded?: boolean;
-    isExpandable?: boolean;
     right?: any;
-    setIsExpanded(value: boolean): void;
+    setIsExpanded?(value: boolean): void;
 }>) {
+    const isExpandable = !!setIsExpanded;
     return (
         <div>
             <AccordionBar
@@ -26,7 +25,7 @@ export function Accordion({
                     display: "flex",
                     alignItems: "center",
                 }}
-                onClick={() => { isExpandable && setIsExpanded(!isExpanded); }}
+                onClick={() => { isExpandable && setIsExpanded?.(!isExpanded); }}
             >
                 <span style={{ display: isExpandable ? "inline-block" : "none", width: "1em" }}>
                     {isExpanded ? "−" : "+"}
@@ -34,7 +33,7 @@ export function Accordion({
                 <span style={{ flex: "1" }}>{title}</span>
                 <span style={{ display: "inline-flex" }}>{right}</span>
             </AccordionBar>
-            {(isExpanded || !isExpandable) && (
+            {(isExpanded) && (
                 <div>
                     {children}
                 </div>
@@ -53,7 +52,7 @@ export const AccordionButton = (props: ButtonHTMLAttributes<HTMLButtonElement>) 
                 background: "transparent",
                 color: "#eee",
                 padding: "5px 10px",
-                fontWeight: "bold",
+                // fontWeight: "bold",
                 borderTop: "1px solid #444",
                 border: "none",
                 // boxShadow: "0 5px 5px rgba(0, 0, 0, 0.2)",
