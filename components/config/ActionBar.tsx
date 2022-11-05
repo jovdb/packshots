@@ -20,7 +20,7 @@ export function ActionBar() {
         >
             {action === "add" && (<>
                 <AccordionPanel style={{ textAlign: "right"}}>
-                    <select onChange={(e) => {
+                    <select defaultValue="" onChange={(e) => {
                         const type = e.target.value;
                         switch (type) {
                             case "background": {
@@ -30,6 +30,9 @@ export function ActionBar() {
                                     config: {
                                         imageUrl: "./t-shirt.jpg",
                                     },
+                                    ui: {
+                                        isExpanded: true,
+                                    }
                                 }
                                 addLayer(layer, 0);
                                 break;
@@ -39,14 +42,29 @@ export function ActionBar() {
                                     name: "Overlay",
                                     type: "image",
                                     config: {},
+                                    ui: {
+                                        isExpanded: true,
+                                    }
                                 }
                                 addLayer(layer);
+                                break;
+                            }
+                            case "plane": {
+                                const layer: ILayerState = {
+                                    name: "Spread 1 on a plane",
+                                    type: "plane",
+                                    config: {},
+                                    ui: {
+                                        isExpanded: true,
+                                    }
+                                }
+                                addLayer(layer, -1);
                                 break;
                             }
                         }
                         setAction("");
                     }}>
-                        <option value="" disabled selected>Select your option</option>
+                        <option value="" disabled>Select your option</option>
                         <option value="background" disabled={hasBackground}>Background</option>
                         <option value="plane">Plane</option>
                         <option value="cone">Cone</option>

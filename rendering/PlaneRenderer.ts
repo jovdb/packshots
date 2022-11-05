@@ -1,12 +1,13 @@
 import { BoxGeometry, Camera, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { ICamera } from "../components/config/CameraConfig";
 import { IPlaneConfig } from "../data/shapes/plane/PlaneConfig";
+import { loadImageAsync } from "../utils/image";
 import type { IRenderer } from "./IRenderer";
 
 export interface IPlaneRendererProps {
     geometry: IPlaneConfig,
     camera: ICamera;
-    image: HTMLImageElement
+    imageUrl: string;
 }
 
 export class PlaneRenderer implements IRenderer {
@@ -15,12 +16,12 @@ export class PlaneRenderer implements IRenderer {
     private geometry: PlaneGeometry;
     private camera: Camera;
     private renderer: WebGLRenderer;
+    public image: HTMLImageElement | null | undefined;
 
     constructor(
         private targetSize: { width: number; height: number; },
         private config: IPlaneRendererProps,
     ) {
-        console.log("plane", config);
         const info = this.createScene();
         this.scene = info.scene;
         this.geometry = info.geometry;
@@ -34,12 +35,11 @@ export class PlaneRenderer implements IRenderer {
         // --------------------
         // Camera
         // --------------------
-        const camera = new PerspectiveCamera(this.config.camera.fieldOfViewInDeg, this.targetSize.width / this.targetSize.height);
-        camera.position.x = this.config.camera.position.x;
-        camera.position.y = this.config.camera.position.y;
-        camera.position.z = this.config.camera.position.z;
-        camera.lookAt(this.config.camera.direction);
-        // TODO: Add Direction
+        const camera = new PerspectiveCamera(this.config.camera?.fieldOfViewInDeg ?? 75, this.targetSize.width / this.targetSize.height);
+        camera.position.x = this.config.camera?.position?.x ?? 0;
+        camera.position.y = this.config.camera?.position?.y ?? 0;
+        camera.position.z = this.config.camera?.position?.z ?? 50;
+        if (this.config.camera?.direction) camera.lookAt(this.config.camera.direction);
 
         // --------------------
         // Renderer
@@ -50,9 +50,9 @@ export class PlaneRenderer implements IRenderer {
         // --------------------
         // Scene
         // --------------------
-        const geometry = new PlaneGeometry(this.config.geometry.width, this.config.geometry.height);
-        const texture = new Texture(this.config.image);
-        if (this.config.image?.complete) texture.needsUpdate = true;
+        const geometry = new PlaneGeometry(this.config.geometry?.width ?? 10, this.config.geometry?.height ?? 10);
+        const texture = this.image ? new Texture(this.image) : null;
+        if (texture && this.image?.complete) texture.needsUpdate = true;
 
         const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
         const mesh = new Mesh(geometry, material);
@@ -64,6 +64,12 @@ export class PlaneRenderer implements IRenderer {
             camera,
             renderer,
         }
+    }
+
+    async loadAsync() {
+        const url = this.config?.imageUrl ?? "";
+        if (!url) return;
+        this.image = await loadImageAsync(url);
     }
 
     public render(targetContext: CanvasRenderingContext2D) {

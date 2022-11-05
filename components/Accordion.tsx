@@ -2,17 +2,18 @@ import { ButtonHTMLAttributes, Children, PropsWithChildren, useState } from "rea
 
 export function Accordion({
     title,
-    isExpandedByDefault = false,
+    isExpanded = false,
     children,
     isExpandable = !!children,
     right,
+    setIsExpanded,
 }: PropsWithChildren<{
     title: string;
-    isExpandedByDefault?: boolean;
+    isExpanded?: boolean;
     isExpandable?: boolean;
     right?: any;
+    setIsExpanded(value: boolean): void;
 }>) {
-    const [isExpanded, setIsExpanded] = useState(isExpandedByDefault);
     return (
         <div>
             <AccordionBar

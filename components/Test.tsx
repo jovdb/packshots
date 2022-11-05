@@ -1,25 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
-import { PointTextureSampler } from "../rendering/samplers/PointTextureSampler";
-import { PlaneGeometry } from "../rendering/geometries/PlaneGeometry";
 import { loadRenders, render } from "../rendering/render";
 import { ConfigPanel } from "./ConfigPanel";
-import { SpreadImageConfig, useSpreadImage, useSpreadImageData } from "./config/SpreadImageConfig";
-import { PackshotImagesConfig, usePackshotBackgroundImage, usePackshotImagesConfig, usePackshotOverlayImage } from "./config/PackshotImagesConfig";
-import { CameraConfig, useCamera, useProjectionVector } from "./config/CameraConfig";
-import { PlaneConfig, usePlaneConfig } from "../data/shapes/plane/PlaneConfig";
 import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
-import { createRenderer } from "../rendering/factory";
-import { ConeRenderer } from "../rendering/ConeRenderer";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
-import { BackgroundConfig } from "./config/BackgroundConfig";
 import { ActionBar } from "./config/ActionBar";
 import { IRenderer } from "../rendering/IRenderer";
 import { ImageRenderer } from "../rendering/ImageRenderer";
-import { PlaneRenderer } from "../rendering/PlaneRenderer";
 import { useLayersConfig } from "../state/layers";
 import { getConfigComponent } from "./config/factory";
 
@@ -39,27 +29,24 @@ export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const drawPolygonRef = useRef<typeof DrawPolygon>(null);
 
-    const showPackshotBackground = usePackshotImagesConfig((s) => s.showBackground);
-    const showPackshotOverlay = usePackshotImagesConfig((s) => s.showOverlay);
+    // Layers 
+    const layers = useLayersConfig(s => s.layers);
+    const deleteLayer = useLayersConfig(s => s.deleteLayer);
+    const updateConfig = useLayersConfig(s => s.updateConfig);
+    const updateUi = useLayersConfig(s => s.updateUi);
 
-    const { data: packshotBackgroundImage } = usePackshotBackgroundImage();
-    const { data: packshotOverlayImage } = usePackshotOverlayImage();
-    const { data: spreadImage } = useSpreadImage();
-    const { data: spreadImageData } = useSpreadImageData();
+    // Load renderers
+    const { data: renderers } = useQuery<IRenderer[]>(["renderers", layers], () => loadRenders(targetContext, layers));
 
-    const targetWidth = packshotBackgroundImage?.width ?? packshotOverlayImage?.width ?? 700;
-    const targetHeight = packshotBackgroundImage?.height ?? packshotOverlayImage?.height ?? 700;
-
-    // Get Geometry
-    // TODO: Make geometry agnostic
-    const planeGeometryConfig = usePlaneConfig();
-    const geometry = useMemo(() => new PlaneGeometry(planeGeometryConfig.width, planeGeometryConfig.height), [planeGeometryConfig]);
+    // Get size from image
+    const firstImageRenderer = renderers?.find(r => r instanceof ImageRenderer) as ImageRenderer | undefined;
+    const targetWidth = firstImageRenderer?.image?.width || 700;
+    const targetHeight = firstImageRenderer?.image?.height || 700;
 
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
-    const projectionVector = useProjectionVector()
-    const camera = useCamera();
 
+    // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);
     const previewAreaRect = useElementSize(previewAreaRef);
     const margin = 10;
@@ -90,12 +77,6 @@ export function Test() {
             const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => [point[0] / centerPreviewToPreviewArea.scale, point[1] / centerPreviewToPreviewArea.scale] as [number, number])
             setPointsInTargetCoordinates(newPointsInTargetCoordinates)
         });
-
-    const layers = useLayersConfig(s => s.layers);
-    const deleteLayer = useLayersConfig(s => s.deleteLayer);
-    const updateConfig = useLayersConfig(s => s.updateConfig);
-
-    const { data: renderers } = useQuery<IRenderer[]>(["renderers", layers], () => loadRenders(targetContext, layers));
 
     // Redraw if render input changes 
     useEffect(
@@ -133,7 +114,7 @@ export function Test() {
                         top: centerPreviewToPreviewArea.y,
                         outline: "1px solid #ddd",
                         boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
-                        // checkboard
+                        // checkboard background
                         backgroundImage: `
                             linear-gradient(45deg, ${checkBoardDark} 25%, transparent 25%),
                             linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
@@ -165,11 +146,37 @@ export function Test() {
                     {
                         // Like photoshop, top layer is also on top in panel
                         layers.slice().reverse().map((layer, i) => {
+                            i = layers.length - 1 - i;
                             const ConfigComponent = getConfigComponent(layer);
                             return (
-                                <Accordion key={i} title={layer.name} right={
-                                    <AccordionButton onClick={() => deleteLayer(i)} title="Remove overlay">✕</AccordionButton>
-                                }>
+                                <Accordion
+                                    key={i}
+                                    title={layer.name}
+                                    isExpanded={!!layer.ui?.isExpanded}
+                                    setIsExpanded={(value) => {
+                                        updateUi(i, {...layer, isExpanded: value});
+                                    }}
+                                    right={<>
+                                        <AccordionButton
+                                            title="Show/Hide layer"
+                                            style={{ opacity: (layer.ui?.isVisible ?? true) ? 1 : 0.5 }}
+                                            onClick={() => {
+                                                const isVisible = layer.ui?.isVisible ?? true;
+                                                updateUi(i, { ...layer.ui || {}, isVisible: !isVisible });
+                                            }}>
+                                            👁
+                                        </AccordionButton>
+                                        <AccordionButton
+                                            title="Remove layer"
+                                            onClick={() => {
+                                                const shouldRemove = confirm("Are you sure you want to remove this layer?");
+                                                if (shouldRemove) deleteLayer(i);
+                                            }}
+                                        >
+                                            ✕
+                                        </AccordionButton>
+                                    </>}
+                                >
                                     <AccordionPanel>
                                         {ConfigComponent && <ConfigComponent config={layer.config} onChange={(config) => {
                                             updateConfig(i, config);
@@ -179,71 +186,6 @@ export function Test() {
                             );
                         })
                     }
-                    <hr />
-                    <Accordion title={"Overlay"} right={
-                        <AccordionButton onClick={() => alert('delete')} title="Remove overlay">✕</AccordionButton>
-                    }>
-                        <AccordionPanel>
-                            TODO
-                        </AccordionPanel>
-                    </Accordion>
-                    <Accordion title={"Spread on Plane"} right={
-                        <AccordionButton onClick={() => alert('delete')} title="Remove spread">✕</AccordionButton>
-                    }>
-                        <AccordionPanel>
-                            <PlaneConfig />
-                        </AccordionPanel>
-                    </Accordion>
-                    {usePackshotImagesConfig.getState().backgroundUrl &&
-                        <Accordion title={"Background"} right={
-                            <>
-                                <AccordionButton
-                                    onClick={() => { usePackshotImagesConfig.setState((prev) => ({ showBackground: !prev.showBackground })) }}
-                                    style={{ opacity: usePackshotImagesConfig.getState().showBackground ? 1 : 0.5 }}
-                                >👁</AccordionButton>
-                                <AccordionButton
-                                    onClick={() => { usePackshotImagesConfig.setState({ backgroundUrl: "" }) }}
-                                    title="Remove background"
-                                >✕</AccordionButton>
-                            </>
-                        }>
-                            <AccordionPanel>
-                                <BackgroundConfig />
-                            </AccordionPanel>
-                        </Accordion>
-                    }
-                    <hr />
-                    <div style={{ padding: 5 }}>
-                        <fieldset>
-                            <legend>Packshot</legend>
-                            <PackshotImagesConfig />
-                        </fieldset>
-                        <fieldset>
-                            <legend>Spread</legend>
-                            <SpreadImageConfig />
-                        </fieldset>
-                        <fieldset>
-                            <legend>Geometry</legend>
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <td>Geometry:</td>
-                                        <td>
-                                            <select>
-                                                <option value="plane">Plane</option>
-                                                <option value="cone">Cylinder / Cone</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <PlaneConfig />
-                        </fieldset>
-                        <fieldset>
-                            <legend>Camera</legend>
-                            <CameraConfig />
-                        </fieldset>
-                    </div>
                 </ConfigPanel>
             </div>
         </div>

@@ -12,7 +12,9 @@ export async function loadRenders(
 		height: targetContext.canvas.height,
 	}
 
-	const renderers = layers.map(layer => createRenderer(layer.type, layer.config, targetSize));
+	const renderers = layers
+		.filter(layer => layer.ui?.isVisible !== false)
+		.map(layer => createRenderer(layer.type, layer.config, targetSize));
 	await Promise.allSettled(renderers.map(r => r.loadAsync?.()));
 
 	return renderers;
@@ -24,5 +26,5 @@ export async function render(
 ) {
 	if (!targetContext) return;
 	targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
-	renderers.forEach(renderer => renderer.render(targetContext));
+	renderers.slice().reverse().forEach(renderer => renderer.render(targetContext));
 }

@@ -1,12 +1,13 @@
 import { BoxGeometry, Camera, ConeGeometry, CylinderGeometry, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { ICamera } from "../components/config/CameraConfig";
 import { IPlaneConfig } from "../data/shapes/plane/PlaneConfig";
+import { loadImageAsync } from "../utils/image";
 import { IRenderer } from "./IRenderer";
 
 export interface IConeRendererProps {
     geometry: IPlaneConfig,
     camera: ICamera;
-    image: HTMLImageElement;
+    imageUrl: string;
 }
 
 export class ConeRenderer implements IRenderer {
@@ -15,6 +16,7 @@ export class ConeRenderer implements IRenderer {
     private geometry: ConeGeometry;
     private camera: Camera;
     private renderer: WebGLRenderer;
+    public image: HTMLImageElement | null | undefined;
 
     constructor(
         private targetSize: { width: number; height: number; },
@@ -50,8 +52,8 @@ export class ConeRenderer implements IRenderer {
         // Scene
         // --------------------
         const geometry = new CylinderGeometry(10, 10, 15, 60);
-        const texture = new Texture(this.config.image);
-        if (this.config.image?.complete) texture.needsUpdate = true;
+        const texture = this.image ? new Texture(this.image) : null;
+        if (texture && this.image?.complete) texture.needsUpdate = true;
 
         const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
         const mesh = new Mesh(geometry, [material, null, null]);
@@ -64,6 +66,12 @@ export class ConeRenderer implements IRenderer {
             camera,
             renderer,
         }
+    }
+
+    async loadAsync() {
+        const url = this.config?.imageUrl ?? "";
+        if (!url) return;
+        this.image = await loadImageAsync(url);
     }
 
     public render(): WebGLRenderingContext {

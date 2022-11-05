@@ -8,8 +8,24 @@ export const useLayersConfig = create<{
     deleteLayer(index: number): void;
     updateLayer(index: number, layer: ILayerState): void;
     updateConfig(index: number, config: {}): void;
+    updateUi(index: number, ui: ILayerState["ui"]): void;
 }>((set, get) => ({
-    layers: []  as any,
+    layers: [
+        {
+            name: "Background",
+            type: "image",
+            config: {
+                imageUrl: "./t-shirt.jpg",
+            }
+        },
+        {
+            name: "Spread 1 on a plane",
+            type: "plane",
+            config: {
+                imageUrl: "./t-shirt.jpg",
+            }
+        }
+    ]  as any,
     addLayer(layer, insertIndex) {
         set((state) => {
             const newLayers = state.layers.slice();
@@ -41,6 +57,19 @@ export const useLayersConfig = create<{
             const newLayer = {
                 ...newLayers[index],
                 config,
+            };
+            newLayers.splice(index, 1, newLayer);
+            return {
+                layers: newLayers,
+            };
+        });
+    },
+    updateUi(index, ui) {
+        set((state) => {
+            const newLayers = state.layers.slice();
+            const newLayer = {
+                ...newLayers[index],
+                ui,
             };
             newLayers.splice(index, 1, newLayer);
             return {

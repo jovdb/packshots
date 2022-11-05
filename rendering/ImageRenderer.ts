@@ -6,7 +6,7 @@ export interface IImageRendererProps {
 }
 
 export class ImageRenderer implements IRenderer {
-    private image: HTMLImageElement | undefined;
+    public image: HTMLImageElement | undefined;
 
     constructor(
         private config: IImageRendererProps,
