@@ -12,6 +12,7 @@ import { IRenderer } from "../rendering/IRenderer";
 import { ImageRenderer } from "../rendering/ImageRenderer";
 import { useLayersConfig } from "../state/layers";
 import { getConfigComponent } from "./config/factory";
+import { ILayerState } from "../state/Layer";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -54,7 +55,7 @@ export function Test() {
                     render(targetContext, renderers);
                 } finally {
                     renderers.forEach(r => r.dispose?.());
-                } 
+                }
             });
     }, [layers, targetContext]);
 
@@ -74,7 +75,7 @@ export function Test() {
         height: previewAreaRect.height - margin * 2,
     });
 
-    const [pointsInTargetCoordinates, setPointsInTargetCoordinates] = useState<>([
+    const [pointsInTargetCoordinates, setPointsInTargetCoordinates] = useState([
         [20, 20],
         [50, 20],
         [50, 50],
@@ -150,52 +151,66 @@ export function Test() {
                         // Like photoshop, top layer is also on top in panel
                         layers.slice().reverse().map((layer, i) => {
                             i = layers.length - 1 - i;
-                            const ConfigComponent = getConfigComponent(layer);
                             return (
-                                <Accordion
-                                    key={i}
-                                    title={layer.name}
-                                    isExpanded={!!layer.ui?.isExpanded}
-                                    setIsExpanded={(value) => {
-                                        updateUi(i, { isExpanded: value });
-                                    }}
-                                    right={<>
-                                        <AccordionButton
-                                            title="Show/Hide layer"
-                                            style={{ opacity: (layer.ui?.isVisible ?? true) ? 1 : 0.5 }}
-                                            onClick={() => {
-                                                const isVisible = layer.ui?.isVisible ?? true;
-                                                updateUi(i, { isVisible: !isVisible });
-                                            }}>
-                                            👁
-                                        </AccordionButton>
-                                        <AccordionButton
-                                            title="Remove layer"
-                                            onClick={() => {
-                                                const shouldRemove = confirm("Are you sure you want to remove this layer?");
-                                                if (shouldRemove) deleteLayer(i);
-                                            }}
-                                        >
-                                            ✕
-                                        </AccordionButton>
-                                    </>}
-                                >
-                                    <AccordionPanel>
-                                        {ConfigComponent && (
-                                            <ConfigComponent
-                                                config={layer.config}
-                                                onChange={(config) => {
-                                                    updateConfig(i, config);
-                                                }}
-                                            />
-                                        )}
-                                    </AccordionPanel>
-                                </Accordion>
+                                <Layer key={i} layer={layer} layerIndex={i} />
                             );
                         })
                     }
                 </ConfigPanel>
             </div>
         </div>
+    );
+}
+
+export function Layer({
+    layer,
+    layerIndex
+}: {
+    layer: ILayerState,
+    layerIndex: number,
+}) {
+    const deleteLayer = useLayersConfig(s => s.deleteLayer);
+    const updateConfig = useLayersConfig(s => s.updateConfig);
+    const updateUi = useLayersConfig(s => s.updateUi);
+    const ConfigComponent = getConfigComponent(layer);
+    return (
+        <Accordion
+            title={layer.name}
+            isExpanded={!!layer.ui?.isExpanded}
+            setIsExpanded={(value) => {
+                updateUi(layerIndex, { isExpanded: value });
+            }}
+            right={<>
+                <AccordionButton
+                    title="Show/Hide layer"
+                    style={{ opacity: (layer.ui?.isVisible ?? true) ? 1 : 0.5 }}
+                    onClick={() => {
+                        const isVisible = layer.ui?.isVisible ?? true;
+                        updateUi(layerIndex, { isVisible: !isVisible });
+                    }}>
+                    👁
+                </AccordionButton>
+                <AccordionButton
+                    title="Remove layer"
+                    onClick={() => {
+                        const shouldRemove = confirm("Are you sure you want to remove this layer?");
+                        if (shouldRemove) deleteLayer(layerIndex);
+                    }}
+                >
+                    ✕
+                </AccordionButton>
+            </>}
+        >
+            <AccordionPanel>
+                {ConfigComponent && (
+                    <ConfigComponent
+                        config={layer.config}
+                        onChange={(config) => {
+                            updateConfig(layerIndex, config);
+                        }}
+                    />
+                )}
+            </AccordionPanel>
+        </Accordion>
     );
 }

@@ -133,8 +133,8 @@ export const CameraConfig: ConfigComponent<ICameraConfig> = ({config, onChange }
                         <Slider
                             value={config.direction[2]}
                             defaultValue={0}
-                            min={-1000}
-                            max={1}
+                            min={-100}
+                            max={100}
                             step={0.1}
                             onChange={(value) => {
                                 onChange({

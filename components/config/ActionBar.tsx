@@ -50,6 +50,7 @@ export function ActionBar() {
                                 break;
                             }
                             case "plane": {
+                                const index = layers.findIndex(l => l.name === "Overlay");
                                 const layer: ILayerState = {
                                     name: "Spread 1 on a plane",
                                     type: "plane",
@@ -58,7 +59,8 @@ export function ActionBar() {
                                         isExpanded: true,
                                     }
                                 }
-                                addLayer(layer, -1);
+
+                                addLayer(layer, index < 0 ? undefined : index);
                                 break;
                             }
                         }
