@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { createRenderers, loadRenders, render } from "../rendering/render";
@@ -8,8 +8,6 @@ import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { IRenderer } from "../rendering/IRenderer";
-import { ImageRenderer } from "../rendering/ImageRenderer";
 import { useLayersConfig } from "../state/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerState } from "../state/Layer";
@@ -30,7 +28,7 @@ export function useImageFromUrl(url: string) {
 
 export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const drawPolygonRef = useRef<typeof DrawPolygon>(null);
+    const drawPolygonRef = useRef<HTMLDivElement>(null);
 
     // Layers 
     const layers = useLayersConfig(s => s.layers);
@@ -50,7 +48,6 @@ export function Test() {
     const targetContext = canvasRef.current?.getContext("2d");
 
     const [layersControlPoints, setLayerControlPoints] = useState<(Vector2[] | undefined)[]>([]);
-console.log("layersControlPoints", layersControlPoints)
     useQuery(["loaded-renderers", layers], async () => {
         const renderers = createRenderers(targetContext, layers);
         await loadRenders(renderers);
@@ -95,7 +92,7 @@ console.log("layersControlPoints", layersControlPoints)
                     point.x * centerPreviewToPreviewArea.scale,
                     point.y * centerPreviewToPreviewArea.scale,
                 ];
-            }) as ([number, number] | undefined)[];
+            }) as [number, number][];
         })
     
     const bind = useDrawPolygons(

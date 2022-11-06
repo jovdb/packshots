@@ -2,14 +2,14 @@ import { useDrag } from '@use-gesture/react'
 import { CSSProperties, forwardRef, Ref, useRef } from 'react';
 
 export function useDrawPolygon(
-    ref: React.RefObject<typeof DrawPolygon>,
+    ref: React.RefObject<SVGSVGElement>,
     points: [x: number, y: number][],
     setPoints: (value: [x: number, y: number][]) => unknown,
 ) {
     const dragingPointIndexRef = useRef(-1);
     return useDrag((state) => {
         const [x, y] = state.xy;
-        const rect = ref.current?.getBoundingClientRect();
+        const rect = (ref.current as any)?.getBoundingClientRect();
         const polygonX = (x - rect.left);
         const polygonY = (y - rect.top);
 
@@ -41,7 +41,7 @@ export function useDrawPolygon(
 
 /** Handle multiple Polygons whith 1 drag handler */
 export function useDrawPolygons(
-    ref: React.RefObject<typeof DrawPolygon>,
+    ref: React.RefObject<HTMLDivElement>,
     layersPoints: ([number, number][] | undefined)[] | undefined,
     setLayersPoints: (index: number, value: [x: number, y: number][]) => unknown,
 ) {
@@ -53,7 +53,7 @@ export function useDrawPolygons(
         pointIndex: -1,
     });
     return useDrag((state) => {
-        if (!layersPoints) return;
+        if (!layersPoints || !ref.current) return;
         const [x, y] = state.xy;
         const rect = ref.current?.getBoundingClientRect();
         const polygonX = (x - rect.left);
@@ -96,12 +96,12 @@ export function useDrawPolygons(
     });
 }
 
-export const DrawPolygon = forwardRef(({
-    points,
-    style,
-}: {
+export const DrawPolygon = forwardRef<SVGSVGElement, {
     points: [x: number, y: number][]
     style?: CSSProperties;
+}>(({
+    points,
+    style,
 }, ref) => {
     return (
         <svg
@@ -132,12 +132,12 @@ export const DrawPolygon = forwardRef(({
 DrawPolygon.displayName = "DrawPolygon";
 
 
-export const DrawPolygons = forwardRef(({
-    layerPoints,
-    style,
-}: {
+export const DrawPolygons = forwardRef<HTMLDivElement, {
     layerPoints: ([x: number, y: number][] | undefined)[];
     style?: CSSProperties;
+}>(({
+    layerPoints,
+    style,
 }, ref) => {
     return (
         <div

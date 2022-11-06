@@ -61,10 +61,14 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                                 }}
                             >
                                 <option value="local">Local file</option>
-                                <option value="t-shirt">T-shirt</option>
-                                <option value="plate">Plate</option>
-                                <option value="walldeco1">Walldeco 1</option>
-                                <option value="walldeco2">Walldeco 2</option>
+                                <optgroup label="Background samples">
+                                    <option value="t-shirt">T-shirt</option>
+                                    <option value="walldeco1">Walldeco 1</option>
+                                </optgroup>
+                                <optgroup label="Overlay samples">
+                                    <option value="plate">Plate</option>
+                                    <option value="walldeco2">Walldeco 2</option>
+                                </optgroup>
                             </select>
                         </td>
                     </tr>

@@ -12,9 +12,10 @@ export const spreadImageDefaultConfig = {
 
 export const SpreadImageConfig: ConfigComponent<ISpreadImageConfig> = ({ config, onChange }) => {
     let type = "local";
-    if (config.url === "./checkerboard.jpg") type = "checkerboard" ;
-    if (config.url === "./card.jpg") type = "test1" ;
-
+    if (config.url === "./checkerboard.jpg") type = "checkerboard";
+    if (config.url === "./card.jpg") type = "test1";
+    if (config.url === "__product__") type = "product";
+    console.log(type)
     return (
         <table>
             <tbody>
@@ -46,6 +47,13 @@ export const SpreadImageConfig: ConfigComponent<ISpreadImageConfig> = ({ config,
                                         });
                                         break;
                                     }
+                                    case "product": {
+                                        onChange({
+                                            ...config,
+                                            url: "__product__",
+                                        });
+                                        break;
+                                    }
                                     default: {
                                         onChange({
                                             ...config,
@@ -53,12 +61,15 @@ export const SpreadImageConfig: ConfigComponent<ISpreadImageConfig> = ({ config,
                                         });
                                         break;
                                     }
-                                } 
+                                }
                             }}
                         >
                             <option value="local">Local file</option>
-                            <option value="checkerboard">Checker board</option>
-                            <option value="test1">Test Image 1</option>
+                            <option value="product">From product</option>
+                            <optgroup label="Sample images:">
+                                <option value="checkerboard">Checker board</option>
+                                <option value="test1">Test Image 1</option>
+                            </optgroup>
                         </select>
                     </td>
                 </tr>
@@ -66,7 +77,7 @@ export const SpreadImageConfig: ConfigComponent<ISpreadImageConfig> = ({ config,
                     <tr>
                         <td colSpan={2}>
                             <input readOnly disabled value={config.url} style={{ marginRight: 5 }} />
-                            <ImageSelection 
+                            <ImageSelection
                                 onSelect={(info) => {
                                     onChange({
                                         ...config,
@@ -76,6 +87,25 @@ export const SpreadImageConfig: ConfigComponent<ISpreadImageConfig> = ({ config,
                             />
                         </td>
                     </tr>
+                )}
+                {type === "product" && (
+                    <>
+                        <tr>
+                            <td colSpan={2}>TODO</td>
+                        </tr>
+                        <tr>
+                            <td>Product code:</td>
+                            <td><input /></td>
+                        </tr>
+                        <tr>
+                            <td>Predefined Product Name:</td>
+                            <td><input /></td>
+                        </tr>
+                        <tr>
+                            <td>Spread Number:</td>
+                            <td><input type="number" min={1} /></td>
+                        </tr>
+                    </>
                 )}
             </tbody>
         </table>

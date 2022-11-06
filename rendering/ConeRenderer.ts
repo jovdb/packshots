@@ -1,12 +1,12 @@
-import { BoxGeometry, Camera, ConeGeometry, CylinderGeometry, DoubleSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
-import { ICamera } from "../components/config/CameraConfig";
-import { IPlaneConfig } from "../data/shapes/plane/PlaneConfig";
+import { Camera, ConeGeometry, CylinderGeometry, DoubleSide, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Texture, Vector2, Vector3, WebGLRenderer } from "three";
+import { ICameraConfig } from "../components/config/CameraConfig";
+import { IPlaneConfig } from "../components/config/PlaneConfig";
 import { loadImageAsync } from "../utils/image";
 import { IRenderer } from "./IRenderer";
 
 export interface IConeRendererProps {
     geometry: IPlaneConfig,
-    camera: ICamera;
+    camera: ICameraConfig;
     imageUrl: string;
 }
 

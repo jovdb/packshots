@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { CSSProperties, useState } from "react";
 import { ILayerState } from "../../state/Layer";
 import { useLayersConfig } from "../../state/layers";
 import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
@@ -6,9 +6,9 @@ import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
 export function ActionBar() {
     const [action, setAction] = useState("");
     const layers = useLayersConfig(s => s.layers)
-    const hasBackground = layers.some(l => l.name === "Background");
-    const hasOverlay = layers.some(l => l.name === "Overlay");
     const addLayer = useLayersConfig(s => s.addLayer)
+
+    const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
 
     return (
         <Accordion
@@ -19,60 +19,54 @@ export function ActionBar() {
             }
         >
             {action === "add" && (<>
-                <AccordionPanel style={{ textAlign: "right" }}>
-                    <select defaultValue="" autoFocus onChange={(e) => {
-                        const type = e.target.value;
-                        switch (type) {
-                            case "background": {
-                                const layer: ILayerState = {
-                                    name: "Background",
-                                    type: "image",
-                                    config: {
-                                        imageUrl: "./t-shirt.jpg",
-                                    },
-                                    ui: {
-                                        isExpanded: true,
-                                    }
+                <AccordionPanel>
+                    <ul>
+                        <li style={style} onClick={() => {
+                            const layer: ILayerState = {
+                                name: "Background",
+                                type: "image",
+                                config: {
+                                    imageUrl: "./t-shirt.jpg",
+                                },
+                                ui: {
+                                    isExpanded: true,
                                 }
-                                addLayer(layer, 0);
-                                break;
                             }
-                            case "overlay": {
-                                const layer: ILayerState = {
-                                    name: "Overlay",
-                                    type: "image",
-                                    config: {},
-                                    ui: {
-                                        isExpanded: true,
-                                    }
-                                }
-                                addLayer(layer);
-                                break;
-                            }
-                            case "plane": {
-                                // Add below overlay
-                                const index = layers.findIndex(l => l.name === "Overlay");
-                                const layer: ILayerState = {
-                                    name: "Spread 1 on a plane",
-                                    type: "plane",
-                                    config: {},
-                                    ui: {
-                                        isExpanded: true,
-                                    }
-                                }
+                            addLayer(layer, 0); // Add at bottom
+                            setAction(""); // close panel
+                        }}><a href="#">Background</a></li>
 
-                                addLayer(layer, index < 0 ? undefined : index);
-                                break;
+                        <li style={style} onClick={() => {
+                            // Add below overlay
+                            const index = layers.findIndex(l => l.name === "Overlay");
+                            const layer: ILayerState = {
+                                name: "Spread 1 on a plane",
+                                type: "plane",
+                                config: {},
+                                ui: {
+                                    isExpanded: true,
+                                }
                             }
-                        }
-                        setAction("");
-                    }}>
-                        <option value="" disabled>What do you want to add?</option>
-                        <option value="background" disabled={hasBackground}>Background</option>
-                        <option value="plane">Plane</option>
-                        <option value="cone">Cone</option>
-                        <option value="overlay" disabled={hasOverlay}>Overlay</option>
-                    </select>
+                            addLayer(layer, index < 0 ? undefined : index);
+                            setAction(""); // close panel
+                        }}><a href="#">Spread on a rectangle</a></li>
+                        <li style={style} onClick={() => {
+                            alert("TODO");
+                            setAction(""); // close panel
+                        }}><a href="#">Spread on a cylinder or cone</a></li>
+                        <li style={style} onClick={() => {
+                            const layer: ILayerState = {
+                                name: "Overlay",
+                                type: "image",
+                                config: {},
+                                ui: {
+                                    isExpanded: true,
+                                }
+                            }
+                            addLayer(layer);
+                            setAction(""); // close panel
+                        }}><a href="#">Overlay</a></li>
+                    </ul>
                 </AccordionPanel>
             </>)}
         </Accordion>
