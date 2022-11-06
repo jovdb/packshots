@@ -1,7 +1,6 @@
-import { Camera, DoubleSide, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { Camera, DoubleSide, Material, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { cameraDefaultConfig, ICameraConfig } from "../components/config/CameraConfig";
 import { IPlaneConfig } from "../components/config/PlaneConfig";
-import { loadImageAsync } from "../utils/image";
 import type { IRenderer } from "./IRenderer";
 
 export class PlaneRenderer implements IRenderer {
@@ -12,6 +11,8 @@ export class PlaneRenderer implements IRenderer {
     private camera: Camera;
     private renderer: WebGLRenderer;
     public image: HTMLImageElement | null | undefined;
+    private mesh: Mesh | undefined;
+    private material: Material | undefined;
     private texture: Texture | undefined;
 
     constructor(
@@ -29,6 +30,7 @@ export class PlaneRenderer implements IRenderer {
         this.scene = info.scene;
         this.geometry = info.geometry;
         this.camera = info.camera;
+        this.mesh = info.mesh;
         this.renderer = info.renderer;
     }
 
@@ -58,12 +60,7 @@ export class PlaneRenderer implements IRenderer {
         // Scene
         // --------------------
         const geometry = new PlaneGeometry(plane.width ?? 10, plane.height ?? 10);
-        //const texture = this.image ? new Texture(this.image) : null;
-        if (this.texture) this.texture.needsUpdate = true;
-// console.log(this.image);
-console.log(this.texture);
-        const material = new MeshBasicMaterial({ map: this.texture, side: DoubleSide });
-        const mesh = new Mesh(geometry, material);
+        const mesh = new Mesh(geometry, undefined); // Material assigned later
         scene.add(mesh);
 
         return {
@@ -71,16 +68,25 @@ console.log(this.texture);
             geometry,
             camera,
             renderer,
+            mesh,
         }
     }
 
     async loadAsync() {
-        const url = this.config?.image?.url ?? "";
+        if (this.texture || !this.mesh) return;
 
+        // Load Texture/Image
         const loader = new TextureLoader();
+        const url = this.config?.image?.url ?? "";
         this.texture = url ? await loader.loadAsync(url) : undefined;
-        // this.image = url ? await loadImageAsync(url) : undefined;
-        console.log(this.texture);
+
+        // Create Material
+        if (!this.texture) return;
+        this.texture.needsUpdate = true;
+        this.material = new MeshBasicMaterial({ map: this.texture, side: DoubleSide });
+
+        // Update Mesh
+        this.mesh.material = this.material;
     }
 
     public render(targetContext: CanvasRenderingContext2D) {
@@ -132,5 +138,6 @@ console.log(this.texture);
         this.geometry?.dispose();
         this.texture?.dispose();
         this.renderer.dispose();
+        this.material?.dispose();
     }
 }

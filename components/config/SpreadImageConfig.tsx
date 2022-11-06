@@ -15,7 +15,6 @@ export const SpreadImageConfig: ConfigComponent<ISpreadImageConfig> = ({ config,
     if (config.url === "./checkerboard.jpg") type = "checkerboard";
     if (config.url === "./card.jpg") type = "test1";
     if (config.url === "__product__") type = "product";
-    console.log(type)
     return (
         <table>
             <tbody>

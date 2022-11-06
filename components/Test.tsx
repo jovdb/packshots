@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { createRenderers, loadRenders, render } from "../rendering/render";
 import { ConfigPanel } from "./ConfigPanel";
-import { DrawPolygon, DrawPolygons, useDrawPolygon, useDrawPolygons } from "./DrawPolygon";
+import { DrawPolygons, useDrawPolygons } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
@@ -32,10 +32,7 @@ export function Test() {
 
     // Layers 
     const layers = useLayersConfig(s => s.layers);
-    const deleteLayer = useLayersConfig(s => s.deleteLayer);
-    const updateConfig = useLayersConfig(s => s.updateConfig);
-    const updateUi = useLayersConfig(s => s.updateUi);
-
+    
     // Get size from image
     /*
     const firstImageRenderer = renderers?.find(r => r instanceof ImageRenderer) as ImageRenderer | undefined;
@@ -50,11 +47,11 @@ export function Test() {
     const [layersControlPoints, setLayerControlPoints] = useState<(Vector2[] | undefined)[]>([]);
     useQuery(["loaded-renderers", layers], async () => {
         const renderers = createRenderers(targetContext, layers);
-        await loadRenders(renderers);
         try {
+            await loadRenders(renderers);
             render(targetContext, renderers);
 
-            //Update list of control points
+            // Update list of control points
             const controlPoints = renderers.map(r => {
                 if (r instanceof PlaneRenderer) return r.getCorners2d();
                 return undefined; 

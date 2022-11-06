@@ -83,6 +83,7 @@ export const AccordionPanel = (props: ButtonHTMLAttributes<HTMLButtonElement>) =
                 padding: 5,
                 boxShadow: "0 5px 8px rgba(0, 0, 0, 0.2) inset",
                 borderBottom: "1px solid #ccc",
+                backgroundColor: "##e7e7e7",
                 ...props.style || {},
             }}
         >
