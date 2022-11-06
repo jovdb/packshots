@@ -19,7 +19,7 @@ export function ActionBar() {
             }
         >
             {action === "add" && (<>
-                <AccordionPanel style={{ textAlign: "right"}}>
+                <AccordionPanel style={{ textAlign: "right" }}>
                     <select defaultValue="" autoFocus onChange={(e) => {
                         const type = e.target.value;
                         switch (type) {
@@ -50,6 +50,7 @@ export function ActionBar() {
                                 break;
                             }
                             case "plane": {
+                                // Add below overlay
                                 const index = layers.findIndex(l => l.name === "Overlay");
                                 const layer: ILayerState = {
                                     name: "Spread 1 on a plane",

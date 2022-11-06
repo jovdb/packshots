@@ -1,15 +1,17 @@
-import { ButtonHTMLAttributes, Children, PropsWithChildren, useState } from "react";
+import { ButtonHTMLAttributes, Children, CSSProperties, PropsWithChildren, useState } from "react";
 
 export function Accordion({
     title,
     isExpanded = false,
     children,
     right,
+    style,
     setIsExpanded,
 }: PropsWithChildren<{
     title: string;
     isExpanded?: boolean;
     right?: any;
+    style?: CSSProperties;
     setIsExpanded?(value: boolean): void;
 }>) {
     const isExpandable = !!setIsExpanded;
@@ -24,6 +26,7 @@ export function Accordion({
                     userSelect: "none",
                     display: "flex",
                     alignItems: "center",
+                    ...style,
                 }}
                 onClick={() => { isExpandable && setIsExpanded?.(!isExpanded); }}
             >

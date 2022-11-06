@@ -1,9 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
-import { loadRenders, render } from "../rendering/render";
+import { createRenderers, loadRenders, render } from "../rendering/render";
 import { ConfigPanel } from "./ConfigPanel";
-import { DrawPolygon, useDrawPolygon } from "./DrawPolygon";
+import { DrawPolygon, DrawPolygons, useDrawPolygon, useDrawPolygons } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
@@ -13,6 +13,8 @@ import { ImageRenderer } from "../rendering/ImageRenderer";
 import { useLayersConfig } from "../state/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerState } from "../state/Layer";
+import { PlaneRenderer } from "../rendering/PlaneRenderer";
+import { Vector2 } from "three";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -47,17 +49,25 @@ export function Test() {
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
 
-    // Render
-    useEffect(() => {
-        loadRenders(targetContext, layers)
-            .then(renderers => {
-                try {
-                    render(targetContext, renderers);
-                } finally {
-                    renderers.forEach(r => r.dispose?.());
-                }
+    const [layersControlPoints, setLayerControlPoints] = useState<(Vector2[] | undefined)[]>([]);
+console.log("layersControlPoints", layersControlPoints)
+    useQuery(["loaded-renderers", layers], async () => {
+        const renderers = createRenderers(targetContext, layers);
+        await loadRenders(renderers);
+        try {
+            render(targetContext, renderers);
+
+            //Update list of control points
+            const controlPoints = renderers.map(r => {
+                if (r instanceof PlaneRenderer) return r.getCorners2d();
+                return undefined; 
             });
-    }, [layers, targetContext]);
+            setLayerControlPoints(controlPoints);
+        } finally {
+            renderers.forEach(r => r.dispose?.());
+        }
+        return null;
+    });
 
     // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);
@@ -75,20 +85,33 @@ export function Test() {
         height: previewAreaRect.height - margin * 2,
     });
 
-    const [pointsInTargetCoordinates, setPointsInTargetCoordinates] = useState([
-        [20, 20],
-        [50, 20],
-        [50, 50],
-        [20, 50],
-    ]);
-
-    const pointsInScreenCoordinates = pointsInTargetCoordinates.map(point => [point[0] * centerPreviewToPreviewArea.scale, point[1] * centerPreviewToPreviewArea.scale] as [number, number])
-    const bind = useDrawPolygon(
+    // Convert controlPoints to screen coordinates
+    const controlPointsInScreenCoordinates = layersControlPoints
+        .map(layerControlPoints => {
+            if (!layerControlPoints) return undefined;
+            return layerControlPoints.map(point => {
+                if (!point) return undefined;
+                return [
+                    point.x * centerPreviewToPreviewArea.scale,
+                    point.y * centerPreviewToPreviewArea.scale,
+                ];
+            }) as ([number, number] | undefined)[];
+        })
+    
+    const bind = useDrawPolygons(
         drawPolygonRef,
-        pointsInScreenCoordinates,
-        (newPointsInScreenCoordinates) => {
-            const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => [point[0] / centerPreviewToPreviewArea.scale, point[1] / centerPreviewToPreviewArea.scale] as [number, number])
-            setPointsInTargetCoordinates(newPointsInTargetCoordinates)
+        controlPointsInScreenCoordinates,
+        (layerIndex, newPointsInScreenCoordinates) => {
+            const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => new Vector2(
+                point[0] / centerPreviewToPreviewArea.scale,
+                point[1] / centerPreviewToPreviewArea.scale,
+            ));
+
+            setLayerControlPoints(layerControlPoints => {
+                let newLayerControlPoints = layerControlPoints.slice();
+                newLayerControlPoints[layerIndex] = newPointsInTargetCoordinates;
+                return newLayerControlPoints;
+             });
         });
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
@@ -133,15 +156,16 @@ export function Test() {
                     }}
                     {...bind()}
                 />
-                <DrawPolygon
+                <DrawPolygons
                     ref={drawPolygonRef}
                     style={{
+                        position: "absolute",
                         width: targetWidth * centerPreviewToPreviewArea.scale,
                         height: targetHeight * centerPreviewToPreviewArea.scale,
                         left: centerPreviewToPreviewArea.x,
                         top: centerPreviewToPreviewArea.y,
                     }}
-                    points={pointsInScreenCoordinates}
+                    layerPoints={controlPointsInScreenCoordinates}
                 />
             </div>
             <div>

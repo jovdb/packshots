@@ -2,7 +2,7 @@ import { ILayerState } from "../state/Layer";
 import { createRenderer } from "./factory";
 import { IRenderer } from "./IRenderer";
 
-export async function loadRenders(
+export function createRenderers(
 	targetContext: CanvasRenderingContext2D | null | undefined,
 	layers: ILayerState[],
 ) {
@@ -12,12 +12,16 @@ export async function loadRenders(
 		height: targetContext.canvas.height,
 	}
 
-	const renderers = layers
+	return layers
 		.filter(layer => layer.ui?.isVisible !== false)
 		.map(layer => createRenderer(layer.type, layer.config, targetSize));
-	await Promise.allSettled(renderers.map(r => r.loadAsync?.()));
+}
 
-	return renderers;
+
+export async function loadRenders(
+	renderers: IRenderer[],
+) {
+	await Promise.allSettled(renderers.map(r => r.loadAsync?.()));
 }
 
 export async function render(
