@@ -11,8 +11,8 @@ import { ActionBar } from "./config/ActionBar";
 import { useLayersConfig } from "../state/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerState } from "../state/Layer";
-import { PlaneRenderer } from "../renderers/PlaneRenderer";
 import { Vector2 } from "three";
+import { isWithControlPoints } from "../control-points";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -53,7 +53,7 @@ export function Test() {
 
             // Update list of control points
             const controlPoints = renderers.map(r => {
-                if (r instanceof PlaneRenderer) return r.getCorners2d();
+                if (isWithControlPoints(r)) return r. getControlPoints2d();
                 return undefined; 
             });
             setLayerControlPoints(controlPoints);

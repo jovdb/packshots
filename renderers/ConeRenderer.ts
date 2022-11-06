@@ -3,6 +3,7 @@ import { cameraDefaultConfig, ICameraConfig } from "../components/config/CameraC
 import { IConeConfig } from "../components/config/ConeConfig";
 import type { IRenderer } from "./IRenderer";
 
+const segments = 60;
 export class ConeRenderer implements IRenderer {
 
     private config: IConeConfig
@@ -59,7 +60,7 @@ export class ConeRenderer implements IRenderer {
         // --------------------
         // Scene
         // --------------------
-        const geometry = new CylinderGeometry((cone.topDiameter ?? 10) / 2 , (cone.bottomDiameter ?? 10) / 2, cone.height ?? 15, 60);
+        const geometry = new CylinderGeometry((cone.topDiameter ?? 10) / 2 , (cone.bottomDiameter ?? 10) / 2, cone.height ?? 15, segments);
         const mesh = new Mesh(geometry, undefined); // Material assigned later
         scene.add(mesh);
 
@@ -83,10 +84,10 @@ export class ConeRenderer implements IRenderer {
         // Create Material
         if (!this.texture) return;
         this.texture.needsUpdate = true;
-        this.material = new MeshBasicMaterial({ map: this.texture, side: DoubleSide });
+        this.material = new MeshBasicMaterial({ map: this.texture });
 
         // Update Mesh
-        this.mesh.material = this.material;
+        this.mesh.material = [this.material];
     }
 
     public render(targetContext: CanvasRenderingContext2D) {
@@ -94,20 +95,16 @@ export class ConeRenderer implements IRenderer {
         targetContext.drawImage(this.renderer.getContext().canvas, 0, 0);
     }
 
-    public getCorners2d(): [
-        topLeft: Vector2,
-        topRight: Vector2,
-        bottomRight: Vector2,
-        bottomLeft: Vector2,
-    ] {
+    public getControlPoints2d() {
         // Get 3D Corners
         const corners3d: Vector3[] = [];
         const positionAttribute = this.geometry.getAttribute("position"); // read vertex
-        for (let i = 0; i < positionAttribute.count; i++) {
+        const vertexIndexes = [0, segments / 4, 3 * segments / 4];
+        vertexIndexes.forEach(vertexIndex => {
             const vertex = new Vector3();
-            vertex.fromBufferAttribute(positionAttribute, i); // read vertex
+            vertex.fromBufferAttribute(positionAttribute, vertexIndex); // read vertex
             corners3d.push(vertex);
-        }
+        });
 
         // Convert to 2D corners
         this.camera.updateMatrixWorld();
@@ -119,10 +116,10 @@ export class ConeRenderer implements IRenderer {
             );
         });
 
-        return [corners2d[0], corners2d[1], corners2d[3], corners2d[2]]
+        return corners2d;
     }
 
-    public getCamera(corners2d: Vector2[]): ICameraConfig {
+    public getCameraFromControlPoints(corners2d: Vector2[]): ICameraConfig {
         // Camera Calibration: https://www.analyticsvidhya.com/blog/2021/10/a-comprehensive-guide-for-camera-calibration-in-computer-vision/
         // https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript
         // https://se.mathworks.com/matlabcentral/answers/410103-how-to-find-projective-transformation-with-4-points

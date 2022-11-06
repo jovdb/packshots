@@ -103,6 +103,7 @@ export const DrawPolygon = forwardRef<SVGSVGElement, {
     points,
     style,
 }, ref) => {
+    console.log(points);
     return (
         <svg
             ref={ref}
