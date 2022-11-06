@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
-import { createRenderers, loadRenders, render } from "../rendering/render";
+import { createRenderers, loadRenders, render } from "../renderers/render";
 import { ConfigPanel } from "./ConfigPanel";
 import { DrawPolygons, useDrawPolygons } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
@@ -11,7 +11,7 @@ import { ActionBar } from "./config/ActionBar";
 import { useLayersConfig } from "../state/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerState } from "../state/Layer";
-import { PlaneRenderer } from "../rendering/PlaneRenderer";
+import { PlaneRenderer } from "../renderers/PlaneRenderer";
 import { Vector2 } from "three";
 
 export function useImageDataFromUrl(url: string) {

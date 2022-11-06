@@ -2,24 +2,26 @@ import { CameraConfig, cameraDefaultConfig, ICameraConfig } from "./CameraConfig
 import { ConfigComponent } from "./factory";
 import { ISpreadImageConfig, spreadImageDefaultConfig, SpreadImageConfig } from "./SpreadImageConfig";
 
-export interface IPlaneConfig {
+export interface IConeConfig {
     cone: {
-        width: number;
+        topDiameter: number;
+        bottomDiameter: number;
         height: number;
     };
     image: ISpreadImageConfig;
     camera: ICameraConfig;
 }
 
-export const PlaneConfig: ConfigComponent<IPlaneConfig> = ({
+export const ConeConfig: ConfigComponent<IConeConfig> = ({
     config,
     onChange,
 }) => {
 
     const {
-        plane = {
-            width: 10,
-            height: 10,
+        cone = {
+            topDiameter: 10,
+            bottomDiameter: 10,
+            height: 15,
         },
         image = spreadImageDefaultConfig,
         camera: cameraConfig = cameraDefaultConfig,
@@ -32,11 +34,11 @@ export const PlaneConfig: ConfigComponent<IPlaneConfig> = ({
                 <table style={{ width: "100%" }}>
                     <tbody>
                         <tr>
-                            <td>Width:</td>
+                            <td>Top diameter:</td>
                             <td>
                                 <input
                                     type="number"
-                                    value={plane.width}
+                                    value={cone.topDiameter}
                                     min={0}
                                     max={200}
                                     step={0.1}
@@ -45,9 +47,33 @@ export const PlaneConfig: ConfigComponent<IPlaneConfig> = ({
                                         const newValue = parseFloat(e.target.value) || 0;
                                         onChange({
                                             ...config,
-                                            plane: {
-                                                ...plane,
-                                                width: newValue,
+                                            cone: {
+                                                ...cone,
+                                                topDiameter: newValue,
+                                            }
+                                        });
+                                    }}
+                                />
+                                &nbsp;cm
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Top diameter:</td>
+                            <td>
+                                <input
+                                    type="number"
+                                    value={cone.bottomDiameter}
+                                    min={0}
+                                    max={200}
+                                    step={0.1}
+                                    style={{ width: 60 }}
+                                    onChange={(e) => {
+                                        const newValue = parseFloat(e.target.value) || 0;
+                                        onChange({
+                                            ...config,
+                                            cone: {
+                                                ...cone,
+                                                bottomDiameter: newValue,
                                             }
                                         });
                                     }}
@@ -60,7 +86,7 @@ export const PlaneConfig: ConfigComponent<IPlaneConfig> = ({
                             <td>
                                 <input
                                     type="number"
-                                    value={plane.height}
+                                    value={cone.height}
                                     min={0}
                                     max={200}
                                     step={0.1}
@@ -69,8 +95,8 @@ export const PlaneConfig: ConfigComponent<IPlaneConfig> = ({
                                         const newValue = parseFloat(e.target.value) || 0;
                                         onChange({
                                             ...config,
-                                            plane: {
-                                                ...plane,
+                                            cone: {
+                                                ...cone,
                                                 height: newValue,
                                             }
                                         });

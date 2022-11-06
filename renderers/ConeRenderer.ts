@@ -1,46 +1,54 @@
-import { Camera, ConeGeometry, CylinderGeometry, DoubleSide, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Texture, Vector2, Vector3, WebGLRenderer } from "three";
-import { ICameraConfig } from "../components/config/CameraConfig";
-import { IPlaneConfig } from "../components/config/PlaneConfig";
-import { loadImageAsync } from "../utils/image";
-import { IRenderer } from "./IRenderer";
-
-export interface IConeRendererProps {
-    geometry: IPlaneConfig,
-    camera: ICameraConfig;
-    imageUrl: string;
-}
+import { Camera, ConeGeometry, CylinderGeometry, DoubleSide, Material, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { cameraDefaultConfig, ICameraConfig } from "../components/config/CameraConfig";
+import { IConeConfig } from "../components/config/ConeConfig";
+import type { IRenderer } from "./IRenderer";
 
 export class ConeRenderer implements IRenderer {
 
+    private config: IConeConfig
     private scene: Scene;
     private geometry: ConeGeometry;
     private camera: Camera;
     private renderer: WebGLRenderer;
     public image: HTMLImageElement | null | undefined;
+    private mesh: Mesh | undefined;
+    private material: Material | undefined;
+    private texture: Texture | undefined;
 
     constructor(
         private targetSize: { width: number; height: number; },
-        private config: IConeRendererProps,
+        config: IConeConfig,
     ) {
+
+        this.config = {
+            cone: config.cone || { topDiameter: 10, bottomDiameter: 10, height: 15 },
+            camera: config.camera || cameraDefaultConfig,
+            image: config.image || { url: "" },
+        };
+
         const info = this.createScene();
         this.scene = info.scene;
         this.geometry = info.geometry;
         this.camera = info.camera;
+        this.mesh = info.mesh;
         this.renderer = info.renderer;
     }
 
     private createScene() {
         const scene = new Scene();
+        const {
+            cone,
+            camera: cameraConfig,
+        } = this.config;
 
         // --------------------
         // Camera
         // --------------------
-        const camera = new PerspectiveCamera(this.config.camera.fieldOfViewInDeg, this.targetSize.width / this.targetSize.height);
-        camera.position.x = this.config.camera.position.x;
-        camera.position.y = this.config.camera.position.y;
-        camera.position.z = this.config.camera.position.z;
-        camera.lookAt(this.config.camera.direction);
-        // TODO: Add Direction
+        const camera = new PerspectiveCamera(cameraConfig?.fieldOfViewInDeg ?? 75, this.targetSize.width / this.targetSize.height);
+        camera.position.x = cameraConfig.position[0] ?? 0;
+        camera.position.y = cameraConfig.position[1] ?? 0;
+        camera.position.z = cameraConfig.position[2] ?? 50;
+        if (cameraConfig.direction) camera.lookAt(new Vector3(cameraConfig.direction[0], cameraConfig.direction[1], cameraConfig.direction[2]));
 
         // --------------------
         // Renderer
@@ -51,13 +59,8 @@ export class ConeRenderer implements IRenderer {
         // --------------------
         // Scene
         // --------------------
-        const geometry = new CylinderGeometry(10, 10, 15, 60);
-        const texture = this.image ? new Texture(this.image) : null;
-        if (texture && this.image?.complete) texture.needsUpdate = true;
-
-        const material = new MeshBasicMaterial({ map: texture, side: DoubleSide });
-        const mesh = new Mesh(geometry, [material, null, null]);
-        // https://stackoverflow.com/questions/8315546/texturing-a-cylinder-in-three-js
+        const geometry = new CylinderGeometry((cone.topDiameter ?? 10) / 2 , (cone.bottomDiameter ?? 10) / 2, cone.height ?? 15, 60);
+        const mesh = new Mesh(geometry, undefined); // Material assigned later
         scene.add(mesh);
 
         return {
@@ -65,17 +68,30 @@ export class ConeRenderer implements IRenderer {
             geometry,
             camera,
             renderer,
+            mesh,
         }
     }
 
     async loadAsync() {
+        if (this.texture || !this.mesh) return;
+
+        // Load Texture/Image
+        const loader = new TextureLoader();
         const url = this.config?.image?.url ?? "";
-        this.image = url ? await loadImageAsync(url) : undefined;
+        this.texture = url ? await loader.loadAsync(url) : undefined;
+
+        // Create Material
+        if (!this.texture) return;
+        this.texture.needsUpdate = true;
+        this.material = new MeshBasicMaterial({ map: this.texture, side: DoubleSide });
+
+        // Update Mesh
+        this.mesh.material = this.material;
     }
 
-    public render(): WebGLRenderingContext {
+    public render(targetContext: CanvasRenderingContext2D) {
         this.renderer.render(this.scene, this.camera);
-        return this.renderer.getContext();
+        targetContext.drawImage(this.renderer.getContext().canvas, 0, 0);
     }
 
     public getCorners2d(): [
@@ -106,7 +122,7 @@ export class ConeRenderer implements IRenderer {
         return [corners2d[0], corners2d[1], corners2d[3], corners2d[2]]
     }
 
-    public getCamera(corners2d: Vector2[]): ICamera {
+    public getCamera(corners2d: Vector2[]): ICameraConfig {
         // Camera Calibration: https://www.analyticsvidhya.com/blog/2021/10/a-comprehensive-guide-for-camera-calibration-in-computer-vision/
         // https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript
         // https://se.mathworks.com/matlabcentral/answers/410103-how-to-find-projective-transformation-with-4-points
@@ -116,6 +132,12 @@ export class ConeRenderer implements IRenderer {
         // https://docs.opencv.org/4.x/d7/d53/tutorial_py_pose.html
 
         if (corners2d?.length !== 4) throw new Error("Four corner points expected");
+    }
 
+    public dispose() {
+        this.geometry?.dispose();
+        this.texture?.dispose();
+        this.renderer.dispose();
+        this.material?.dispose();
     }
 }

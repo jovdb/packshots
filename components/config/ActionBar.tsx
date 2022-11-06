@@ -51,7 +51,17 @@ export function ActionBar() {
                             setAction(""); // close panel
                         }}><a href="#">Spread on a rectangle</a></li>
                         <li style={style} onClick={() => {
-                            alert("TODO");
+                            // Add below overlay
+                            const index = layers.findIndex(l => l.name === "Overlay");
+                            const layer: ILayerState = {
+                                name: "Spread 1 on a cone",
+                                type: "cone",
+                                config: {},
+                                ui: {
+                                    isExpanded: true,
+                                }
+                            }
+                            addLayer(layer, index < 0 ? undefined : index);
                             setAction(""); // close panel
                         }}><a href="#">Spread on a cylinder or cone</a></li>
                         <li style={style} onClick={() => {

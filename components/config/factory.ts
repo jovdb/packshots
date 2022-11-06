@@ -1,6 +1,7 @@
 import { ILayerState } from "../../state/Layer";
 import { ImageConfig } from "./ImageConfig";
 import { PlaneConfig } from "./PlaneConfig";
+import { ConeConfig } from "./ConeConfig";
 
 export type ConfigComponent<T extends {}> = React.FC<{
     config: T;
@@ -14,7 +15,7 @@ export function getConfigComponent(
     switch (layer.type) {
         case "image": return ImageConfig;
         case "plane": return PlaneConfig;
-        case "cone": return null;
+        case "cone": return ConeConfig;
         default: throw new Error(`Unknown config type: ${layer.type}`);
     }
 }
