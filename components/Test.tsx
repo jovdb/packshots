@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { createRenderers, loadRenders, render } from "../renderers/render";
 import { ConfigPanel } from "./ConfigPanel";
-import { DrawPolygons, useDrawPolygons } from "./DrawPolygon";
 import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
@@ -13,6 +12,7 @@ import { getConfigComponent } from "./config/factory";
 import { ILayerState } from "../state/Layer";
 import { Vector2 } from "three";
 import { isWithControlPoints } from "../control-points";
+import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -92,7 +92,7 @@ export function Test() {
             }) as [number, number][];
         })
     
-    const bind = useDrawPolygons(
+    const bind = usePointsSets(
         drawPolygonRef,
         controlPointsInScreenCoordinates,
         (layerIndex, newPointsInScreenCoordinates) => {
@@ -150,7 +150,7 @@ export function Test() {
                     }}
                     {...bind()}
                 />
-                <DrawPolygons
+                <DrawPointsSets
                     ref={drawPolygonRef}
                     style={{
                         position: "absolute",

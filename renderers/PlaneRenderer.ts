@@ -127,7 +127,7 @@ export class PlaneRenderer implements IRenderer, IWithControlPoints {
         // https://www.researchgate.net/publication/284786954_Camera_Calibration_and_Pose_Estimation_from_Planes
         // https://docs.opencv.org/4.x/d7/d53/tutorial_py_pose.html
 
-        if (corners2d?.length !== 4) throw new Error("Four corner points expected");
+        if (corners2d?.length !== 4) throw new Error("Four control points expected");
     }
 
     public dispose() {
