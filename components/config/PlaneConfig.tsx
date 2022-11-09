@@ -3,7 +3,7 @@ import { ConfigComponent } from "./factory";
 import { ISpreadImageConfig, spreadImageDefaultConfig, SpreadImageConfig } from "./SpreadImageConfig";
 
 export interface IPlaneConfig {
-    cone: {
+    plane: {
         width: number;
         height: number;
     };

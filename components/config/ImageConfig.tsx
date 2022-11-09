@@ -16,7 +16,8 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
         if (config.imageUrl === "./walldeco1.jpg") return "walldeco1";
         if (config.imageUrl === "./walldeco2.png") return "walldeco2";
         if (config.imageUrl === "./housenumber.png") return "plate";
-        return "local";
+        if (config.imageUrl.startsWith("blob://")) return "local";
+        return "url";
     });
 
     return (
@@ -61,6 +62,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                                 }}
                             >
                                 <option value="local">Local file</option>
+                                <option value="url">URL</option>
                                 <optgroup label="Background samples">
                                     <option value="t-shirt">T-shirt</option>
                                     <option value="walldeco1">Walldeco 1</option>
@@ -76,10 +78,30 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                         <>
                             <tr>
                                 <td colSpan={2}>
-                                    <input readOnly disabled value={config?.imageUrl || ""} style={{ marginRight: 5 }} />
                                     <ImageSelection
                                         onSelect={(info) => {
                                             onChange({ imageUrl: info.url });
+                                        }}
+                                    />
+                                </td>
+                            </tr>
+                        </>
+                    )}
+                    {type === "url" && (
+                        <>
+                            <tr>
+                                <td colSpan={2}>
+                                    Location:
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan={2}>
+                                    <input
+                                        value={config?.imageUrl || ""}
+                                        style={{ width: "100%" }}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            onChange({ imageUrl: value });
                                         }}
                                     />
                                 </td>

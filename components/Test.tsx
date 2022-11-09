@@ -26,6 +26,13 @@ export function useImageFromUrl(url: string) {
     });
 }
 
+export function useImageFromUrls(urls: string[]) {
+    return useQuery(["loadImage", ...urls], () => Promise.all(urls.map(loadImageAsync)) , {
+        refetchOnWindowFocus: false,
+    });
+}
+
+
 export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const drawPolygonRef = useRef<HTMLDivElement>(null);

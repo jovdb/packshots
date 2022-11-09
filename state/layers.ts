@@ -4,6 +4,7 @@ import { ILayerState } from "./Layer";
 
 export const useLayersConfig = create<{
     layers: ILayerState[],
+    setLayers(layers: ILayerState[]): void;
     addLayer(layer: ILayerState, insertIndex?: number): number;
     deleteLayer(index: number): void;
     updateLayer(index: number, layer: ILayerState): void;
@@ -28,7 +29,9 @@ export const useLayersConfig = create<{
             }
         }
     ]  as any,*/
-
+    setLayers(layers) {
+        set({ layers });
+    },
     addLayer(layer, insertIndex) {
         set((state) => {
             const newLayers = state.layers.slice();
@@ -61,7 +64,7 @@ export const useLayersConfig = create<{
             const oldConfig = oldLayer?.config || {};
             const newLayer = {
                 ...oldLayer,
-                config: {...oldConfig, ...config},
+                config: { ...oldConfig, ...config },
             };
             newLayers.splice(index, 1, newLayer);
             return {
@@ -76,7 +79,7 @@ export const useLayersConfig = create<{
             const oldUi = oldLayer?.ui || {};
             const newLayer = {
                 ...oldLayer,
-                ui: {...oldUi, ...ui},
+                ui: { ...oldUi, ...ui },
             };
             newLayers.splice(index, 1, newLayer);
             return {

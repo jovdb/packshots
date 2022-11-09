@@ -19,11 +19,6 @@ export function ConfigPanel({
                 overflowY: "scroll",
             }}
         >
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                {isOpen ? ">>" : "<<"}
-            </button>
             <div style={{
                 visibility: isOpen ? "visible" : "hidden",
                 position: isOpen ? undefined : "absolute",
@@ -31,6 +26,25 @@ export function ConfigPanel({
             }}>
                 {children}
             </div>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    transform: "translate(-100%, 10px)",
+                    height: 32,
+                    width: 32,
+                    borderTopLeftRadius: 8,
+                    borderBottomLeftRadius: 8,
+                    cursor: "pointer",
+                    background: "#888",
+                    color: "rgb(238, 238, 238)",
+                    border: "none",
+                    //boxShadow: "0 0 3px rgba(0 0 0, 0.2)",
+                }}
+            >
+                {isOpen ? ">>" : "<<"}
+            </button>
         </div>
     );
 }

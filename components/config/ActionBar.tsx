@@ -2,11 +2,13 @@ import { CSSProperties, useState } from "react";
 import { ILayerState } from "../../state/Layer";
 import { useLayersConfig } from "../../state/layers";
 import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
+import { flowerPotLayers } from "../samples/flowerpot";
 
 export function ActionBar() {
     const [action, setAction] = useState("");
-    const layers = useLayersConfig(s => s.layers)
-    const addLayer = useLayersConfig(s => s.addLayer)
+    const layers = useLayersConfig(s => s.layers);
+    const addLayer = useLayersConfig(s => s.addLayer);
+    const setLayers = useLayersConfig(s => s.setLayers);
 
     const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
 
@@ -54,6 +56,20 @@ export function ActionBar() {
                             // Add below overlay
                             const index = layers.findIndex(l => l.name === "Overlay");
                             const layer: ILayerState = {
+                                name: "Spread 1 on a plane2",
+                                type: "plane2",
+                                config: {},
+                                ui: {
+                                    isExpanded: true,
+                                }
+                            }
+                            addLayer(layer, index < 0 ? undefined : index);
+                            setAction(""); // close panel
+                        }}><a href="#">Spread on a rectangle2</a></li>
+                        <li style={style} onClick={() => {
+                            // Add below overlay
+                            const index = layers.findIndex(l => l.name === "Overlay");
+                            const layer: ILayerState = {
                                 name: "Spread 1 on a cone",
                                 type: "cone",
                                 config: {},
@@ -76,6 +92,14 @@ export function ActionBar() {
                             addLayer(layer);
                             setAction(""); // close panel
                         }}><a href="#">Overlay</a></li>
+                    </ul>
+
+                    <div>Load samples:</div>
+                    <ul>
+                    <li style={style} onClick={() => {
+                            setLayers(flowerPotLayers); // close panel
+                            setAction(""); // close panel
+                        }}><a href="#">Flower pot</a></li>
                     </ul>
                 </AccordionPanel>
             </>)}
