@@ -20,7 +20,10 @@ export class ImageRenderer implements IRenderer {
     }
 
     public render(targetContext: CanvasRenderingContext2D) {
-        if (this.config?.imageUrl && !this.image) throw new Error("image to render not loaded");
+        if (this.config?.imageUrl && !this.image) {
+            console.error("image to render not loaded");
+            return;
+        }
         if (this.image) targetContext.drawImage(this.image, 0, 0);
     }
 }

@@ -6,6 +6,7 @@ const background: ILayerState<IImageConfig> = {
     name: "Background",
     type: "image",
     config: {
+        name: "Background.png",
         imageUrl: "./products/Pot/Background.png"
     },
 };
@@ -20,7 +21,8 @@ const spread: ILayerState<IPlaneConfig> = {
             fieldOfViewInDeg: 75,
         },
         image: {
-            url: "./products/Pot/Spread2.png"
+            name: "Spread2.png",
+            imageUrl: "./products/Pot/Spread2.jpg"
         },
         plane: {
             width: 10,
