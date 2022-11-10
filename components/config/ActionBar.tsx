@@ -3,6 +3,7 @@ import { ILayerState } from "../../state/Layer";
 import { useLayersConfig } from "../../state/layers";
 import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
 import { flowerPotLayers } from "../samples/flowerpot";
+import { photobookLayers } from "../samples/photobook";
 
 export function ActionBar() {
     const [action, setAction] = useState("");
@@ -22,6 +23,7 @@ export function ActionBar() {
         >
             {action === "add" && (<>
                 <AccordionPanel>
+                    <div>Layer:</div>
                     <ul>
                         <li style={style} onClick={() => {
                             const layer: ILayerState = {
@@ -94,9 +96,13 @@ export function ActionBar() {
                         }}><a href="#">Overlay</a></li>
                     </ul>
 
-                    <div>Load samples:</div>
+                    <div>Sample:</div>
                     <ul>
-                    <li style={style} onClick={() => {
+                        <li style={style} onClick={() => {
+                            setLayers(photobookLayers); // close panel
+                            setAction(""); // close panel
+                        }}><a href="#">Photo book</a></li>
+                        <li style={style} onClick={() => {
                             setLayers(flowerPotLayers); // close panel
                             setAction(""); // close panel
                         }}><a href="#">Flower pot</a></li>

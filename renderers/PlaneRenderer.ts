@@ -78,7 +78,7 @@ export class PlaneRenderer implements IRenderer, IWithControlPoints {
 
         // Load Texture/Image
         const loader = new TextureLoader();
-        const url = this.config?.image?.url ?? "";
+        const url = this.config?.image?.imageUrl ?? "";
         this.texture = url ? await loader.loadAsync(url) : undefined;
 
         // Create Material
@@ -118,7 +118,7 @@ export class PlaneRenderer implements IRenderer, IWithControlPoints {
         return [corners2d[0], corners2d[1], corners2d[3], corners2d[2]]
     }
 
-    public getCameraFromControlPoints(corners2d: Vector2[]): ICameraConfig {
+    public getCameraFromControlPoints(corners2d: Vector2[]): any {
         // Camera Calibration: https://www.analyticsvidhya.com/blog/2021/10/a-comprehensive-guide-for-camera-calibration-in-computer-vision/
         // https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript
         // https://se.mathworks.com/matlabcentral/answers/410103-how-to-find-projective-transformation-with-4-points

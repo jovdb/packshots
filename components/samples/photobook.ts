@@ -1,19 +1,19 @@
 import { ILayerState } from "../../state/Layer";
-import { IConeConfig } from "../config/ConeConfig";
 import { IImageConfig } from "../config/ImageConfig";
+import { IPlaneConfig } from "../config/PlaneConfig";
 
 const background: ILayerState<IImageConfig> = {
     name: "Background",
     type: "image",
     config: {
         name: "Background.png",
-        imageUrl: "./products/Pot/Background.png"
+        imageUrl: "./products/Book/Background.png"
     },
 };
 
-const spread: ILayerState<IConeConfig> = {
+const spread: ILayerState<IPlaneConfig> = {
     name: "Spread",
-    type: "cone",
+    type: "plane2",
     config: {
         camera: {
             position: [0, 0, 0],
@@ -21,18 +21,17 @@ const spread: ILayerState<IConeConfig> = {
             fieldOfViewInDeg: 75,
         },
         image: {
-            name: "Spread2.jpg",
-            imageUrl: "./products/Pot/Spread2.jpg"
+            name: "Spread.jpg",
+            imageUrl: "./products/Book/Spread.jpg"
         },
-        cone: {
-            topDiameter: 8,
-            bottomDiameter: 6,
+        plane: {
+            width: 10,
             height: 10,
         }
     },
 };
 
-export const flowerPotLayers: ILayerState[] = [
+export const photobookLayers: ILayerState[] = [
     background,
     spread,
 ];

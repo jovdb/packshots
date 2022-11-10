@@ -24,6 +24,11 @@ export class ImageRenderer implements IRenderer {
             console.error("image to render not loaded");
             return;
         }
-        if (this.image) targetContext.drawImage(this.image, 0, 0);
+
+        if (this.image) targetContext.drawImage(
+            this.image,
+            0, 0, this.image.width, this.image.height,
+            0, 0, targetContext.canvas.width, targetContext.canvas.height,
+        );
     }
 }

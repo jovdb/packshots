@@ -14,11 +14,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
 }) => {
 
     const [type, setType] = useState(() => {
-        if (config.imageUrl === "./t-shirt.jpg") return "t-shirt";
-        if (config.imageUrl === "./walldeco1.jpg") return "walldeco1";
-        if (config.imageUrl === "./walldeco2.png") return "walldeco2";
-        if (config.imageUrl === "./housenumber.png") return "plate";
-        if (config.imageUrl.startsWith("blob://")) return "local";
+        if (config.imageUrl?.startsWith("blob://")) return "local";
         return "url";
     });
 
@@ -35,22 +31,6 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                                     const value = e.target.value;
                                     setType(value);
                                     switch (value) {
-                                        case "walldeco1": {
-                                            onChange({ imageUrl: "./walldeco1.jpg" });
-                                            break;
-                                        }
-                                        case "walldeco2": {
-                                            onChange({ imageUrl: "./walldeco2.png" });
-                                            break;
-                                        }
-                                        case "plate": {
-                                            onChange({ imageUrl: "./housenumber.png" });
-                                            break;
-                                        }
-                                        case "t-shirt": {
-                                            onChange({ imageUrl: "./t-shirt.jpg" });
-                                            break;
-                                        }
                                         case "local": {
                                             onChange({ imageUrl: "", name: "" });
                                             break;
@@ -65,14 +45,6 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                             >
                                 <option value="local">Local file</option>
                                 <option value="url">URL</option>
-                                <optgroup label="Background samples">
-                                    <option value="t-shirt">T-shirt</option>
-                                    <option value="walldeco1">Walldeco 1</option>
-                                </optgroup>
-                                <optgroup label="Overlay samples">
-                                    <option value="plate">Plate</option>
-                                    <option value="walldeco2">Walldeco 2</option>
-                                </optgroup>
                             </select>
                         </td>
                     </tr>
@@ -129,7 +101,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                     )}
                     <tr>
                         <td colSpan={2} style={{ textAlign: "center" }}>
-                            {config?.imageUrl && <img alt="preview" src={config.imageUrl} style={{ width: "100%", height: "auto", maxWidth: 200, maxHeight: 200 }} />}
+                            {config?.imageUrl && <img alt="preview" src={config.imageUrl} style={{ width: "100%", height: "auto", maxWidth: 200, maxHeight: 200, border: "1px solid #aaa" }} />}
                         </td>
                     </tr>
                 </tbody>
