@@ -13,6 +13,7 @@ import { ILayerState } from "../state/Layer";
 import { Vector2 } from "three";
 import { isWithControlPoints } from "../control-points";
 import { DrawPointsSets, usePointsSets } from "./DrawPoints";
+import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -27,7 +28,7 @@ export function useImageFromUrl(url: string) {
 }
 
 export function useImageFromUrls(urls: string[]) {
-    return useQuery(["loadImage", ...urls], () => Promise.all(urls.map(loadImageAsync)) , {
+    return useQuery(["loadImage", ...urls], () => Promise.all(urls.map(loadImageAsync)), {
         refetchOnWindowFocus: false,
     });
 }
@@ -39,20 +40,15 @@ export function Test() {
 
     // Layers 
     const layers = useLayersConfig(s => s.layers);
-    
-    // Get size from image
-    /*
-    const firstImageRenderer = renderers?.find(r => r instanceof ImageRenderer) as ImageRenderer | undefined;
-    */
-    const firstImageRenderer: any = undefined;
-    const targetWidth = firstImageRenderer?.image?.width || 700;
-    const targetHeight = firstImageRenderer?.image?.height || 700;
+
+    const [isConfigExpanded, setIsConfigExpanded] = useState(true);
+    const [exportConfig, setExportConfig] = useState(defaultExportConfig);
 
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
 
     const [layersControlPoints, setLayerControlPoints] = useState<(Vector2[] | undefined)[]>([]);
-    useQuery(["loaded-renderers", layers], async () => {
+    useQuery(["loaded-renderers", layers, exportConfig], async () => {
         const renderers = createRenderers(targetContext, layers);
         try {
             await loadRenders(renderers);
@@ -60,8 +56,8 @@ export function Test() {
 
             // Update list of control points
             const controlPoints = renderers.map(r => {
-                if (isWithControlPoints(r)) return r. getControlPoints2d();
-                return undefined; 
+                if (isWithControlPoints(r)) return r.getControlPoints2d();
+                return undefined;
             });
             setLayerControlPoints(controlPoints);
         } finally {
@@ -70,6 +66,8 @@ export function Test() {
         return null;
     });
 
+    const [isExportExpanded, setIsExportExpanded] = useState(false);
+
     // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);
     const previewAreaRect = useElementSize(previewAreaRef);
@@ -77,8 +75,8 @@ export function Test() {
     const centerPreviewToPreviewArea = fitRectTransform({
         top: 0,
         left: 0,
-        width: targetWidth,
-        height: targetHeight,
+        width: exportConfig.width,
+        height: exportConfig.height,
     }, {
         top: margin,
         left: margin,
@@ -98,7 +96,7 @@ export function Test() {
                 ];
             }) as [number, number][];
         })
-    
+
     const bind = usePointsSets(
         drawPolygonRef,
         controlPointsInScreenCoordinates,
@@ -112,10 +110,9 @@ export function Test() {
                 let newLayerControlPoints = layerControlPoints.slice();
                 newLayerControlPoints[layerIndex] = newPointsInTargetCoordinates;
                 return newLayerControlPoints;
-             });
+            });
         });
 
-    const [isConfigExpanded, setIsConfigExpanded] = useState(true);
     const checkBoardSize = 25;
     const checkBoardDark = "#e8e8e8";
     const checkBoardLight = "#f8f8f8";
@@ -132,12 +129,12 @@ export function Test() {
             >
                 <canvas
                     ref={canvasRef}
-                    width={targetWidth}
-                    height={targetHeight}
+                    width={exportConfig.width}
+                    height={exportConfig.height}
                     style={{
                         position: "absolute",
-                        width: targetWidth * centerPreviewToPreviewArea.scale,
-                        height: targetHeight * centerPreviewToPreviewArea.scale,
+                        width: exportConfig.width * centerPreviewToPreviewArea.scale,
+                        height: exportConfig.height * centerPreviewToPreviewArea.scale,
                         left: centerPreviewToPreviewArea.x,
                         top: centerPreviewToPreviewArea.y,
                         outline: "1px solid #ddd",
@@ -161,8 +158,8 @@ export function Test() {
                     ref={drawPolygonRef}
                     style={{
                         position: "absolute",
-                        width: targetWidth * centerPreviewToPreviewArea.scale,
-                        height: targetHeight * centerPreviewToPreviewArea.scale,
+                        width: exportConfig.width * centerPreviewToPreviewArea.scale,
+                        height: exportConfig.height * centerPreviewToPreviewArea.scale,
                         left: centerPreviewToPreviewArea.x,
                         top: centerPreviewToPreviewArea.y,
                     }}
@@ -181,9 +178,14 @@ export function Test() {
                             );
                         })
                     }
+                    <Accordion title="Export" isExpanded={isExportExpanded} setIsExpanded={setIsExportExpanded}>
+                        <AccordionPanel>
+                            <ExportConfig config={exportConfig} onChange={setExportConfig} />
+                        </AccordionPanel>
+                    </Accordion>
                 </ConfigPanel>
             </div>
-        </div>
+        </div >
     );
 }
 
