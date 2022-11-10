@@ -8,13 +8,13 @@ import type { IRenderer } from "./IRenderer";
 export class PlaneRenderer2 implements IRenderer, IWithControlPoints {
     private image: HTMLImageElement | undefined;
     private config: IPlaneConfig2
-    private packshotSize: { width: number; height: number; };
+    private targetSize: { width: number; height: number; };
 
-    private scene: Scene;
-    private geometry: PlaneGeometry;
-    private camera: Camera;
-    private renderer: WebGLRenderer;
-    private mesh: Mesh | undefined;
+    private scene: Scene | undefined;
+    private geometry: PlaneGeometry | undefined;
+    private camera: Camera | undefined;
+    private renderer: WebGLRenderer | undefined;
+    private mesh: Mesh<PlaneGeometry> | undefined;
     private material: Material | undefined;
     private texture: Texture | undefined;
 
@@ -22,30 +22,22 @@ export class PlaneRenderer2 implements IRenderer, IWithControlPoints {
         private targetSize: { width: number; height: number; },
         config: IPlaneConfig2,
     ) {
-        this.packshotSize = targetSize;
+        this.targetSize = targetSize;
         this.config = {
             image: config.image || { url: "" },
             projectionMatrix: [1, 0, 0, 0, 1, 0, 0, 0, 1],
         };
-
-        const info = this.createScene();
-        this.scene = info.scene;
-        this.geometry = info.geometry;
-        this.camera = info.camera;
-        this.mesh = info.mesh;
-        this.material = info.material;
-        this.renderer = info.renderer;
     }
 
     private getCanvasControlPoint(vector: [x: number, y: number]): Vector2 {
-        const x = this.targetSize.width / 2 + vector[0] * this.packshotSize.width / 2;
-        const y = this.targetSize.height / 2 + vector[1] * this.packshotSize.height / 2;
+        const x = this.targetSize.width / 2 + vector[0] * this.targetSize.width / 2;
+        const y = this.targetSize.height / 2 + vector[1] * this.targetSize.height / 2;
         return new Vector2(x, y);
     }
 
     private getProjectionPoint(p: Vector2): [x: number, y: number] {
-        const x = 2 * (p.x - this.targetSize.width / 2) / this.packshotSize.width;
-        const y = 2 * (p.y - this.targetSize.height / 2) / this.packshotSize.height;
+        const x = 2 * (p.x - this.targetSize.width / 2) / this.targetSize.width;
+        const y = 2 * (p.y - this.targetSize.height / 2) / this.targetSize.height;
         return [x, y];
     }
 
@@ -150,87 +142,78 @@ export class PlaneRenderer2 implements IRenderer, IWithControlPoints {
     }
 
     private createScene() {
-        const scene = new Scene();
+        this.dispose();
 
         // --------------------
         // Renderer
         // --------------------
-        const renderer = new WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(this.targetSize.width, this.targetSize.height);
+        this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer.setSize(this.targetSize.width, this.targetSize.height);
 
         // --------------------
         // Create Scene
         // --------------------
-        console.log("width", this.image?.width);
-        const geometry = new PlaneGeometry(this.image?.width || 10, this.image?.height || 10);
-        const material = new MeshBasicMaterial({ color: 0xffff00, side: DoubleSide });
-        const mesh = new Mesh(geometry, material); // Material assigned later
-        scene.add(mesh);
+        this.geometry = new PlaneGeometry(this.image?.width || 10, this.image?.height || 10);
+        this.mesh = new Mesh(this.geometry, this.material); // Material assigned later
+        this.scene = new Scene();
+        this.scene.add(this.mesh);
 
         // --------------------
         // Camera
         // --------------------
         const z = 1;
-        const fov = this.getFov(mesh, z);
-        const camera = new PerspectiveCamera(fov, this.targetSize.width / this.targetSize.height);
-        camera.position.x = 0;
-        camera.position.y = 0;
-        camera.position.z = z;
-
-
-        return {
-            scene,
-            geometry,
-            camera,
-            material,
-            renderer,
-            mesh,
-        }
+        const fov = this.getFov(this.mesh, z);
+        this.camera = new PerspectiveCamera(fov, this.targetSize.width / this.targetSize.height);
+        this.camera.position.x = 0;
+        this.camera.position.y = 0;
+        this.camera.position.z = z;
     }
 
     public render(targetContext: CanvasRenderingContext2D) {
-        if (this.image) {
+        this.createScene();
+        if (this.renderer && this.image && this.mesh && this.scene && this.camera) {
 
             /*
-                        const projectionMatrix = this.getProjectionMatrix([
-                            [0, 0],
-                            [1, 0],
-                            [0, 1],
-                            [1, 1],
-                        ]);
-                        if (!projectionMatrix) return;
-            
-                        // const matrixValues2 = projectionMatrix.toArray();
-                        /*const matrixValues = [
-                            1 / targetContext.canvas.width, 0, 0,
-                            0, 1 / targetContext.canvas.height, 0,
-                            0, 0, 1,
-                        ];
-                        */
-            /*
-                        const a = new Matrix3().fromArray([
-                            1 / targetContext.canvas.width, 0, 0,
-                            0, 1 / targetContext.canvas.height, 0,
-                            0, 0, 1,
-                        ]);
-            
-                        console.log(projectionMatrix);
-                        const matrixValues = (projectionMatrix).invert().toArray();
-            
-                        const matrix4 = new Matrix4().fromArray([
-                            matrixValues[0], matrixValues[1], matrixValues[2], 0,
-                            matrixValues[3], matrixValues[4], matrixValues[5], 0,
-                            matrixValues[6], matrixValues[7], matrixValues[8], 0,
-                            0, 0, 0, 1,
-                        ]);
+            const projectionMatrix = this.getProjectionMatrix([
+                [0, 0],
+                [1, 0],
+                [0, 1],
+                [1, 1],
+            ]);
+            if (!projectionMatrix) return;
+
+            // const matrixValues2 = projectionMatrix.toArray();
+            /*const matrixValues = [
+                1 / targetContext.canvas.width, 0, 0,
+                0, 1 / targetContext.canvas.height, 0,
+                0, 0, 1,
+            ];
             */
+/*
+            const a = new Matrix3().fromArray([
+                1 / targetContext.canvas.width, 0, 0,
+                0, 1 / targetContext.canvas.height, 0,
+                0, 0, 1,
+            ]);
+
+            console.log(projectionMatrix);
+            const matrixValues = (projectionMatrix).invert().toArray();
+
+            const matrix4 = new Matrix4().fromArray([
+                matrixValues[0], matrixValues[1], matrixValues[2], 0,
+                matrixValues[3], matrixValues[4], matrixValues[5], 0,
+                matrixValues[6], matrixValues[7], matrixValues[8], 0,
+                0, 0, 0, 1,
+            ]);
+            */
+
             const projectionMatrix = new Matrix4().fromArray(this.config.projectionMatrix);
             // this.camera.projectionMatrix.multiply(projectionMatrix);
             this.renderer.render(this.scene, this.camera);
 
             targetContext.drawImage(
                 this.renderer.getContext().canvas,
-                0, 0, this.packshotSize.width, this.packshotSize.height,
+                0, 0, this.targetSize.width, this.targetSize.height,
                 0, 0, targetContext.canvas.width, targetContext.canvas.height,
             );
             console.log("rendered", this.texture);
@@ -249,6 +232,9 @@ export class PlaneRenderer2 implements IRenderer, IWithControlPoints {
     }
 
     getControlPoints2d(): Vector2[] {
+        const { camera } = this;
+        if (!camera) return [];
+
         const planeSize = this.targetSize;
         const halfX = planeSize.width / 2;
         const halfY = planeSize.height / 2;
@@ -260,7 +246,7 @@ export class PlaneRenderer2 implements IRenderer, IWithControlPoints {
             [-halfX, halfY],
         ] as [number, number][])
             // .map(p => this.getCanvasControlPoint(p))
-            .map(p => new Vector3(p[0], p[1], 0).project(this.camera))
+            .map(p => new Vector3(p[0], p[1], 0).project(camera))
       //      .map(p => new Vector2(p.x / 8, p.y / 8))
             .map(p => new Vector2(p.x + this.targetSize.width / 2, p.y + this.targetSize.height / 2));
         return points;
@@ -272,10 +258,10 @@ export class PlaneRenderer2 implements IRenderer, IWithControlPoints {
 
 
     public dispose() {
-        this.geometry.dispose();
-        this.material?.dispose();
         this.texture?.dispose();
-        this.renderer.dispose();
+        this.geometry?.dispose();
+        this.material?.dispose();
+        this.renderer?.dispose();
     }
 
 }
