@@ -143,7 +143,7 @@ export class ConeRenderer implements IRenderer {
         return new Vector2(x * superSamplingFactor, y * superSamplingFactor);
     }
 
-    public getCameraFromControlPoints(corners2d: Vector2[]): any {
+    private getCameraFromControlPoints(corners2d: Vector2[]): any {
         // Camera Calibration: https://www.analyticsvidhya.com/blog/2021/10/a-comprehensive-guide-for-camera-calibration-in-computer-vision/
         // https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript
         // https://se.mathworks.com/matlabcentral/answers/410103-how-to-find-projective-transformation-with-4-points

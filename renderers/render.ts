@@ -1,4 +1,4 @@
-import { ILayerState } from "../state/Layer";
+import { ILayerState } from "../layers/ILayer";
 import { createRenderer } from "./factory";
 import { IRenderer } from "./IRenderer";
 

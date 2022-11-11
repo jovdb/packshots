@@ -1,10 +1,10 @@
 import { Camera, DoubleSide, Material, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { cameraDefaultConfig, ICameraConfig } from "../components/config/CameraConfig";
 import { IPlaneConfig } from "../components/config/PlaneConfig";
-import { IWithControlPoints } from "../control-points";
+import { IControlPoints } from "../controlPoints/IControlPoints";
 import type { IRenderer } from "./IRenderer";
 
-export class PlaneRenderer implements IRenderer, IWithControlPoints {
+export class PlaneRenderer implements IRenderer, IControlPoints {
 
     private config: IPlaneConfig
     private scene: Scene;
@@ -95,7 +95,7 @@ export class PlaneRenderer implements IRenderer, IWithControlPoints {
         targetContext.drawImage(this.renderer.getContext().canvas, 0, 0);
     }
 
-    public getControlPoints2d() {
+    public configToControlPoints() {
         // Get 3D Corners
         const corners3d: Vector3[] = [];
         const positionAttribute = this.geometry.getAttribute("position"); // read vertex
@@ -118,7 +118,7 @@ export class PlaneRenderer implements IRenderer, IWithControlPoints {
         return [corners2d[0], corners2d[1], corners2d[3], corners2d[2]]
     }
 
-    public getCameraFromControlPoints(corners2d: Vector2[]): any {
+    private getCameraFromControlPoints(corners2d: Vector2[]): any {
         // Camera Calibration: https://www.analyticsvidhya.com/blog/2021/10/a-comprehensive-guide-for-camera-calibration-in-computer-vision/
         // https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript
         // https://se.mathworks.com/matlabcentral/answers/410103-how-to-find-projective-transformation-with-4-points

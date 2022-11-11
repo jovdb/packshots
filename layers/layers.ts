@@ -1,5 +1,5 @@
 import create from "zustand";
-import { ILayerState } from "./Layer";
+import { ILayerState } from "./ILayer";
 
 
 export const useLayersConfig = create<{

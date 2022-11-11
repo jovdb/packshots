@@ -4,6 +4,13 @@ import { ControlPoint, IControlPoints } from "../controlPoints/IControlPoints";
 import { loadImageAsync } from "../utils/image";
 import type { IRenderer } from "./IRenderer";
 
+export type PlaneControlPoints = [
+    topLeft: ControlPoint,
+    topRight: ControlPoint,
+    bottomRight: ControlPoint,
+    bottomLeft: ControlPoint,
+];
+
 export class PlaneRenderer2 implements IRenderer, IControlPoints {
     private config: IPlaneConfig2
     
@@ -239,10 +246,7 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
         return matC;
     }
 
-    /**
-     * Controlpoints are the corners of the plane (top-left, top-right, bottom-right, and bottom-left)
-     */
-    configToControlPoints(): [x: number, y: number][] {
+    configToControlPoints(): PlaneControlPoints {
         const { camera, image } = this;
         if (!camera || !image) return [];
 

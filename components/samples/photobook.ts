@@ -1,4 +1,4 @@
-import { ILayerState } from "../../state/Layer";
+import { ILayerState } from "../../layers/ILayer";
 import { IImageConfig } from "../config/ImageConfig";
 import { IPlaneConfig } from "../config/PlaneConfig";
 

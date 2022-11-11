@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { createRenderers, loadRenders, render } from "../renderers/render";
@@ -7,11 +7,10 @@ import { useElementSize } from "../hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { useLayersConfig } from "../state/layers";
+import { useLayersConfig } from "../layers/layers";
 import { getConfigComponent } from "./config/factory";
-import { ILayerState } from "../state/Layer";
+import { ILayerState } from "../layers/ILayer";
 import { Vector2 } from "three";
-import { isWithControlPoints } from "../control-points";
 import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 
@@ -47,7 +46,7 @@ export function Test() {
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
 
-    const [layersControlPoints, setLayerControlPoints] = useState<(Vector2[] | undefined)[]>([]);
+    const [layersControlPoints, setLayerControlPoints] = useState<([x: number, y: number][] | undefined)[]>([]);
     useQuery(["loaded-renderers", layers, exportConfig], async () => {
         const renderers = createRenderers(targetContext, layers);
         try {
@@ -56,10 +55,22 @@ export function Test() {
 
             // Update list of control points
             const controlPoints = renderers.map(r => {
-                if (isWithControlPoints(r)) return r.getControlPoints2d();
+                if (isControlPoints(r)) {
+                    const b = r.getControlPoints();
+
+                    const a = r.setControlPoints(b);
+                    console.log("config from control points", a);
+
+                    return b;
+
+                }
                 return undefined;
             });
+
             setLayerControlPoints(controlPoints);
+
+
+
         } finally {
             renderers.forEach(r => r.dispose?.());
         }
@@ -101,92 +112,92 @@ export function Test() {
         drawPolygonRef,
         controlPointsInScreenCoordinates,
         (layerIndex, newPointsInScreenCoordinates) => {
-            const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => new Vector2(
+            const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => [
                 point[0] / centerPreviewToPreviewArea.scale,
                 point[1] / centerPreviewToPreviewArea.scale,
-            ));
+            ] as [x: number, y: number]));
 
-            setLayerControlPoints(layerControlPoints => {
-                let newLayerControlPoints = layerControlPoints.slice();
-                newLayerControlPoints[layerIndex] = newPointsInTargetCoordinates;
-                return newLayerControlPoints;
-            });
-        });
+    setLayerControlPoints(layerControlPoints => {
+        let newLayerControlPoints = [...layerControlPoints];
+        newLayerControlPoints[layerIndex] = newPointsInTargetCoordinates;
+        return newLayerControlPoints;
+    });
+});
 
-    const checkBoardSize = 25;
-    const checkBoardDark = "#e8e8e8";
-    const checkBoardLight = "#f8f8f8";
-    return (
-        <div style={{ display: "flex", height: "100vh" }}>
-            <div
-                ref={previewAreaRef}
+const checkBoardSize = 25;
+const checkBoardDark = "#e8e8e8";
+const checkBoardLight = "#f8f8f8";
+return (
+    <div style={{ display: "flex", height: "100vh" }}>
+        <div
+            ref={previewAreaRef}
+            style={{
+                flexGrow: 1,
+                position: "relative",
+                width: "100%",
+                height: "100%",
+            }}
+        >
+            <canvas
+                ref={canvasRef}
+                width={exportConfig.width}
+                height={exportConfig.height}
                 style={{
-                    flexGrow: 1,
-                    position: "relative",
-                    width: "100%",
-                    height: "100%",
-                }}
-            >
-                <canvas
-                    ref={canvasRef}
-                    width={exportConfig.width}
-                    height={exportConfig.height}
-                    style={{
-                        position: "absolute",
-                        width: exportConfig.width * centerPreviewToPreviewArea.scale,
-                        height: exportConfig.height * centerPreviewToPreviewArea.scale,
-                        left: centerPreviewToPreviewArea.x,
-                        top: centerPreviewToPreviewArea.y,
-                        outline: "1px solid #ddd",
-                        boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
-                        // checkboard background
-                        backgroundImage: `
+                    position: "absolute",
+                    width: exportConfig.width * centerPreviewToPreviewArea.scale,
+                    height: exportConfig.height * centerPreviewToPreviewArea.scale,
+                    left: centerPreviewToPreviewArea.x,
+                    top: centerPreviewToPreviewArea.y,
+                    outline: "1px solid #ddd",
+                    boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
+                    // checkboard background
+                    backgroundImage: `
                             linear-gradient(45deg, ${checkBoardDark} 25%, transparent 25%),
                             linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
                             linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
                             linear-gradient(45deg, ${checkBoardDark} 25%, ${checkBoardLight} 25%)`,
-                        backgroundSize: `${checkBoardSize}px ${checkBoardSize}px`,
-                        backgroundPosition: `
+                    backgroundSize: `${checkBoardSize}px ${checkBoardSize}px`,
+                    backgroundPosition: `
                             0 0,
                             0 0,
                             calc(${checkBoardSize}px * -0.5) calc(${checkBoardSize}px * -0.5),
                             calc(${checkBoardSize}px * 0.5) calc(${checkBoardSize}px * 0.5)`,
-                    }}
-                    {...bind()}
-                />
-                <DrawPointsSets
-                    ref={drawPolygonRef}
-                    style={{
-                        position: "absolute",
-                        width: exportConfig.width * centerPreviewToPreviewArea.scale,
-                        height: exportConfig.height * centerPreviewToPreviewArea.scale,
-                        left: centerPreviewToPreviewArea.x,
-                        top: centerPreviewToPreviewArea.y,
-                    }}
-                    layerPoints={controlPointsInScreenCoordinates}
-                />
-            </div>
-            <div>
-                <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
-                    <ActionBar />
-                    {
-                        // Like photoshop, top layer is also on top in panel
-                        layers.slice().reverse().map((layer, i) => {
-                            i = layers.length - 1 - i;
-                            return (
-                                <Layer key={i} layer={layer} layerIndex={i} />
-                            );
-                        })
-                    }
-                    <Accordion title="Export" isExpanded={isExportExpanded} setIsExpanded={setIsExportExpanded}>
-                        <AccordionPanel>
-                            <ExportConfig config={exportConfig} onChange={setExportConfig} />
-                        </AccordionPanel>
-                    </Accordion>
-                </ConfigPanel>
-            </div>
-        </div >
-    );
+                }}
+                {...bind()}
+            />
+            <DrawPointsSets
+                ref={drawPolygonRef}
+                style={{
+                    position: "absolute",
+                    width: exportConfig.width * centerPreviewToPreviewArea.scale,
+                    height: exportConfig.height * centerPreviewToPreviewArea.scale,
+                    left: centerPreviewToPreviewArea.x,
+                    top: centerPreviewToPreviewArea.y,
+                }}
+                layerPoints={controlPointsInScreenCoordinates}
+            />
+        </div>
+        <div>
+            <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
+                <ActionBar />
+                {
+                    // Like photoshop, top layer is also on top in panel
+                    layers.slice().reverse().map((layer, i) => {
+                        i = layers.length - 1 - i;
+                        return (
+                            <Layer key={i} layer={layer} layerIndex={i} />
+                        );
+                    })
+                }
+                <Accordion title="Export" isExpanded={isExportExpanded} setIsExpanded={setIsExportExpanded}>
+                    <AccordionPanel>
+                        <ExportConfig config={exportConfig} onChange={setExportConfig} />
+                    </AccordionPanel>
+                </Accordion>
+            </ConfigPanel>
+        </div>
+    </div >
+);
 }
 
 export function Layer({

@@ -1,6 +1,6 @@
 import { CSSProperties, useState } from "react";
-import { ILayerState } from "../../state/Layer";
-import { useLayersConfig } from "../../state/layers";
+import { ILayerState } from "../../layers/ILayer";
+import { useLayersConfig } from "../../layers/layers";
 import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
 import { flowerPotLayers } from "../samples/flowerpot";
 import { photobookLayers } from "../samples/photobook";
