@@ -1,4 +1,4 @@
-import { loadImageAsync } from "../utils/image";
+import { loadImageAsync } from "../../utils/image";
 import type { IRenderer } from "./IRenderer";
 
 export interface IImageRendererProps {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
-import { createRenderers, loadRenders, render } from "../renderers/render";
+import { createRenderers, loadRenders, render } from "../src/renderers/render";
 import { ConfigPanel } from "./ConfigPanel";
 import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
@@ -115,7 +115,7 @@ export function Test() {
             const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => [
                 point[0] / centerPreviewToPreviewArea.scale,
                 point[1] / centerPreviewToPreviewArea.scale,
-            ] as [x: number, y: number]));
+            ] as [x: number, y: number]);
 
     setLayerControlPoints(layerControlPoints => {
         let newLayerControlPoints = [...layerControlPoints];

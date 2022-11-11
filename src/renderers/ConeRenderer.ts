@@ -1,6 +1,6 @@
 import { Camera, ConeGeometry, CylinderGeometry, DoubleSide, Material, Matrix3, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
-import { cameraDefaultConfig, ICameraConfig } from "../components/config/CameraConfig";
-import { IConeConfig } from "../components/config/ConeConfig";
+import { cameraDefaultConfig, ICameraConfig } from "../../components/config/CameraConfig";
+import { IConeConfig } from "../../components/config/ConeConfig";
 import type { IRenderer } from "./IRenderer";
 
 const segments = 60;
