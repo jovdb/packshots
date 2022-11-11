@@ -10,7 +10,6 @@ import { ActionBar } from "./config/ActionBar";
 import { useLayersConfig } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
-import { Vector2 } from "three";
 import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 

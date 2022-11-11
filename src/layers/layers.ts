@@ -2,8 +2,6 @@ import { useMemo } from "react";
 import create from "zustand";
 import { createControlPoints } from "../controlPoints/factory";
 import { IControlPoints } from "../controlPoints/IControlPoints";
-import { createRenderer } from "../renderers/factory";
-import { IRenderer } from "../renderers/IRenderer";
 import { ILayerConfig } from "./ILayerConfig";
 
 
@@ -99,4 +97,8 @@ export const useLayersConfig = create<{
 
 export function useLayer(index: number) {
     return useLayersConfig(s => s.layers[index]);
+}
+
+export function useControlPoints() {
+    return useLayersConfig(s => s.controlPoints) || [];
 }
