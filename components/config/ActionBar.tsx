@@ -1,6 +1,6 @@
 import { CSSProperties, useState } from "react";
-import { ILayerState } from "../../layers/ILayer";
-import { useLayersConfig } from "../../layers/layers";
+import { ILayerConfig } from "../../src/layers/ILayerConfig";
+import { useLayersConfig } from "../../src/layers/layers";
 import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
 import { flowerPotLayers } from "../samples/flowerpot";
 import { photobookLayers } from "../samples/photobook";
@@ -26,7 +26,7 @@ export function ActionBar() {
                     <div>Layer:</div>
                     <ul>
                         <li style={style} onClick={() => {
-                            const layer: ILayerState = {
+                            const layer: ILayerConfig = {
                                 name: "Background",
                                 type: "image",
                                 config: {
@@ -43,7 +43,7 @@ export function ActionBar() {
                         <li style={style} onClick={() => {
                             // Add below overlay
                             const index = layers.findIndex(l => l.name === "Overlay");
-                            const layer: ILayerState = {
+                            const layer: ILayerConfig = {
                                 name: "Spread 1 on a plane",
                                 type: "plane",
                                 config: {},
@@ -57,7 +57,7 @@ export function ActionBar() {
                         <li style={style} onClick={() => {
                             // Add below overlay
                             const index = layers.findIndex(l => l.name === "Overlay");
-                            const layer: ILayerState = {
+                            const layer: ILayerConfig = {
                                 name: "Spread 1 on a plane2",
                                 type: "plane2",
                                 config: {},
@@ -71,7 +71,7 @@ export function ActionBar() {
                         <li style={style} onClick={() => {
                             // Add below overlay
                             const index = layers.findIndex(l => l.name === "Overlay");
-                            const layer: ILayerState = {
+                            const layer: ILayerConfig = {
                                 name: "Spread 1 on a cone",
                                 type: "cone",
                                 config: {},
@@ -83,7 +83,7 @@ export function ActionBar() {
                             setAction(""); // close panel
                         }}><a href="#">Spread on a cylinder or cone</a></li>
                         <li style={style} onClick={() => {
-                            const layer: ILayerState = {
+                            const layer: ILayerConfig = {
                                 name: "Overlay",
                                 type: "image",
                                 config: {},

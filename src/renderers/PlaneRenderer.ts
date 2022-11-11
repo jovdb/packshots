@@ -1,7 +1,7 @@
 import { Camera, DoubleSide, Material, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { cameraDefaultConfig, ICameraConfig } from "../components/config/CameraConfig";
 import { IPlaneConfig } from "../components/config/PlaneConfig";
-import { IControlPoints } from "../controlPoints/IControlPoints";
+import { IControlPoints } from "../src/controlPoints/IControlPoints";
 import type { IRenderer } from "./IRenderer";
 
 export class PlaneRenderer implements IRenderer, IControlPoints {

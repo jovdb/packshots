@@ -3,13 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { createRenderers, loadRenders, render } from "../renderers/render";
 import { ConfigPanel } from "./ConfigPanel";
-import { useElementSize } from "../hooks/useElementSize";
+import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { useLayersConfig } from "../layers/layers";
+import { useLayersConfig } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
-import { ILayerState } from "../layers/ILayer";
+import { ILayerConfig } from "../src/layers/ILayerConfig";
 import { Vector2 } from "three";
 import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
@@ -204,7 +204,7 @@ export function Layer({
     layer,
     layerIndex
 }: {
-    layer: ILayerState,
+    layer: ILayerConfig,
     layerIndex: number,
 }) {
     const deleteLayer = useLayersConfig(s => s.deleteLayer);

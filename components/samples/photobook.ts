@@ -1,8 +1,8 @@
-import { ILayerState } from "../../layers/ILayer";
+import { ILayerConfig } from "../../src/layers/ILayerConfig";
 import { IImageConfig } from "../config/ImageConfig";
 import { IPlaneConfig } from "../config/PlaneConfig";
 
-const background: ILayerState<IImageConfig> = {
+const background: ILayerConfig<IImageConfig> = {
     name: "Background",
     type: "image",
     config: {
@@ -11,7 +11,7 @@ const background: ILayerState<IImageConfig> = {
     },
 };
 
-const spread: ILayerState<IPlaneConfig> = {
+const spread: ILayerConfig<IPlaneConfig> = {
     name: "Spread",
     type: "plane2",
     config: {
@@ -31,7 +31,7 @@ const spread: ILayerState<IPlaneConfig> = {
     },
 };
 
-export const photobookLayers: ILayerState[] = [
+export const photobookLayers: ILayerConfig[] = [
     background,
     spread,
 ];

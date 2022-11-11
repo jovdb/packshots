@@ -1,15 +1,15 @@
 import create from "zustand";
-import { ILayerState } from "./ILayer";
+import { ILayerConfig } from "./ILayerConfig";
 
 
 export const useLayersConfig = create<{
-    layers: ILayerState[],
-    setLayers(layers: ILayerState[]): void;
-    addLayer(layer: ILayerState, insertIndex?: number): number;
+    layers: ILayerConfig[],
+    setLayers(layers: ILayerConfig[]): void;
+    addLayer(layer: ILayerConfig, insertIndex?: number): number;
     deleteLayer(index: number): void;
-    updateLayer(index: number, layer: ILayerState): void;
+    updateLayer(index: number, layer: ILayerConfig): void;
     updateConfig(index: number, config: {}): void;
-    updateUi(index: number, ui: ILayerState["ui"]): void;
+    updateUi(index: number, ui: ILayerConfig["ui"]): void;
 }>((set, get) => ({
     layers: [],/*
         {

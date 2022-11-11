@@ -1,4 +1,4 @@
-import { ILayerState } from "../../layers/ILayer";
+import { ILayerConfig } from "../../src/layers/ILayerConfig";
 import { ImageConfig } from "./ImageConfig";
 import { PlaneConfig } from "./PlaneConfig";
 import { ConeConfig } from "./ConeConfig";
@@ -11,7 +11,7 @@ export type ConfigComponent<T extends {}> = React.FC<{
 
 
 export function getConfigComponent(
-    layer: ILayerState,
+    layer: ILayerConfig,
 ): ConfigComponent<any> | null | undefined {
     switch (layer.type) {
         case "image": return ImageConfig;

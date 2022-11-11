@@ -1,4 +1,4 @@
-import { IPlaneConfig2 } from "../components/config/PlaneConfig2";
+import { IPlaneConfig2 } from "../../components/config/PlaneConfig2";
 import type { IControlPoints, ControlPoint } from "./IControlPoints";
 
 type ControlPoints = [topLeft: ControlPoint, topRight: ControlPoint, bottomRight: ControlPoint, bottomLeft: ControlPoint];

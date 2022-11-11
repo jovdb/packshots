@@ -1,8 +1,8 @@
-import { ILayerState } from "../../layers/ILayer";
+import { ILayerConfig } from "../../src/layers/ILayerConfig";
 import { IConeConfig } from "../config/ConeConfig";
 import { IImageConfig } from "../config/ImageConfig";
 
-const background: ILayerState<IImageConfig> = {
+const background: ILayerConfig<IImageConfig> = {
     name: "Background",
     type: "image",
     config: {
@@ -11,7 +11,7 @@ const background: ILayerState<IImageConfig> = {
     },
 };
 
-const spread: ILayerState<IConeConfig> = {
+const spread: ILayerConfig<IConeConfig> = {
     name: "Spread",
     type: "cone",
     config: {
@@ -32,7 +32,7 @@ const spread: ILayerState<IConeConfig> = {
     },
 };
 
-export const flowerPotLayers: ILayerState[] = [
+export const flowerPotLayers: ILayerConfig[] = [
     background,
     spread,
 ];

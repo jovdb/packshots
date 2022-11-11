@@ -1,15 +1,8 @@
 import { Camera, DoubleSide, Material, Matrix3, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { IPlaneConfig2 } from "../components/config/PlaneConfig2";
-import { ControlPoint, IControlPoints } from "../controlPoints/IControlPoints";
+import { ControlPoint, IControlPoints } from "../src/controlPoints/IControlPoints";
 import { loadImageAsync } from "../utils/image";
 import type { IRenderer } from "./IRenderer";
-
-export type PlaneControlPoints = [
-    topLeft: ControlPoint,
-    topRight: ControlPoint,
-    bottomRight: ControlPoint,
-    bottomLeft: ControlPoint,
-];
 
 export class PlaneRenderer2 implements IRenderer, IControlPoints {
     private config: IPlaneConfig2
@@ -246,7 +239,10 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
         return matC;
     }
 
-    configToControlPoints(): PlaneControlPoints {
+    /**
+     * Controlpoints are the corners of the plane (top-left, top-right, bottom-right, and bottom-left)
+     */
+    configToControlPoints(): [x: number, y: number][] {
         const { camera, image } = this;
         if (!camera || !image) return [];
 

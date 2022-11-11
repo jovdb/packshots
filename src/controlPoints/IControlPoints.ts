@@ -1,5 +1,5 @@
 import { Vector2 } from "three";
-import { ICameraConfig } from "../components/config/CameraConfig";
+import { ICameraConfig } from "../../components/config/CameraConfig";
 
 /**
  * Normalized coordinate

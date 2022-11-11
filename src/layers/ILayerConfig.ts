@@ -1,4 +1,4 @@
-export interface ILayerState<TConfig = unknown> {
+export interface ILayerConfig<TConfig = unknown> {
     name: string,
     type: "image" | "plane" | "plane2" | "cone",
     config: TConfig,
