@@ -2,6 +2,8 @@ import { useCallback, useMemo } from "react";
 import create from "zustand";
 import { createControlPoints } from "../controlPoints/factory";
 import { ControlPoint, IControlPoints, IControlPointsConfig } from "../controlPoints/IControlPoints";
+import { createRenderer } from "../renderers/factory";
+import { IRenderer } from "../renderers/IRenderer";
 import { ILayerConfig } from "./ILayerConfig";
 
 
@@ -39,6 +41,7 @@ Layers
 export const useLayersConfig = create<{
     layers: ILayerConfig[];
     controlPoints: (IControlPoints | undefined)[];
+    renderers: IRenderer[];
     setLayers(layers: ILayerConfig[]): void;
     addLayer(layer: ILayerConfig, insertIndex?: number): number;
     deleteLayer(index: number): void;
@@ -48,10 +51,17 @@ export const useLayersConfig = create<{
 }>((set, get) => ({
     layers: [],
     controlPoints: [],
+    renderers: [],
+
     setLayers(layers) {
+        // Dispose renderers
+        get().renderers.forEach(r => r.dispose?.());
+
         const controlPoints = layers.map(l => createControlPoints(l.type));
-        set({ layers, controlPoints });
+        const renderers = layers.map(l => createRenderer(l.type, l.config, {}));
+        set({ layers, controlPoints, renderers });
     },
+
     addLayer(layer, insertIndex) {
         set((state) => {
 
@@ -64,19 +74,30 @@ export const useLayersConfig = create<{
             const newControlPoints = state.controlPoints.slice();
             newControlPoints.splice(insertIndex, 0, controlPoints);
 
+            const renderer = createRenderer(layer.type, l.config, {});
+            const newRenderers = state.renderers.slice();
+            newRenderers.splice(insertIndex, 0, renderer);
+
             return {
                 layers: newLayers,
                 controlPoints: newControlPoints,
+                renderers: newRenderers,
             };
         });
         return get().layers.length - 1;
     },
+
     deleteLayer(index: number) {
-        set((state) => ({
-            layers: state.layers.filter((_, i) => (i !== index)),
-            controlPoints: state.controlPoints.filter((_, i) => (i !== index)),
-        }));
+        set((state) => {
+            state.renderers[index]?.dispose?.();
+            return {
+                layers: state.layers.filter((_, i) => (i !== index)),
+                controlPoints: state.controlPoints.filter((_, i) => (i !== index)),
+                renderers: state.renderers.filter((_, i) => (i !== index)),
+            };
+        });
     },
+
     updateLayer(index, layer) {
         set((state) => {
             const newLayers = state.layers.slice();
@@ -87,12 +108,18 @@ export const useLayersConfig = create<{
             const newControlPoints = state.controlPoints.slice();
             newControlPoints.splice(index, 1, controlPoints);
 
+            const renderer = createRenderer(layer.type, l.config, {});
+            const newRenderers = state.renderers.slice();
+            newRenderers.splice(index, 0, renderer);
+
             return {
                 layers: newLayers,
                 controlPoints: newControlPoints,
+                renderer: newRenderers,
             };
         });
     },
+
     updateConfig(index, config) {
         set((state) => {
             const oldLayer = state.layers[index];
@@ -115,6 +142,7 @@ export const useLayersConfig = create<{
             };
         });
     },
+
     updateUi(index, ui) {
         set((state) => {
             const newLayers = state.layers.slice();
@@ -166,4 +194,8 @@ export function useControlPoints() {
         controlPoints,
         setControlPoints,
     ] as const;
+}
+
+export function useRenderers() {
+    return useLayersConfig(s => s.renderers);
 }

@@ -7,12 +7,13 @@ import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { useControlPoints, useLayer, useLayersConfig } from "../src/layers/layers";
+import { useConfigs, useControlPoints, useLayer, useLayersConfig, useRenderers } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
 import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 import { ControlPoint, IControlPointsConfig, isControlPoints } from "../src/controlPoints/IControlPoints";
+import { config } from "process";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -46,33 +47,37 @@ export function Test() {
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
 
+    const renderers = useRenderers();
+
     /** Normalized controlPoints for each layer */
     // const [layersControlPoints, setLayersControlPoints] = useState<([x: number, y: number][] | undefined)[]>([]);
 
-    useQuery(["loaded-renderers", layers, exportConfig], async () => {
-        const renderers = createRenderers(targetContext, layers);
-        try {
-            await loadRenders(renderers);
-            render(targetContext, renderers);
+    const configs = useConfigs();
 
-            // Update list of control points
-            /*
-            const controlPoints = renderers.map(r => {
-                if (!isControlPoints(r)) return undefined;
-                return r.getDefaultControlPoints({} as any)
-            });
+    const { data: loadedRenderes } = useQuery(
+        ["loaded-renderers", renderers, configs],
+        async () => {
 
-         setLayersControlPoints(controlPoints);
-         */
+            // Load
+            const loadedRenderers = await Promise.all(
+                renderers.map(async (r, i) => {
+                    if (!r.loadAsync) return r;
+                    await r.loadAsync(configs[i]);
+                    return r;
+                })
+            );
 
-        } finally {
-            renderers.forEach(r => r.dispose?.());
-        }
-        return null;
-    }); 
+            // Render
+            if (!targetContext) return;
+            targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
+            loadedRenderers.forEach((renderer, i) => renderer.render(targetContext, configs[i]));
+
+            return loadedRenderers;
+        },
+    );
 
     const [layersControlPoints, setControlPoints] = useControlPoints();
-    console.log("layersControlPoints ", layersControlPoints );
+    console.log("layersControlPoints ", layersControlPoints);
 
     const [isExportExpanded, setIsExportExpanded] = useState(false);
 
