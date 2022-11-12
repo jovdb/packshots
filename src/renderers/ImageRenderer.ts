@@ -1,42 +1,8 @@
-import { loadImageAsync } from "../../utils/image";
+import { ImageCache } from "./ImageCache";
 import type { IRenderer } from "./IRenderer";
 
 export interface IImageRendererProps {
     imageUrl: string;
-}
-
-export class ImageCache {
-    private image: HTMLImageElement | undefined;
-    private imagePromise: Promise<HTMLImageElement> | undefined;
-
-    public async loadAsync(url: string | undefined) {
-        url ||= undefined;
-
-        // Already loaded
-        if (url === this.image?.src) {
-            await this.imagePromise;
-            return;
-        }
-
-        // Removed
-        if (!url) {
-            this.image = undefined;
-            this.imagePromise = undefined;
-            return;
-        }
-
-        // Load
-        this.image = undefined; // Make sure if the images matches the url and not the previous error
-        this.imagePromise = loadImageAsync(url);
-        this.image = await this.imagePromise;
-    }
-
-    public getImage(url: string | undefined, required?: boolean) {
-        url ||= undefined;
-        if (this.image?.src === url) return this.image;
-        if (required && !this.image) throw new Error("Image not loaded");
-        return undefined; // No or other image is loaded4
-    }
 }
 
 export class ImageRenderer implements IRenderer {
