@@ -7,12 +7,12 @@ import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { useLayersConfig } from "../src/layers/layers";
+import { useControlPoints, useLayer, useLayersConfig } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
 import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
-import { ControlPoint, isControlPoints } from "../src/controlPoints/IControlPoints";
+import { ControlPoint, IControlPointsConfig, isControlPoints } from "../src/controlPoints/IControlPoints";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -47,7 +47,7 @@ export function Test() {
     const targetContext = canvasRef.current?.getContext("2d");
 
     /** Normalized controlPoints for each layer */
-    const [layersControlPoints, setLayersControlPoints] = useState<([x: number, y: number][] | undefined)[]>([]);
+    // const [layersControlPoints, setLayersControlPoints] = useState<([x: number, y: number][] | undefined)[]>([]);
 
     useQuery(["loaded-renderers", layers, exportConfig], async () => {
         const renderers = createRenderers(targetContext, layers);
@@ -56,18 +56,23 @@ export function Test() {
             render(targetContext, renderers);
 
             // Update list of control points
+            /*
             const controlPoints = renderers.map(r => {
                 if (!isControlPoints(r)) return undefined;
                 return r.getDefaultControlPoints({} as any)
             });
 
-            setLayersControlPoints(controlPoints);
+         setLayersControlPoints(controlPoints);
+         */
 
         } finally {
             renderers.forEach(r => r.dispose?.());
         }
         return null;
-    });
+    }); 
+
+    const [layersControlPoints, setControlPoints] = useControlPoints();
+    console.log("layersControlPoints ", layersControlPoints );
 
     const [isExportExpanded, setIsExportExpanded] = useState(false);
 
@@ -144,11 +149,7 @@ export function Test() {
                 // Canvas to ControlPoint
                 .map(canvasToControlPoint);
 
-            setLayersControlPoints(layerControlPoints => {
-                let newLayerControlPoints = [...layerControlPoints];
-                newLayerControlPoints[layerIndex] = newPointsInTargetCoordinates;
-                return newLayerControlPoints;
-            });
+            setControlPoints(layerIndex, newPointsInTargetCoordinates);
         });
 
     const checkBoardSize = 25;

@@ -1,6 +1,3 @@
-import { Vector2 } from "three";
-import { ICameraConfig } from "../../components/config/CameraConfig";
-
 /**
  * Normalized coordinate
  * [0, 0]: Center of target image
@@ -10,7 +7,7 @@ import { ICameraConfig } from "../../components/config/CameraConfig";
 export type ControlPoint = [x: number, y: number];
 
 export interface IControlPoints<
-    TConfig = unknown,
+    TConfig = {},
     TControlPoints extends ControlPoint[] = ControlPoint[],
 > {
     getDefaultControlPoints(config: TConfig): TControlPoints;
@@ -27,7 +24,7 @@ export interface IControlPointsConfig {
      * 0,0 = topLeft of target image
      * 1,1 = bottomLeft of target image
      */
-    controlPoints?: ControlPoint[] | undefined;
+    controlPoints: ControlPoint[] | undefined;
 }
 
 export function isControlPoints<TType extends ControlPoint[], T extends {}>(obj: T): obj is T & IControlPoints<TType> {

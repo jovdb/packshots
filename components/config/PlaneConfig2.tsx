@@ -4,7 +4,6 @@ import { ISpreadImageConfig, spreadImageDefaultConfig, SpreadImageConfig } from 
 
 export interface IPlaneConfig2 extends IControlPointsConfig {
     image: ISpreadImageConfig;
-    projectionMatrix: number[];
 }
 
 export const PlaneConfig2: ConfigComponent<IPlaneConfig2> = ({
@@ -13,7 +12,6 @@ export const PlaneConfig2: ConfigComponent<IPlaneConfig2> = ({
 }) => {
     const {
         image = spreadImageDefaultConfig,
-        projectionMatrix = [0, 0, 0, 0, 0, 0, 0, 0, 1],
     } = config || {};
 
 return (
@@ -26,20 +24,6 @@ return (
                     onChange({
                         ...config,
                         image: newConfig,
-                    });
-                }}
-            />
-        </fieldset>
-        <fieldset>
-            <legend>Projection Matrix</legend>
-            <input
-                value={projectionMatrix.toString()}
-                onChange={(e) => {
-                    const valueString = e.target.value;
-                    const projectionMatrix = valueString.split(",").map((i) => parseFloat(i) || 0);
-                    onChange({
-                        ...config,
-                        projectionMatrix,
                     });
                 }}
             />

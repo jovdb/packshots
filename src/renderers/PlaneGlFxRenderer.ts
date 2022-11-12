@@ -16,7 +16,12 @@ export class PlaneGlFxRenderer implements IRenderer {
     ) {
         this.config = {
             image: config.image || { url: "", name: "" },
-            projectionMatrix: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+            controlPoints: [
+                [-0.8, -0.8],
+                [0.8, -0.8],
+                [-0.8, 0.8],
+                [0.8, 0.8],
+            ] 
         };
 
         // try to create a WebGL canvas (will fail if WebGL isn't supported)
@@ -31,10 +36,12 @@ export class PlaneGlFxRenderer implements IRenderer {
         // Set canvas size
         this.fxCanvas.width = targetContext.canvas.width;
         this.fxCanvas.height = targetContext.canvas.height;
+        const halfImageWidth = this.image.width / 2;
+        const halfImageHeight = this.image.height / 2;
 
         // Load Image
         const texture = this.fxCanvas.texture(this.image);
-
+console.log(controlPoints);
         // Draw Perspective
         this.fxCanvas
             .draw(texture)
@@ -46,10 +53,10 @@ export class PlaneGlFxRenderer implements IRenderer {
                     this.image.width, this.image.height
                 ],
                 [
-                    (controlPoints?.[0][0] ?? 0) * this.image.width, (controlPoints?.[0][1] ?? 0) * this.image.height,
-                    (controlPoints?.[1][0] ?? 1) * this.image.width, (controlPoints?.[1][1] ?? 0) * this.image.height,
-                    (controlPoints?.[2][0] ?? 0) * this.image.width, (controlPoints?.[2][1] ?? 1) * this.image.height,
-                    (controlPoints?.[3][0] ?? 1) * this.image.width, (controlPoints?.[3][1] ?? 1) * this.image.height,
+                    halfImageWidth + controlPoints[0][0] * halfImageWidth, halfImageHeight + controlPoints[0][1] * halfImageHeight,
+                    halfImageWidth + controlPoints[1][0] * halfImageWidth, halfImageHeight + controlPoints[1][1] * halfImageHeight,
+                    halfImageWidth + controlPoints[2][0] * halfImageWidth, halfImageHeight + controlPoints[2][1] * halfImageHeight,
+                    halfImageWidth + controlPoints[3][0] * halfImageWidth, halfImageHeight + controlPoints[3][1] * halfImageHeight,
                 ]
             )
             .update();

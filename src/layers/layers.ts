@@ -1,9 +1,40 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import create from "zustand";
 import { createControlPoints } from "../controlPoints/factory";
-import { IControlPoints } from "../controlPoints/IControlPoints";
+import { ControlPoint, IControlPoints, IControlPointsConfig } from "../controlPoints/IControlPoints";
 import { ILayerConfig } from "./ILayerConfig";
 
+
+/*
+
+
+
+╔═════════════╧════════════════╗      ╔═════════════════════════════════════╗
+║ Layer                        ║      ║ Spread-slideshow                    ║
+║                              ║      ║                                     ║
+║ 3) set items                 ║      ║ 2) create items                     ║
+║                              ║      ║ ┌─────────────────────────────┐     ║    ┌───────────────────────┐        ┌───────────────────────┐
+╚══════════════════════════════╝      ║ │ 5) updatePreviewAsync       │ ┐ ──║───→│ renderers             │ ┐ ────→│ DOM elements          │ ┐
+                                      ║ └─────────────────────────────┘ │ ┐ ║    └───────────────────────┘ │ ┐    └───────────────────────┘ │ ┐
+                                      ║   └─────────────────────────────┘ │ ║      └───────────────────────┘ │      └───────────────────────┘ │
+                                      ║     └─────────────────────────────┘ ║        └───────────────────────┘        └───────────────────────┘
+                                      ╚═════════════════════════════════════╝
+
+
+Layers
+ - name
+ - isExpanded
+ - config
+    - Renderer
+    - Configurator
+    - ControlPointsController
+
+┌───────────────────────┐    
+│ renderers             │ ┐ ─
+└───────────────────────┘ │ ┐
+  └───────────────────────┘ │
+    └───────────────────────┘
+*/
 
 export const useLayersConfig = create<{
     layers: ILayerConfig[];
@@ -25,11 +56,13 @@ export const useLayersConfig = create<{
         set((state) => {
 
             if (insertIndex === undefined) insertIndex = state.layers.length;
-            const newLayers = state.layers.slice().splice(insertIndex, 0, layer);
+            const newLayers = state.layers.slice();
+            newLayers.splice(insertIndex, 0, layer);
 
             // Control points need to update for new config?
             const controlPoints = createControlPoints(layer.type);
-            const newControlPoints = state.controlPoints.slice().splice(insertIndex, 0, controlPoints);
+            const newControlPoints = state.controlPoints.slice();
+            newControlPoints.splice(insertIndex, 0, controlPoints);
 
             return {
                 layers: newLayers,
@@ -46,11 +79,13 @@ export const useLayersConfig = create<{
     },
     updateLayer(index, layer) {
         set((state) => {
-            const newLayers = state.layers.slice().splice(index, 1, layer);
+            const newLayers = state.layers.slice();
+            newLayers.splice(index, 1, layer);
 
             // Control points need to update for new config
             const controlPoints = createControlPoints(layer.type);
-            const newControlPoints = state.controlPoints.slice().splice(index, 1, controlPoints);
+            const newControlPoints = state.controlPoints.slice();
+            newControlPoints.splice(index, 1, controlPoints);
 
             return {
                 layers: newLayers,
@@ -66,11 +101,13 @@ export const useLayersConfig = create<{
                 ...oldLayer,
                 config: { ...oldConfig, ...config },
             };
-            const newLayers = state.layers.slice().splice(index, 1, newLayer);
+            const newLayers = state.layers.slice();
+            newLayers.splice(index, 1, newLayer);
 
             // Control points need to update for new config?
             const controlPoints = createControlPoints(oldLayer.type);
-            const newControlPoints = state.controlPoints.slice().splice(index, 1, controlPoints);
+            const newControlPoints = state.controlPoints.slice();
+            newControlPoints.splice(index, 1, controlPoints);
 
             return {
                 layers: newLayers,
@@ -99,6 +136,34 @@ export function useLayer(index: number) {
     return useLayersConfig(s => s.layers[index]);
 }
 
+export function useConfigs() {
+    return useLayersConfig(
+        s => s.layers.map(l => l.config),
+        (prevConfigs, newConfigs) => (
+            prevConfigs.length === newConfigs.length
+            && prevConfigs.every((c, i) => c === newConfigs[i])
+        )
+    );
+}
+
+
+export function useControlPointsControllers() {
+    return useLayersConfig(s => s.controlPoints);
+}
+
 export function useControlPoints() {
-    return useLayersConfig(s => s.controlPoints) || [];
+    const configs = useConfigs();
+    const controlPoints = configs.map(config => (config as IControlPointsConfig)?.controlPoints);
+
+    const updateConfig = useLayersConfig(s => s.updateConfig);
+
+    const setControlPoints = useCallback(
+        (layerIndex: number, controlPoints: ControlPoint[]) => updateConfig(layerIndex, { controlPoints }),
+        [updateConfig],
+    );
+
+    return [
+        controlPoints,
+        setControlPoints,
+    ] as const;
 }

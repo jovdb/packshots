@@ -1,6 +1,7 @@
 import { ILayerConfig } from "../../src/layers/ILayerConfig";
 import { IImageConfig } from "../config/ImageConfig";
 import { IPlaneConfig } from "../config/PlaneConfig";
+import { IPlaneConfig2 } from "../config/PlaneConfig2";
 
 const background: ILayerConfig<IImageConfig> = {
     name: "Background",
@@ -11,23 +12,20 @@ const background: ILayerConfig<IImageConfig> = {
     },
 };
 
-const spread: ILayerConfig<IPlaneConfig> = {
+const spread: ILayerConfig<IPlaneConfig2> = {
     name: "Spread",
     type: "plane3",
     config: {
-        camera: {
-            position: [0, 0, 0],
-            direction: [0, 0, 50],
-            fieldOfViewInDeg: 75,
-        },
         image: {
             name: "Spread.jpg",
             imageUrl: "./products/Book/Spread.jpg"
         },
-        plane: {
-            width: 10,
-            height: 10,
-        }
+        controlPoints: [
+            [-0.8, -0.8],
+            [0.8, -0.8],
+            [-0.8, 0.8],
+            [0.8, 0.8],
+        ],
     },
 };
 
