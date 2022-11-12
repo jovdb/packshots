@@ -26,6 +26,8 @@ export class PlaneGlFxRenderer implements IRenderer {
     render(targetContext: CanvasRenderingContext2D): void {
         if (!this.fxCanvas || !this.image) return;
 
+        const { controlPoints } = this.config;
+
         // Set canvas size
         this.fxCanvas.width = targetContext.canvas.width;
         this.fxCanvas.height = targetContext.canvas.height;
@@ -37,8 +39,18 @@ export class PlaneGlFxRenderer implements IRenderer {
         this.fxCanvas
             .draw(texture)
             .perspective(
-                [0, 0, this.image.width, 0, 0, this.image.height, this.image.width, this.image.height],
-                [100, 100, this.image.width - 100, 100, 0, this.image.height, this.image.width, this.image.height],
+                [
+                    0, 0,
+                    this.image.width, 0,
+                    0, this.image.height,
+                    this.image.width, this.image.height
+                ],
+                [
+                    (controlPoints?.[0][0] ?? 0) * this.image.width, (controlPoints?.[0][1] ?? 0) * this.image.height,
+                    (controlPoints?.[1][0] ?? 1) * this.image.width, (controlPoints?.[1][1] ?? 0) * this.image.height,
+                    (controlPoints?.[2][0] ?? 0) * this.image.width, (controlPoints?.[2][1] ?? 1) * this.image.height,
+                    (controlPoints?.[3][0] ?? 1) * this.image.width, (controlPoints?.[3][1] ?? 1) * this.image.height,
+                ]
             )
             .update();
 

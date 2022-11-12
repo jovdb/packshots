@@ -46,7 +46,7 @@ export function Test() {
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
 
-    /** Normalized controlPpints for each layer */
+    /** Normalized controlPoints for each layer */
     const [layersControlPoints, setLayersControlPoints] = useState<([x: number, y: number][] | undefined)[]>([]);
 
     useQuery(["loaded-renderers", layers, exportConfig], async () => {

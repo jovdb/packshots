@@ -21,6 +21,12 @@ export interface IControlPoints<
 }
 
 export interface IControlPointsConfig {
+
+    /**
+     * ControlPoints in normalized target image size
+     * 0,0 = topLeft of target image
+     * 1,1 = bottomLeft of target image
+     */
     controlPoints?: ControlPoint[] | undefined;
 }
 
