@@ -1,12 +1,14 @@
 import { Camera, DoubleSide, Material, Matrix3, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { IPlaneConfig } from "../../components/config/PlaneConfig";
 import { IPlaneConfig2 } from "../../components/config/PlaneConfig2";
-import { ControlPoint, IControlPoints } from "../../src/controlPoints/IControlPoints";
+import { IControlPoints } from "../../src/controlPoints/IControlPoints";
+import { ControlPoints } from "../../src/controlPoints/PlaneControlPoints";
 import { loadImageAsync } from "../../utils/image";
 import type { IRenderer } from "./IRenderer";
 
 export class PlaneRenderer2 implements IRenderer, IControlPoints {
     private config: IPlaneConfig2
-    
+
     private image: HTMLImageElement | undefined;
     private scene: Scene | undefined;
     private geometry: PlaneGeometry | undefined;
@@ -80,23 +82,23 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
                 0, 0, 1,
             ];
             */
-/*
-            const a = new Matrix3().fromArray([
-                1 / targetContext.canvas.width, 0, 0,
-                0, 1 / targetContext.canvas.height, 0,
-                0, 0, 1,
-            ]);
-
-            console.log(projectionMatrix);
-            const matrixValues = (projectionMatrix).invert().toArray();
-
-            const matrix4 = new Matrix4().fromArray([
-                matrixValues[0], matrixValues[1], matrixValues[2], 0,
-                matrixValues[3], matrixValues[4], matrixValues[5], 0,
-                matrixValues[6], matrixValues[7], matrixValues[8], 0,
-                0, 0, 0, 1,
-            ]);
-            */
+            /*
+                        const a = new Matrix3().fromArray([
+                            1 / targetContext.canvas.width, 0, 0,
+                            0, 1 / targetContext.canvas.height, 0,
+                            0, 0, 1,
+                        ]);
+            
+                        console.log(projectionMatrix);
+                        const matrixValues = (projectionMatrix).invert().toArray();
+            
+                        const matrix4 = new Matrix4().fromArray([
+                            matrixValues[0], matrixValues[1], matrixValues[2], 0,
+                            matrixValues[3], matrixValues[4], matrixValues[5], 0,
+                            matrixValues[6], matrixValues[7], matrixValues[8], 0,
+                            0, 0, 0, 1,
+                        ]);
+                        */
 
             const projectionMatrix = new Matrix4().fromArray(this.config.projectionMatrix);
             // this.camera.projectionMatrix.multiply(projectionMatrix);
@@ -210,11 +212,11 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
         const dst2 = this.getCanvasControlPoint(p2);
         const dst3 = this.getCanvasControlPoint(p3);
         */
-        
-        const dst0 = new Vector2(p0[0] / this.image!.width, p0[1] /  this.image!.height);
-        const dst1 = new Vector2(p1[0] / this.image!.width, p1[1] /  this.image!.height);
-        const dst2 = new Vector2(p2[0] / this.image!.width, p2[1] /  this.image!.height);
-        const dst3 = new Vector2(p3[0] / this.image!.width, p3[1] /  this.image!.height);
+
+        const dst0 = new Vector2(p0[0] / this.image!.width, p0[1] / this.image!.height);
+        const dst1 = new Vector2(p1[0] / this.image!.width, p1[1] / this.image!.height);
+        const dst2 = new Vector2(p2[0] / this.image!.width, p2[1] / this.image!.height);
+        const dst3 = new Vector2(p3[0] / this.image!.width, p3[1] / this.image!.height);
 
         const src0 = new Vector2(0, 0);
         const src1 = new Vector2(1, 0);
@@ -242,7 +244,7 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
     /**
      * Controlpoints are the corners of the plane (top-left, top-right, bottom-right, and bottom-left)
      */
-    configToControlPoints(): [x: number, y: number][] {
+    configToControlPoints(fromConfig: IPlaneConfig): [x: number, y: number][] {
         const { camera, image } = this;
         if (!camera || !image) return [];
 
@@ -256,7 +258,7 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
             [-halfX, halfY],
         ] as [number, number][])
             .map(p => new Vector3(p[0], p[1], 0).project(camera)) // returns normalized points
-            .map(p => [p.x * this.targetSize.width / 2 + this.targetSize.width / 2 , p.y * this.targetSize.height / 2 + this.targetSize.height / 2] as [x: number, y: number])
+            .map(p => [p.x * this.targetSize.width / 2 + this.targetSize.width / 2, p.y * this.targetSize.height / 2 + this.targetSize.height / 2] as [x: number, y: number])
 
         return points;
     }
@@ -269,6 +271,32 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
         };
     }
 
+    /** The default is a rectangle that covers half of the screen */
+    getDefaultControlPoints(fromConfig: IPlaneConfig2): ControlPoints {
+        // TODO: Get dimentions from config
+        const imageWidth = 100;
+        const imageHeight = 100;
+        const maxSize = Math.max(imageWidth, imageHeight);
+
+        const halfWidth = imageWidth / 2;
+        const halfHeight = imageHeight / 2;
+
+        const corners = [
+            [-halfWidth, -halfHeight],
+            [halfWidth, -halfHeight],
+            [halfWidth, -halfHeight],
+            [halfWidth, halfHeight],
+            [-halfWidth, halfHeight],
+        ];
+
+        return corners
+
+            // Normalize to a max side of 1
+            .map(([x, y]) => [x  * 2 / maxSize, y * 2 / maxSize])
+
+            // Convert to 75% of the target image size
+            .map(([x, y]) => [x * 0.75, y * 0.75]) as ControlPoints
+    }
 
     public dispose() {
         this.texture?.dispose();

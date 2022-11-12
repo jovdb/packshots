@@ -23,6 +23,6 @@ export interface IControlPoints<
 export function isControlPoints<TType extends ControlPoint[], T extends {}>(obj: T): obj is T & IControlPoints<TType> {
     return obj
         && "getDefaultControlPoints" in obj
-        && "getControlPoints" in obj
-        && "setControlPoints" in obj;
+        && "configToControlPoints" in obj
+        && "controlPointsToConfig" in obj;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { createRenderers, loadRenders, render } from "../src/renderers/render";
@@ -12,6 +12,7 @@ import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
 import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
+import { ControlPoint, isControlPoints } from "../src/controlPoints/IControlPoints";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -45,7 +46,9 @@ export function Test() {
     // Create a render target 
     const targetContext = canvasRef.current?.getContext("2d");
 
-    const [layersControlPoints, setLayerControlPoints] = useState<([x: number, y: number][] | undefined)[]>([]);
+    /** Normalized controlPpints for each layer */
+    const [layersControlPoints, setLayersControlPoints] = useState<([x: number, y: number][] | undefined)[]>([]);
+
     useQuery(["loaded-renderers", layers, exportConfig], async () => {
         const renderers = createRenderers(targetContext, layers);
         try {
@@ -54,21 +57,11 @@ export function Test() {
 
             // Update list of control points
             const controlPoints = renderers.map(r => {
-                if (isControlPoints(r)) {
-                    const b = r.getControlPoints();
-
-                    const a = r.setControlPoints(b);
-                    console.log("config from control points", a);
-
-                    return b;
-
-                }
-                return undefined;
+                if (!isControlPoints(r)) return undefined;
+                return r.getDefaultControlPoints({} as any)
             });
 
-            setLayerControlPoints(controlPoints);
-
-
+            setLayersControlPoints(controlPoints);
 
         } finally {
             renderers.forEach(r => r.dispose?.());
@@ -82,121 +75,156 @@ export function Test() {
     const previewAreaRef = useRef<HTMLDivElement>(null);
     const previewAreaRect = useElementSize(previewAreaRef);
     const margin = 10;
-    const centerPreviewToPreviewArea = fitRectTransform({
-        top: 0,
-        left: 0,
-        width: exportConfig.width,
-        height: exportConfig.height,
-    }, {
-        top: margin,
-        left: margin,
-        width: previewAreaRect.width - margin * 2,
-        height: previewAreaRect.height - margin * 2,
-    });
+
+    const centerPreviewToPreviewArea = useMemo(() => {
+        return fitRectTransform({
+            top: 0,
+            left: 0,
+            width: exportConfig.width,
+            height: exportConfig.height,
+        }, {
+            top: margin,
+            left: margin,
+            width: previewAreaRect.width - margin * 2,
+            height: previewAreaRect.height - margin * 2,
+        });
+    }, [exportConfig.height, exportConfig.width, previewAreaRect.height, previewAreaRect.width]);
+
+
+    // [-1, 1] range to [0, width/height]
+    const controlPointToCanvas = useCallback(
+        ([x, y]: ControlPoint): ControlPoint => ([
+            (x + 1) / 2 * exportConfig.width,
+            (y + 1) / 2 * exportConfig.height,
+        ]),
+        [exportConfig.height, exportConfig.width],
+    );
+
+    // [0, width/height] range to [-1, 1] 
+    const canvasToControlPoint = useCallback(
+        ([x, y]: ControlPoint): ControlPoint => ([
+            x / exportConfig.width * 2 - 1,
+            y / exportConfig.height * 2 - 1,
+        ]),
+        [exportConfig.height, exportConfig.width],
+    );
 
     // Convert controlPoints to screen coordinates
-    const controlPointsInScreenCoordinates = layersControlPoints
-        .map(layerControlPoints => {
-            if (!layerControlPoints) return undefined;
-            return layerControlPoints.map(point => {
-                if (!point) return undefined;
-                return [
-                    point.x * centerPreviewToPreviewArea.scale,
-                    point.y * centerPreviewToPreviewArea.scale,
-                ];
-            }) as [number, number][];
-        })
+    const controlPointsInScreenCoordinates = useMemo(
+        () => (
+            layersControlPoints
+                .map(layerControlPoints => (
+                    layerControlPoints
+                        ? layerControlPoints
+                            .map(controlPointToCanvas)
+                            .map(([x, y]) => ([
+                                x * centerPreviewToPreviewArea.scale,
+                                y * centerPreviewToPreviewArea.scale,
+                            ] as ControlPoint))
+                        : undefined
+                ))
+        ),
+        [centerPreviewToPreviewArea.scale, controlPointToCanvas, layersControlPoints],
+    );
+    console.log("controlPointsInScreenCoordinates", controlPointsInScreenCoordinates);
 
-    const bind = usePointsSets(
+    const controlPointsDraggingHandles = usePointsSets(
         drawPolygonRef,
         controlPointsInScreenCoordinates,
         (layerIndex, newPointsInScreenCoordinates) => {
-            const newPointsInTargetCoordinates = newPointsInScreenCoordinates.map(point => [
-                point[0] / centerPreviewToPreviewArea.scale,
-                point[1] / centerPreviewToPreviewArea.scale,
-            ] as [x: number, y: number]);
 
-    setLayerControlPoints(layerControlPoints => {
-        let newLayerControlPoints = [...layerControlPoints];
-        newLayerControlPoints[layerIndex] = newPointsInTargetCoordinates;
-        return newLayerControlPoints;
-    });
-});
+            const newPointsInTargetCoordinates = newPointsInScreenCoordinates
 
-const checkBoardSize = 25;
-const checkBoardDark = "#e8e8e8";
-const checkBoardLight = "#f8f8f8";
-return (
-    <div style={{ display: "flex", height: "100vh" }}>
-        <div
-            ref={previewAreaRef}
-            style={{
-                flexGrow: 1,
-                position: "relative",
-                width: "100%",
-                height: "100%",
-            }}
-        >
-            <canvas
-                ref={canvasRef}
-                width={exportConfig.width}
-                height={exportConfig.height}
+                // Screen to Canvas (zooming)
+                .map(([x, y]) => [
+                    x / centerPreviewToPreviewArea.scale,
+                    y / centerPreviewToPreviewArea.scale,
+                ] as [x: number, y: number])
+
+                // Canvas to ControlPoint
+                .map(canvasToControlPoint);
+
+            setLayersControlPoints(layerControlPoints => {
+                let newLayerControlPoints = [...layerControlPoints];
+                newLayerControlPoints[layerIndex] = newPointsInTargetCoordinates;
+                return newLayerControlPoints;
+            });
+        });
+
+    const checkBoardSize = 25;
+    const checkBoardDark = "#e8e8e8";
+    const checkBoardLight = "#f8f8f8";
+    return (
+        <div style={{ display: "flex", height: "100vh" }}>
+            <div
+                ref={previewAreaRef}
                 style={{
-                    position: "absolute",
-                    width: exportConfig.width * centerPreviewToPreviewArea.scale,
-                    height: exportConfig.height * centerPreviewToPreviewArea.scale,
-                    left: centerPreviewToPreviewArea.x,
-                    top: centerPreviewToPreviewArea.y,
-                    outline: "1px solid #ddd",
-                    boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
-                    // checkboard background
-                    backgroundImage: `
+                    flexGrow: 1,
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                }}
+            >
+                <canvas
+                    ref={canvasRef}
+                    width={exportConfig.width}
+                    height={exportConfig.height}
+                    style={{
+                        position: "absolute",
+                        width: exportConfig.width * centerPreviewToPreviewArea.scale,
+                        height: exportConfig.height * centerPreviewToPreviewArea.scale,
+                        left: centerPreviewToPreviewArea.x,
+                        top: centerPreviewToPreviewArea.y,
+                        outline: "1px solid #ddd",
+                        boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
+                        // checkboard background
+                        backgroundImage: `
                             linear-gradient(45deg, ${checkBoardDark} 25%, transparent 25%),
                             linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
                             linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
                             linear-gradient(45deg, ${checkBoardDark} 25%, ${checkBoardLight} 25%)`,
-                    backgroundSize: `${checkBoardSize}px ${checkBoardSize}px`,
-                    backgroundPosition: `
+                        backgroundSize: `${checkBoardSize}px ${checkBoardSize}px`,
+                        backgroundPosition: `
                             0 0,
                             0 0,
                             calc(${checkBoardSize}px * -0.5) calc(${checkBoardSize}px * -0.5),
                             calc(${checkBoardSize}px * 0.5) calc(${checkBoardSize}px * 0.5)`,
-                }}
-                {...bind()}
-            />
-            <DrawPointsSets
-                ref={drawPolygonRef}
-                style={{
-                    position: "absolute",
-                    width: exportConfig.width * centerPreviewToPreviewArea.scale,
-                    height: exportConfig.height * centerPreviewToPreviewArea.scale,
-                    left: centerPreviewToPreviewArea.x,
-                    top: centerPreviewToPreviewArea.y,
-                }}
-                layerPoints={controlPointsInScreenCoordinates}
-            />
-        </div>
-        <div>
-            <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
-                <ActionBar />
-                {
-                    // Like photoshop, top layer is also on top in panel
-                    layers.slice().reverse().map((layer, i) => {
-                        i = layers.length - 1 - i;
-                        return (
-                            <Layer key={i} layer={layer} layerIndex={i} />
-                        );
-                    })
-                }
-                <Accordion title="Export" isExpanded={isExportExpanded} setIsExpanded={setIsExportExpanded}>
-                    <AccordionPanel>
-                        <ExportConfig config={exportConfig} onChange={setExportConfig} />
-                    </AccordionPanel>
-                </Accordion>
-            </ConfigPanel>
-        </div>
-    </div >
-);
+                    }}
+                    {...controlPointsDraggingHandles()}
+                />
+                <DrawPointsSets
+                    ref={drawPolygonRef}
+                    style={{
+                        position: "absolute",
+                        width: exportConfig.width * centerPreviewToPreviewArea.scale,
+                        height: exportConfig.height * centerPreviewToPreviewArea.scale,
+                        left: centerPreviewToPreviewArea.x,
+                        top: centerPreviewToPreviewArea.y,
+                    }}
+                    layerPoints={controlPointsInScreenCoordinates}
+                />
+            </div>
+            <div>
+                <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
+                    <ActionBar />
+                    {
+                        // Like photoshop, top layer is also on top in panel
+                        layers.slice().reverse().map((layer, i) => {
+                            i = layers.length - 1 - i;
+                            return (
+                                <Layer key={i} layer={layer} layerIndex={i} />
+                            );
+                        })
+                    }
+                    <Accordion title="Export" isExpanded={isExportExpanded} setIsExpanded={setIsExportExpanded}>
+                        <AccordionPanel>
+                            <ExportConfig config={exportConfig} onChange={setExportConfig} />
+                        </AccordionPanel>
+                    </Accordion>
+                </ConfigPanel>
+            </div>
+        </div >
+    );
 }
 
 export function Layer({
