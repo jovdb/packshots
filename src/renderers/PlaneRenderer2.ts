@@ -6,6 +6,27 @@ import { ControlPoints } from "../../src/controlPoints/PlaneControlPoints";
 import { loadImageAsync } from "../../utils/image";
 import type { IRenderer } from "./IRenderer";
 
+/*
+Info:
+Technique used: Direct Linear Transformation.
+https://stackoverflow.com/questions/49987322/perspective-transformation-of-image-using-three-js
+http://evanw.github.io/glfx.js/demo/#perspective
+https://ai.stackexchange.com/questions/21042/how-do-you-find-the-homography-matrix-given-4-points-in-both-images
+https://franklinta.com/2014/09/08/computing-css-matrix3d-transforms/
+https://vjmap.com/guide/typescript.html: Line 316
+https://github.com/charlee/dltjs/blob/master/lib/dlt.js
+
+
+Rendering
+Canvas does only support 3x2 matrices for affine transforms
+transformations with perspective are not possible:
+Some ideas with workarounds:
+- WebGL
+- Threejs
+- GlFx
+- http://tulrich.com/geekstuff/canvas/perspective.html
+*/
+
 export class PlaneRenderer2 implements IRenderer, IControlPoints {
     private config: IPlaneConfig2
 
@@ -46,8 +67,16 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
         // --------------------
         // Create Scene
         // --------------------
-        this.geometry = new PlaneGeometry(this.image?.width || 10, this.image?.height || 10);
+        this.geometry = new PlaneGeometry(this.image?.width || 1, this.image?.height || 1);
         this.mesh = new Mesh(this.geometry, this.material); // Material assigned later
+
+        // Test Matrix 
+        const m = new Matrix4();
+        m.makeTranslation(100, 100, 0)
+        const a = this.mesh.matrix.multiply(m);
+        this.mesh.applyMatrix4(m);
+        console.log("this.mesh.matrix", this.mesh.matrix);
+
         this.scene = new Scene();
         this.scene.add(this.mesh);
 
@@ -100,7 +129,7 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
                         ]);
                         */
 
-            const projectionMatrix = new Matrix4().fromArray(this.config.projectionMatrix);
+            // const projectionMatrix = new Matrix4().fromArray(this.config.projectionMatrix);
             // this.camera.projectionMatrix.multiply(projectionMatrix);
             this.renderer.render(this.scene, this.camera);
 
@@ -108,7 +137,7 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
                 this.renderer.getContext().canvas,
                 0, 0, this.targetSize.width, this.targetSize.height,
                 0, 0, targetContext.canvas.width, targetContext.canvas.height,
-            );
+            );  
             console.log("rendered", this.texture);
         }
     }

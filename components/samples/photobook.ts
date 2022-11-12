@@ -13,7 +13,7 @@ const background: ILayerConfig<IImageConfig> = {
 
 const spread: ILayerConfig<IPlaneConfig> = {
     name: "Spread",
-    type: "plane2",
+    type: "plane3",
     config: {
         camera: {
             position: [0, 0, 0],

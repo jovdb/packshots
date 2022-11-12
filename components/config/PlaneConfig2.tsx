@@ -1,21 +1,19 @@
-import { PlaneControlPoints } from "../../src/controlPoints/PlaneControlPoints";
+import { IControlPointsConfig } from "../../src/controlPoints/IControlPoints";
 import { ConfigComponent } from "./factory";
 import { ISpreadImageConfig, spreadImageDefaultConfig, SpreadImageConfig } from "./SpreadImageConfig";
 
-export interface IPlaneConfig2 {
+export interface IPlaneConfig2 extends IControlPointsConfig {
     image: ISpreadImageConfig;
     projectionMatrix: number[];
-    controlPoints?: PlaneControlPoints | undefined;
 }
 
 export const PlaneConfig2: ConfigComponent<IPlaneConfig2> = ({
     config,
     onChange,
 }) => {
-
     const {
         image = spreadImageDefaultConfig,
-        projectionMatrix = [0.01, 0, 0, 0, 0.01, 0, 0, 0, 1],
+        projectionMatrix = [0, 0, 0, 0, 0, 0, 0, 0, 1],
     } = config || {};
 
 return (

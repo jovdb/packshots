@@ -76,8 +76,8 @@ export const DrawPoints = forwardRef<SVGSVGElement, {
             points
                 .map(([x, y], i) => (
                     <g key={`${i}`}>
-                        <circle cx={x} cy={y} r={5} stroke="rgba(255,255,255,0.8)" strokeWidth="3" fill="transparent" />
-                        <circle cx={x} cy={y} r={5} stroke="blue" strokeWidth="1" fill="transparent" />
+                        <circle cx={x} cy={y} r={7} stroke="rgba(255,255,255, 1)" strokeWidth="4" fill="transparent" />
+                        <circle cx={x} cy={y} r={7} stroke="blue" strokeWidth="1" fill="transparent" />
                     </g>
                 ))
         }</svg>

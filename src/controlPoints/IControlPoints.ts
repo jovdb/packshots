@@ -20,6 +20,10 @@ export interface IControlPoints<
     controlPointsToConfig(config: TConfig, controlPoints: TControlPoints): TConfig;
 }
 
+export interface IControlPointsConfig {
+    controlPoints?: ControlPoint[] | undefined;
+}
+
 export function isControlPoints<TType extends ControlPoint[], T extends {}>(obj: T): obj is T & IControlPoints<TType> {
     return obj
         && "getDefaultControlPoints" in obj
