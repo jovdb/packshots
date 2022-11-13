@@ -1,4 +1,4 @@
-import { IExportConfig } from "../components/config/ExportConfig";
+import { IExportConfig } from "../../components/config/ExportConfig";
 import type { IRenderer } from "./IRenderer";
 
 

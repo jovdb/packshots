@@ -58,7 +58,7 @@ export const useLayersConfig = create<{
         get().renderers.forEach(r => r.dispose?.());
 
         const controlPoints = layers.map(l => createControlPoints(l.type));
-        const renderers = layers.map(l => createRenderer(l.type, l.config, {}));
+        const renderers = layers.map(l => createRenderer(l.type, l.config));
         set({ layers, controlPoints, renderers });
     },
 
@@ -74,7 +74,7 @@ export const useLayersConfig = create<{
             const newControlPoints = state.controlPoints.slice();
             newControlPoints.splice(insertIndex, 0, controlPoints);
 
-            const renderer = createRenderer(layer.type, l.config, {});
+            const renderer = createRenderer(layer.type, layer.config);
             const newRenderers = state.renderers.slice();
             newRenderers.splice(insertIndex, 0, renderer);
 
@@ -108,7 +108,7 @@ export const useLayersConfig = create<{
             const newControlPoints = state.controlPoints.slice();
             newControlPoints.splice(index, 1, controlPoints);
 
-            const renderer = createRenderer(layer.type, l.config, {});
+            const renderer = createRenderer(layer.type, layer.config);
             const newRenderers = state.renderers.slice();
             newRenderers.splice(index, 0, renderer);
 

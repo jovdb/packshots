@@ -15,18 +15,6 @@ export function isPromise(promise: any): promise is Promise<unknown>;
 export function isPromise(promise: any): promise is Promise<unknown> {
     return !!promise && typeof promise.then === "function";
 }
-
-function chain<T, U>(
-    value: Promise<T>,
-    then: (value: Awaited<T>) => U,
-): Promise<U>;
-
-function chain<T, U>(
-    value: T,
-    then: (value: Awaited<T>) => U,
-): U;
-
-
 export class PlaneGlFxRenderer implements IRenderer {
     private fxCanvas: any;
     private imageCache: ImageCache;

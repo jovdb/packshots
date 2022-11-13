@@ -4,7 +4,7 @@ import { IPlaneConfig } from "../../components/config/PlaneConfig";
 import { IControlPoints } from "../../src/controlPoints/IControlPoints";
 import type { IRenderer } from "./IRenderer";
 
-export class PlaneRenderer implements IRenderer, IControlPoints {
+export class PlaneRenderer implements IRenderer {
 
     private config: IPlaneConfig
     private scene: Scene;
@@ -95,6 +95,7 @@ export class PlaneRenderer implements IRenderer, IControlPoints {
         targetContext.drawImage(this.renderer.getContext().canvas, 0, 0);
     }
 
+    /*
     public configToControlPoints() {
         // Get 3D Corners
         const corners3d: Vector3[] = [];
@@ -117,6 +118,7 @@ export class PlaneRenderer implements IRenderer, IControlPoints {
 
         return [corners2d[0], corners2d[1], corners2d[3], corners2d[2]]
     }
+    */
 
     private getCameraFromControlPoints(corners2d: Vector2[]): any {
         // Camera Calibration: https://www.analyticsvidhya.com/blog/2021/10/a-comprehensive-guide-for-camera-calibration-in-computer-vision/

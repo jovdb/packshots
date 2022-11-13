@@ -27,7 +27,7 @@ Some ideas with workarounds:
 - http://tulrich.com/geekstuff/canvas/perspective.html
 */
 
-export class PlaneRenderer2 implements IRenderer, IControlPoints {
+export class PlaneRenderer2 implements IRenderer {
     private config: IPlaneConfig2
 
     private image: HTMLImageElement | undefined;
@@ -45,7 +45,7 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
     ) {
         this.config = {
             image: config.image || { url: "", name: "" },
-            projectionMatrix: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+            controlPoints: undefined,
         };
     }
 
@@ -296,7 +296,6 @@ export class PlaneRenderer2 implements IRenderer, IControlPoints {
         const projectionMatrix = this.getProjectionMatrix(controlPoints2d);
         return {
             ...this.config,
-            projectionMatrix: projectionMatrix?.toArray() ?? [],
         };
     }
 
