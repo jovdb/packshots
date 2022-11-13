@@ -6,13 +6,13 @@ export class ImageCache {
     private imageUrl: string | undefined;
     private imagePromise: Promise<HTMLImageElement> | undefined;
 
-    public async loadAsync(url: string | undefined) {
+    /** Get image or load image */
+    public loadImage(url: string | undefined): HTMLImageElement | undefined | Promise<HTMLImageElement> {
         url ||= undefined;
 
         // Already loaded
         if (url === this.imageUrl) {
-            await this.imagePromise;
-            return;
+            return this.image;
         }
 
         // Removed
@@ -20,22 +20,38 @@ export class ImageCache {
             this.image = undefined;
             this.imagePromise = undefined;
             this.imageUrl = undefined;
-            return;
+            return undefined;
         }
 
         // Load
         this.image = undefined; // Make sure if the images matches the url and not the previous error
         this.imageUrl = url;
-        this.imagePromise = loadImageAsync(url);
-        this.image = await this.imagePromise;
+        this.imagePromise = loadImageAsync(url)
+        this.imagePromise.then(
+            img => {
+                this.image = img;
+            },
+            (e) => {
+                this.image = undefined;
+                this.imagePromise = undefined;
+                this.imageUrl = undefined;
+                throw e;
+            },
+        );
+        return this.imagePromise;
     }
 
+    /** Synchroniously get image */
     public getImage(url: string | undefined, required?: boolean) {
         url ||= undefined;
-        if (this.image && this.imageUrl === url)
-            return this.image;
-        if (required && !this.image)
-            throw new Error("Image not loaded");
+        if (this.isLoaded(url)) return this.image;
+        if (required && !this.image) throw new Error("Image not loaded");
         return undefined; // No or other image is loaded4
+    }
+
+    /** Synchroniously get image */
+    public isLoaded(url: string | undefined) {
+        url ||= undefined;
+        return !!this.image && this.imageUrl === url;
     }
 }

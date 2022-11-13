@@ -6,6 +6,7 @@ export function usePointsSets(
     ref: React.RefObject<HTMLDivElement>,
     layersPoints: ([number, number][] | undefined)[] | undefined,
     setPoints: (index: number, value: [x: number, y: number][]) => unknown,
+    setDraggingLayer: (value: number) => void,
 ) {
     const dragingPointIndexRef = useRef<{
         layerIndex: number;
@@ -46,6 +47,10 @@ export function usePointsSets(
                 layerIndex: minLayerIndex,
                 pointIndex: minPointIndex,
             };
+
+            setDraggingLayer(minLayerIndex);
+        } else if (state.last) {
+            setDraggingLayer(-1);
         }
 
         const { layerIndex, pointIndex } = dragingPointIndexRef.current;
@@ -73,14 +78,14 @@ export const DrawPoints = forwardRef<SVGSVGElement, {
                 ...style,
             }}
         >{
-            points
-                .map(([x, y], i) => (
-                    <g key={`${i}`}>
-                        <circle cx={x} cy={y} r={7} stroke="rgba(255,255,255, 1)" strokeWidth="4" fill="transparent" />
-                        <circle cx={x} cy={y} r={7} stroke="blue" strokeWidth="1" fill="transparent" />
-                    </g>
-                ))
-        }</svg>
+                points
+                    .map(([x, y], i) => (
+                        <g key={`${i}`}>
+                            <circle cx={x} cy={y} r={7} stroke="rgba(255,255,255, 1)" strokeWidth="4" fill="transparent" />
+                            <circle cx={x} cy={y} r={7} stroke="blue" strokeWidth="1" fill="transparent" />
+                        </g>
+                    ))
+            }</svg>
     );
 });
 DrawPoints.displayName = "DrawPoints";

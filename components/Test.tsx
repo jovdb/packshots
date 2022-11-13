@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
-import { createRenderers, loadRenders, render } from "../src/renderers/render";
 import { ConfigPanel } from "./ConfigPanel";
 import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
@@ -13,7 +12,8 @@ import { ILayerConfig } from "../src/layers/ILayerConfig";
 import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 import { ControlPoint, IControlPointsConfig, isControlPoints } from "../src/controlPoints/IControlPoints";
-import { config } from "process";
+import { isPromise } from "../src/renderers/PlaneGlFxRenderer";
+import { IRenderer } from "../src/renderers/IRenderer";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -37,7 +37,8 @@ export function useImageFromUrls(urls: string[]) {
 export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const drawPolygonRef = useRef<HTMLDivElement>(null);
-
+    const [controlPointsDragging, setControlPointsDragging] = useState(-1);
+    
     // Layers 
     const layers = useLayersConfig(s => s.layers);
 
@@ -54,30 +55,33 @@ export function Test() {
 
     const configs = useConfigs();
 
-    const { data: loadedRenderes } = useQuery(
-        ["loaded-renderers", renderers, configs],
+    // Rerender
+    useQuery(
+        ["loaded-renderers", renderers, configs, controlPointsDragging],
         async () => {
-
+            const render = (loadedRenderers: IRenderer[]) => {
+                if (!targetContext) return [];
+                targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
+                loadedRenderers.forEach((renderer, i) => {
+                    const config = {
+                        ...configs[i],
+                        isDragging: i === controlPointsDragging,
+                    }
+                    renderer.render(targetContext, config);
+                });
+                return loadedRenderers;
+            }
+        
             // Load
-            const loadedRenderers = await Promise.all(
-                renderers.map(async (r, i) => {
-                    if (!r.loadAsync) return r;
-                    await r.loadAsync(configs[i]);
-                    return r;
-                })
-            );
+            const loaders = renderers.map((r, i) => r.loadAsync?.(configs[i]));
+            const isAsync = loaders.some(isPromise);
 
-            // Render
-            if (!targetContext) return;
-            targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
-            loadedRenderers.forEach((renderer, i) => renderer.render(targetContext, configs[i]));
-
-            return loadedRenderers;
+            if (!isAsync) return render(renderers);
+            return Promise.all(loaders).then(() => render(renderers));
         },
     );
 
     const [layersControlPoints, setControlPoints] = useControlPoints();
-    console.log("layersControlPoints ", layersControlPoints);
 
     const [isExportExpanded, setIsExportExpanded] = useState(false);
 
@@ -136,7 +140,6 @@ export function Test() {
         ),
         [centerPreviewToPreviewArea.scale, controlPointToCanvas, layersControlPoints],
     );
-    console.log("controlPointsInScreenCoordinates", controlPointsInScreenCoordinates);
 
     const controlPointsDraggingHandles = usePointsSets(
         drawPolygonRef,
@@ -155,7 +158,9 @@ export function Test() {
                 .map(canvasToControlPoint);
 
             setControlPoints(layerIndex, newPointsInTargetCoordinates);
-        });
+        },
+        setControlPointsDragging,
+    );
 
     const checkBoardSize = 25;
     const checkBoardDark = "#e8e8e8";

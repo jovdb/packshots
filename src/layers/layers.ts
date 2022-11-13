@@ -197,5 +197,9 @@ export function useControlPoints() {
 }
 
 export function useRenderers() {
-    return useLayersConfig(s => s.renderers);
+    const isVisibles = useLayersConfig(
+        s => s.layers.map(l => l.ui?.isVisible ?? true),
+        (a, b) => a.join() === b.join(),
+    );
+    return useLayersConfig((s) => s.renderers.filter((_, i) => isVisibles[i]));
 }

@@ -4,7 +4,7 @@ export interface IRenderer {
         config: {},
     ): void;
 
-    loadAsync?(config: {}): Promise<void>;
+    loadAsync?(config: {}): void | Promise<void>;
 
     dispose?(): void;
 }

@@ -14,7 +14,7 @@ export class ImageRenderer implements IRenderer {
 
     async loadAsync(config: IImageRendererProps) {
         const url = config?.imageUrl ?? "";
-        await this.imageCache.loadAsync(url);
+        await this.imageCache.loadImage(url);
     }
 
     public render(

@@ -2,55 +2,102 @@ import { IPlaneConfig2 } from "../../components/config/PlaneConfig2";
 import { loadImageAsync } from "../../utils/image";
 import type { IRenderer } from "./IRenderer";
 import * as fx from "glfx";
+import { ImageCache } from "./ImageCache";
+import { debug } from "console";
 
 // Inspired by:
 // https://github.com/evanw/glfx.js/tree/master/src/core
 
-export class PlaneGlFxRenderer implements IRenderer {
-    private config: IPlaneConfig2
-    private fxCanvas: any;
-    private image: HTMLImageElement | undefined;
+export function isPromise(promise: null | undefined): false;
+export function isPromise<T>(promise: Promise<T>): promise is Promise<T>;
+export function isPromise(promise: any): promise is Promise<unknown>;
+export function isPromise(promise: any): promise is Promise<unknown> {
+    return !!promise && typeof promise.then === "function";
+}
 
-    constructor(
+function chain<T, U>(
+    value: Promise<T>,
+    then: (value: Awaited<T>)=> U,
+): Promise<U>;
+
+function chain<T, U>(
+    value: T,
+    then: (value: Awaited<T>) => U,
+): U;
+
+function chain<T, U>(
+    value: T | Promise<T>,
+    then: (value: Awaited<T>) => U,
+): U | Promise<U>;
+
+function chain<T, U>(
+    value: T | Promise<T>,
+    then: (value: Awaited<T>) => U,
+): U | Promise<U> {
+    if (isPromise(value)) {
+        return value.then(then);
+    } else {
+        return then(value);
+    }
+}
+
+
+export class PlaneGlFxRenderer implements IRenderer {
+    private fxCanvas: any;
+    private imageCache: ImageCache;
+    private texture: any;
+
+    constructor() {
+        // try to create a WebGL canvas (will fail if WebGL isn't supported)
+        console.log("CREATE CANVAS");
+        this.fxCanvas = fx.canvas();
+        this.imageCache = new ImageCache();
+    }
+
+    loadAsync(
         config: IPlaneConfig2,
     ) {
-        this.config = {
-            image: config.image || { url: "", name: "" },
-            controlPoints: [
+        return chain(
+            this.imageCache.loadImage(config.image.imageUrl),
+            (image) => {
+                if (this.texture) this.texture.destroy();
+                this.texture = this.fxCanvas.texture(image);
+            }
+        )
+    }
+
+    render(
+        targetContext: CanvasRenderingContext2D,
+        config: IPlaneConfig2
+    ): void {
+        const image = this.imageCache.getImage(config.image.imageUrl, true);
+        if (!image) return;
+
+        const {
+            controlPoints = [
                 [-0.8, -0.8],
                 [0.8, -0.8],
                 [-0.8, 0.8],
                 [0.8, 0.8],
-            ] 
-        };
-
-        // try to create a WebGL canvas (will fail if WebGL isn't supported)
-        this.fxCanvas = fx.canvas();
-    }
-
-    render(targetContext: CanvasRenderingContext2D): void {
-        if (!this.fxCanvas || !this.image) return;
-
-        const { controlPoints } = this.config;
+            ]
+        } = config;
 
         // Set canvas size
         this.fxCanvas.width = targetContext.canvas.width;
         this.fxCanvas.height = targetContext.canvas.height;
-        const halfImageWidth = this.image.width / 2;
-        const halfImageHeight = this.image.height / 2;
+        const halfImageWidth = image.width / 2;
+        const halfImageHeight = image.height / 2;
 
-        // Load Image
-        const texture = this.fxCanvas.texture(this.image);
-console.log(controlPoints);
         // Draw Perspective
+        console.log("RENDER");
         this.fxCanvas
-            .draw(texture)
+            .draw(this.texture)
             .perspective(
                 [
                     0, 0,
-                    this.image.width, 0,
-                    0, this.image.height,
-                    this.image.width, this.image.height
+                    image.width, 0,
+                    0, image.height,
+                    image.width, image.height
                 ],
                 [
                     halfImageWidth + controlPoints[0][0] * halfImageWidth, halfImageHeight + controlPoints[0][1] * halfImageHeight,
@@ -64,17 +111,13 @@ console.log(controlPoints);
         // Draw on destination canvas
         targetContext.drawImage(
             this.fxCanvas,
-            0, 0, this.image.width, this.image.height,
+            0, 0, image.width, image.height,
             0, 0, targetContext.canvas.width, targetContext.canvas.height,
         );
-
-        texture.destroy();
-    }
-
-    async loadAsync(): Promise<void> {
-        this.image = await loadImageAsync(this.config.image.imageUrl);
     }
 
     dispose(): void {
+        this.texture.destroy();
+        this.texture = undefined;
     }
 }
