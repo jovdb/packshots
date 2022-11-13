@@ -4,6 +4,7 @@ import type { IRenderer } from "./IRenderer";
 import * as fx from "glfx";
 import { ImageCache } from "./ImageCache";
 import { debug } from "console";
+import { ControlPoints } from "../controlPoints/PlaneControlPoints";
 
 // Inspired by:
 // https://github.com/evanw/glfx.js/tree/master/src/core
@@ -17,29 +18,13 @@ export function isPromise(promise: any): promise is Promise<unknown> {
 
 function chain<T, U>(
     value: Promise<T>,
-    then: (value: Awaited<T>)=> U,
+    then: (value: Awaited<T>) => U,
 ): Promise<U>;
 
 function chain<T, U>(
     value: T,
     then: (value: Awaited<T>) => U,
 ): U;
-
-function chain<T, U>(
-    value: T | Promise<T>,
-    then: (value: Awaited<T>) => U,
-): U | Promise<U>;
-
-function chain<T, U>(
-    value: T | Promise<T>,
-    then: (value: Awaited<T>) => U,
-): U | Promise<U> {
-    if (isPromise(value)) {
-        return value.then(then);
-    } else {
-        return then(value);
-    }
-}
 
 
 export class PlaneGlFxRenderer implements IRenderer {
@@ -57,13 +42,15 @@ export class PlaneGlFxRenderer implements IRenderer {
     loadAsync(
         config: IPlaneConfig2,
     ) {
-        return chain(
-            this.imageCache.loadImage(config.image.imageUrl),
-            (image) => {
+        const result = this.imageCache.loadImage(config.image.imageUrl);
+
+        // If async, new image is loaded
+        if (isPromise(result)) {
+            result.then((image) => {
                 if (this.texture) this.texture.destroy();
-                this.texture = this.fxCanvas.texture(image);
-            }
-        )
+                if (image) this.texture = this.fxCanvas.texture(image);
+            });
+        }
     }
 
     render(
@@ -82,14 +69,10 @@ export class PlaneGlFxRenderer implements IRenderer {
             ]
         } = config;
 
-        // Set canvas size
-        this.fxCanvas.width = targetContext.canvas.width;
-        this.fxCanvas.height = targetContext.canvas.height;
         const halfImageWidth = image.width / 2;
         const halfImageHeight = image.height / 2;
 
         // Draw Perspective
-        console.log("RENDER");
         this.fxCanvas
             .draw(this.texture)
             .perspective(
@@ -97,16 +80,15 @@ export class PlaneGlFxRenderer implements IRenderer {
                     0, 0,
                     image.width, 0,
                     0, image.height,
-                    image.width, image.height
+                    image.width, image.height,
                 ],
                 [
                     halfImageWidth + controlPoints[0][0] * halfImageWidth, halfImageHeight + controlPoints[0][1] * halfImageHeight,
                     halfImageWidth + controlPoints[1][0] * halfImageWidth, halfImageHeight + controlPoints[1][1] * halfImageHeight,
                     halfImageWidth + controlPoints[2][0] * halfImageWidth, halfImageHeight + controlPoints[2][1] * halfImageHeight,
                     halfImageWidth + controlPoints[3][0] * halfImageWidth, halfImageHeight + controlPoints[3][1] * halfImageHeight,
-                ]
-            )
-            .update();
+                ],
+            ).update();
 
         // Draw on destination canvas
         targetContext.drawImage(
