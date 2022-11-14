@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { ConfigPanel } from "./ConfigPanel";
@@ -6,14 +6,13 @@ import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { useConfigs, useControlPoints, useLayer, useLayersConfig, useRenderers } from "../src/layers/layers";
+import { useConfigs, useLayersConfig, useRenderers } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
-import { DrawPointsSets, usePointsSets } from "./DrawPoints";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
-import { ControlPoint, IControlPointsConfig, isControlPoints } from "../src/controlPoints/IControlPoints";
 import { isPromise } from "../src/renderers/PlaneGlFxRenderer";
 import { IRenderer } from "../src/renderers/IRenderer";
+import { ControlPoints } from "./ControlPoints";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -36,8 +35,6 @@ export function useImageFromUrls(urls: string[]) {
 
 export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const drawPolygonRef = useRef<HTMLDivElement>(null);
-    const [controlPointsDragging, setControlPointsDragging] = useState(-1);
     
     // Layers 
     const layers = useLayersConfig(s => s.layers);
@@ -50,23 +47,17 @@ export function Test() {
 
     const renderers = useRenderers();
 
-    /** Normalized controlPoints for each layer */
-    // const [layersControlPoints, setLayersControlPoints] = useState<([x: number, y: number][] | undefined)[]>([]);
-
     const configs = useConfigs();
 
     // Rerender
     useQuery(
-        ["loaded-renderers", renderers, configs, controlPointsDragging],
+        ["loaded-renderers", renderers, configs],
         async () => {
             const render = (loadedRenderers: IRenderer[]) => {
                 if (!targetContext) return [];
                 targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
                 loadedRenderers.forEach((renderer, i) => {
-                    const config = {
-                        ...configs[i],
-                        isDragging: i === controlPointsDragging,
-                    }
+                    const config = configs[i];
                     renderer.render(targetContext, config);
                 });
                 return loadedRenderers;
@@ -80,8 +71,6 @@ export function Test() {
             return Promise.all(loaders).then(() => render(renderers));
         },
     );
-
-    const [layersControlPoints, setControlPoints] = useControlPoints();
 
     const [isExportExpanded, setIsExportExpanded] = useState(false);
 
@@ -103,64 +92,6 @@ export function Test() {
             height: previewAreaRect.height - margin * 2,
         });
     }, [exportConfig.height, exportConfig.width, previewAreaRect.height, previewAreaRect.width]);
-
-
-    // [-1, 1] range to [0, width/height]
-    const controlPointToCanvas = useCallback(
-        ([x, y]: ControlPoint): ControlPoint => ([
-            (x + 1) / 2 * exportConfig.width,
-            (y + 1) / 2 * exportConfig.height,
-        ]),
-        [exportConfig.height, exportConfig.width],
-    );
-
-    // [0, width/height] range to [-1, 1] 
-    const canvasToControlPoint = useCallback(
-        ([x, y]: ControlPoint): ControlPoint => ([
-            x / exportConfig.width * 2 - 1,
-            y / exportConfig.height * 2 - 1,
-        ]),
-        [exportConfig.height, exportConfig.width],
-    );
-
-    // Convert controlPoints to screen coordinates
-    const controlPointsInScreenCoordinates = useMemo(
-        () => (
-            layersControlPoints
-                .map(layerControlPoints => (
-                    layerControlPoints
-                        ? layerControlPoints
-                            .map(controlPointToCanvas)
-                            .map(([x, y]) => ([
-                                x * centerPreviewToPreviewArea.scale,
-                                y * centerPreviewToPreviewArea.scale,
-                            ] as ControlPoint))
-                        : undefined
-                ))
-        ),
-        [centerPreviewToPreviewArea.scale, controlPointToCanvas, layersControlPoints],
-    );
-
-    const controlPointsDraggingHandles = usePointsSets(
-        drawPolygonRef,
-        controlPointsInScreenCoordinates,
-        (layerIndex, newPointsInScreenCoordinates) => {
-
-            const newPointsInTargetCoordinates = newPointsInScreenCoordinates
-
-                // Screen to Canvas (zooming)
-                .map(([x, y]) => [
-                    x / centerPreviewToPreviewArea.scale,
-                    y / centerPreviewToPreviewArea.scale,
-                ] as [x: number, y: number])
-
-                // Canvas to ControlPoint
-                .map(canvasToControlPoint);
-
-            setControlPoints(layerIndex, newPointsInTargetCoordinates);
-        },
-        setControlPointsDragging,
-    );
 
     const checkBoardSize = 25;
     const checkBoardDark = "#e8e8e8";
@@ -201,10 +132,8 @@ export function Test() {
                             calc(${checkBoardSize}px * -0.5) calc(${checkBoardSize}px * -0.5),
                             calc(${checkBoardSize}px * 0.5) calc(${checkBoardSize}px * 0.5)`,
                     }}
-                    {...controlPointsDraggingHandles()}
                 />
-                <DrawPointsSets
-                    ref={drawPolygonRef}
+                <ControlPoints
                     style={{
                         position: "absolute",
                         width: exportConfig.width * centerPreviewToPreviewArea.scale,
@@ -212,8 +141,7 @@ export function Test() {
                         left: centerPreviewToPreviewArea.x,
                         top: centerPreviewToPreviewArea.y,
                     }}
-                    layerPoints={controlPointsInScreenCoordinates}
-                />
+                ></ControlPoints>
             </div>
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>

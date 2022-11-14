@@ -1,9 +1,9 @@
 import { IPlaneConfig2 } from "../../components/config/PlaneConfig2";
-import type { IControlPoints, ControlPoint } from "./IControlPoints";
+import type { IControlPointsController, ControlPoint } from "./IControlPoints";
 
 export type ControlPoints = [topLeft: ControlPoint, topRight: ControlPoint, bottomRight: ControlPoint, bottomLeft: ControlPoint];
 
-export class PlaneControlPoints implements IControlPoints<IPlaneConfig2, ControlPoints> {
+export class PlaneControlPoints implements IControlPointsController<IPlaneConfig2, ControlPoints> {
 
     /** The default is a rectangle that covers half of the screen */
     getDefaultControlPoints(fromConfig: IPlaneConfig2): ControlPoints {

@@ -6,7 +6,7 @@
  */
 export type ControlPoint = [x: number, y: number];
 
-export interface IControlPoints<
+export interface IControlPointsController<
     TConfig = {},
     TControlPoints extends ControlPoint[] = ControlPoint[],
 > {
@@ -27,7 +27,7 @@ export interface IControlPointsConfig {
     controlPoints: ControlPoint[] | undefined;
 }
 
-export function isControlPoints<TType extends ControlPoint[], T extends {}>(obj: T): obj is T & IControlPoints<TType> {
+export function isControlPoints<TType extends ControlPoint[], T extends {}>(obj: T): obj is T & IControlPointsController<TType> {
     return obj
         && "getDefaultControlPoints" in obj
         && "configToControlPoints" in obj

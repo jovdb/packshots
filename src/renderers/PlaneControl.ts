@@ -1,6 +1,6 @@
 import { Camera, DoubleSide, Material, Matrix3, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { IPlaneConfig2 } from "../../components/config/PlaneConfig2";
-import { ControlPoint, IControlPoints } from "../../src/controlPoints/IControlPoints";
+import { ControlPoint, IControlPointsController } from "../../src/controlPoints/IControlPoints";
 import { loadImageAsync } from "../../utils/image";
 import { ControlPoints } from "../controlPoints/PlaneControlPoints";
 import type { IRenderer } from "./IRenderer";

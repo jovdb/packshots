@@ -1,12 +1,11 @@
 import { useDrag } from '@use-gesture/react'
 import { CSSProperties, forwardRef, Ref, useRef } from 'react';
 
-/** Handle multiple Polygons whith 1 drag handler */
+/** Allow dragging multiple control points with 1 drag handler */
 export function usePointsSets(
     ref: React.RefObject<HTMLDivElement>,
     layersPoints: ([number, number][] | undefined)[] | undefined,
-    setPoints: (index: number, value: [x: number, y: number][]) => unknown,
-    setDraggingLayer?: (value: number) => void,
+    setPoints: (index: number, value: [x: number, y: number][], isLast: boolean) => unknown,
 ) {
     const dragingPointIndexRef = useRef<{
         layerIndex: number;
@@ -15,6 +14,7 @@ export function usePointsSets(
         layerIndex: -1,
         pointIndex: -1,
     });
+
     return useDrag((state) => {
         if (!layersPoints || !ref.current) return;
         const [x, y] = state.xy;
@@ -47,10 +47,6 @@ export function usePointsSets(
                 layerIndex: minLayerIndex,
                 pointIndex: minPointIndex,
             };
-
-            setDraggingLayer?.(minLayerIndex);
-        } else if (state.last) {
-            setDraggingLayer?.(-1);
         }
 
         const { layerIndex, pointIndex } = dragingPointIndexRef.current;
@@ -59,7 +55,9 @@ export function usePointsSets(
         if (!points) return;
         const newPoints = [...points]; // Copy
         newPoints[pointIndex] = [polygonX, polygonY]; // Update copy
-        setPoints(layerIndex, newPoints);
+        setPoints(layerIndex, newPoints, state.last);
+    }, {
+        pointer: { touch: true },
     });
 }
 
@@ -89,30 +87,3 @@ export const DrawPoints = forwardRef<SVGSVGElement, {
     );
 });
 DrawPoints.displayName = "DrawPoints";
-
-
-export const DrawPointsSets = forwardRef<HTMLDivElement, {
-    layerPoints: ([x: number, y: number][] | undefined)[];
-    style?: CSSProperties;
-}>(({
-    layerPoints,
-    style,
-}, ref) => {
-    return (
-        <div
-            ref={ref}
-            style={{
-                position: "absolute",
-                pointerEvents: "none",
-                ...style,
-            }}
-        >
-            {
-                layerPoints.map((points, i) => (
-                    points && <DrawPoints key={i} points={points} style={{ position: "absolute", width: "100%", height: "100%" }} />
-                ))
-            }
-        </div>
-    );
-});
-DrawPointsSets.displayName = "DrawPointsSets";

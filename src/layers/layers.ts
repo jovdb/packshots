@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import create from "zustand";
 import { createControlPoints } from "../controlPoints/factory";
-import { ControlPoint, IControlPoints, IControlPointsConfig } from "../controlPoints/IControlPoints";
+import { ControlPoint, IControlPointsController, IControlPointsConfig } from "../controlPoints/IControlPoints";
 import { createRenderer } from "../renderers/factory";
 import { IRenderer } from "../renderers/IRenderer";
 import { ILayerConfig } from "./ILayerConfig";
@@ -40,7 +40,7 @@ Layers
 
 export const useLayersConfig = create<{
     layers: ILayerConfig[];
-    controlPoints: (IControlPoints | undefined)[];
+    controlPoints: (IControlPointsController | undefined)[];
     renderers: IRenderer[];
     setLayers(layers: ILayerConfig[]): void;
     addLayer(layer: ILayerConfig, insertIndex?: number): number;
