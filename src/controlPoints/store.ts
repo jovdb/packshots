@@ -4,15 +4,16 @@ import type { ControlPoint } from "./IControlPoints";
 export interface IControlPointsStore {
     controlPoints: (ControlPoint[] | undefined)[];
 
-    add(controlPoints: ControlPoint[] | undefined, insertIndex?: number): number;
-    delete(index: number): void;
-    update(index: number, controlPoints: ControlPoint[] | undefined): void;
+    addControlPoints(controlPoints: ControlPoint[] | undefined, insertIndex?: number): number;
+    deleteControlPoints(index: number): void;
+    updateControlPoints(index: number, controlPoints: ControlPoint[] | undefined): void;
+    replaceControlPoints(controlPoints: (ControlPoint[] | undefined)[]): void;
 }
 
-export const useControlPointsStore = create<IControlPointsStore>((set) => ({
+const useControlPointsStore = create<IControlPointsStore>((set) => ({
     controlPoints: [],
 
-    add(controlPoints, insertIndex) {
+    addControlPoints(controlPoints, insertIndex) {
         set((state) => {
             if (insertIndex === undefined) insertIndex = state.controlPoints.length;
 
@@ -27,7 +28,7 @@ export const useControlPointsStore = create<IControlPointsStore>((set) => ({
         return insertIndex!;
     },
 
-    delete(index) {
+    deleteControlPoints(index) {
         set((state) => {
             return {
                 controlPoints: state.controlPoints.filter((_, i) => (i !== index)),
@@ -35,7 +36,7 @@ export const useControlPointsStore = create<IControlPointsStore>((set) => ({
         });
     },
 
-    update(index, controlPoints) {
+    updateControlPoints(index, controlPoints) {
         set((state) => {
 
             // Control points need to update for new config
@@ -45,6 +46,12 @@ export const useControlPointsStore = create<IControlPointsStore>((set) => ({
             return {
                 controlPoints: newControlPoints,
             };
+        });
+    },
+
+    replaceControlPoints(controlPoints) {
+        set({
+            controlPoints: controlPoints,
         });
     },
 }));

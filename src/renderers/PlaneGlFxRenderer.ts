@@ -1,10 +1,7 @@
 import { IPlaneConfig2 } from "../../components/config/PlaneConfig2";
-import { loadImageAsync } from "../../utils/image";
 import type { IRenderer } from "./IRenderer";
 import * as fx from "glfx";
 import { ImageCache } from "./ImageCache";
-import { debug } from "console";
-import { ControlPoints } from "../controlPoints/PlaneControlPoints";
 
 // Inspired by:
 // https://github.com/evanw/glfx.js/tree/master/src/core
@@ -15,6 +12,7 @@ export function isPromise(promise: any): promise is Promise<unknown>;
 export function isPromise(promise: any): promise is Promise<unknown> {
     return !!promise && typeof promise.then === "function";
 }
+
 export class PlaneGlFxRenderer implements IRenderer {
     private fxCanvas: any;
     private imageCache: ImageCache;

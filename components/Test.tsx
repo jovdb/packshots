@@ -6,13 +6,14 @@ import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { useConfigs, useLayersConfig, useRenderers } from "../src/layers/layers";
+import { useConfigs, useLayers, useLayersActions, useRenderers } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 import { isPromise } from "../src/renderers/PlaneGlFxRenderer";
 import { IRenderer } from "../src/renderers/IRenderer";
 import { ControlPoints } from "./ControlPoints";
+import { useAllControlPoints, useControlPoints } from "../src/controlPoints/store";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -37,7 +38,7 @@ export function Test() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     
     // Layers 
-    const layers = useLayersConfig(s => s.layers);
+    const layers = useLayers();
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
     const [exportConfig, setExportConfig] = useState(defaultExportConfig);
@@ -49,16 +50,22 @@ export function Test() {
 
     const configs = useConfigs();
 
+    const allControlPoints = useAllControlPoints();
+
     // Rerender
     useQuery(
-        ["loaded-renderers", renderers, configs],
+        ["loaded-renderers", renderers, configs, allControlPoints],
         async () => {
             const render = (loadedRenderers: IRenderer[]) => {
                 if (!targetContext) return [];
                 targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
                 loadedRenderers.forEach((renderer, i) => {
                     const config = configs[i];
-                    renderer.render(targetContext, config);
+                    const controlPoints = allControlPoints[i];
+                    renderer.render(targetContext, {
+                        ...config,
+                        controlPoints,
+                    });
                 });
                 return loadedRenderers;
             }
@@ -173,9 +180,7 @@ export function Layer({
     layer: ILayerConfig,
     layerIndex: number,
 }) {
-    const deleteLayer = useLayersConfig(s => s.deleteLayer);
-    const updateConfig = useLayersConfig(s => s.updateConfig);
-    const updateUi = useLayersConfig(s => s.updateUi);
+    const { deleteLayer, updateConfig, updateUi } = useLayersActions();
     const ConfigComponent = getConfigComponent(layer);
     return (
         <Accordion

@@ -4,14 +4,14 @@ import { useElementSize } from "../src/hooks/useElementSize";
 import { DrawPoints, usePointsSets } from "./DrawPoints";
 
 export function ControlPoints({
-    style = { backgroundColor: "yellow" },
+    style,
 }: {
     style?: CSSProperties;
 }) {
 
     const divRef = useRef<HTMLDivElement>(null);
     const allControlPoints = useAllControlPoints();
-    const { update: updateControlPoints } = useControlPointsActions();
+    const { updateControlPoints: updateControlPoints } = useControlPointsActions();
     const elementRect = useElementSize(divRef);
 
     // Convert controlPoints to screen coordinates

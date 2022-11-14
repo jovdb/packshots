@@ -56,8 +56,6 @@ export function usePointsSets(
         const newPoints = [...points]; // Copy
         newPoints[pointIndex] = [polygonX, polygonY]; // Update copy
         setPoints(layerIndex, newPoints, state.last);
-    }, {
-        pointer: { touch: true },
     });
 }
 

@@ -15,6 +15,7 @@ const background: ILayerConfig<IImageConfig> = {
 const spread: ILayerConfig<IPlaneConfig2> = {
     name: "Spread",
     type: "plane3",
+    
     config: {
         image: {
             name: "Spread.jpg",

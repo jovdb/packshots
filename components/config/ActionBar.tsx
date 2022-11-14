@@ -1,15 +1,14 @@
 import { CSSProperties, useState } from "react";
 import { ILayerConfig } from "../../src/layers/ILayerConfig";
-import { useLayersConfig } from "../../src/layers/layers";
+import { useLayers, useLayersActions } from "../../src/layers/layers";
 import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
 import { flowerPotLayers } from "../samples/flowerpot";
 import { photobookLayers } from "../samples/photobook";
 
 export function ActionBar() {
     const [action, setAction] = useState("");
-    const layers = useLayersConfig(s => s.layers);
-    const addLayer = useLayersConfig(s => s.addLayer);
-    const setLayers = useLayersConfig(s => s.setLayers);
+    const layers = useLayers();
+    const { addLayer, replaceLayer } = useLayersActions()
 
     const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
 
@@ -99,11 +98,11 @@ export function ActionBar() {
                     <div>Sample:</div>
                     <ul>
                         <li style={style} onClick={() => {
-                            setLayers(photobookLayers); // close panel
+                            replaceLayer(photobookLayers); // close panel
                             setAction(""); // close panel
                         }}><a href="#">Photo book</a></li>
                         <li style={style} onClick={() => {
-                            setLayers(flowerPotLayers); // close panel
+                            replaceLayer(flowerPotLayers); // close panel
                             setAction(""); // close panel
                         }}><a href="#">Flower pot</a></li>
                     </ul>
