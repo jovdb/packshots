@@ -6,14 +6,11 @@ import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { useConfigs, useLayers, useLayersActions, useRenderers } from "../src/layers/layers";
+import { useLayers, useLayersActions } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
-import { isPromise } from "../src/renderers/PlaneGlFxRenderer";
-import { IRenderer } from "../src/renderers/IRenderer";
 import { ControlPoints } from "./ControlPoints";
-import { useAllControlPoints, useControlPoints } from "../src/controlPoints/store";
 import { Renderer } from "./Renderer";
 
 export function useImageDataFromUrl(url: string) {
@@ -35,6 +32,26 @@ export function useImageFromUrls(urls: string[]) {
 }
 
 
+export function useZoom(
+    imagesSize: { width: number; height: number },
+    previewSize: { width: number; height: number },
+    margin: number,
+) {
+    return useMemo(() => {
+        return fitRectTransform({
+            top: 0,
+            left: 0,
+            width: imagesSize.width,
+            height: imagesSize.height,
+        }, {
+            top: margin,
+            left: margin,
+            width: previewSize.width - margin * 2,
+            height: previewSize.height - margin * 2,
+        });
+    }, [imagesSize.height, imagesSize.width, margin, previewSize.height, previewSize.width]);
+}
+
 export function Test() {
     // Layers 
     const layers = useLayers();
@@ -47,21 +64,26 @@ export function Test() {
     // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);
     const previewAreaRect = useElementSize(previewAreaRef);
-    const margin = 15;
 
-    const centerPreviewToPreviewArea = useMemo(() => {
-        return fitRectTransform({
-            top: 0,
-            left: 0,
-            width: exportConfig.width,
-            height: exportConfig.height,
-        }, {
-            top: margin,
-            left: margin,
-            width: previewAreaRect.width - margin * 2,
-            height: previewAreaRect.height - margin * 2,
-        });
-    }, [exportConfig.height, exportConfig.width, previewAreaRect.height, previewAreaRect.width]);
+    const centerPreviewToPreviewArea = useZoom(
+        exportConfig,
+        previewAreaRect,
+        15,
+    )
+
+    const centerPreviewToPreviewStyle = useMemo(() => ({
+        position: "absolute",
+        width: exportConfig.width * centerPreviewToPreviewArea.scale,
+        height: exportConfig.height * centerPreviewToPreviewArea.scale,
+        left: centerPreviewToPreviewArea.x,
+        top: centerPreviewToPreviewArea.y,
+    } as const), [
+        centerPreviewToPreviewArea.scale,
+        centerPreviewToPreviewArea.x,
+        centerPreviewToPreviewArea.y,
+        exportConfig.height,
+        exportConfig.width,
+    ]);
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
@@ -77,24 +99,12 @@ export function Test() {
                 <Renderer
                     width={exportConfig.width}
                     height={exportConfig.height}
-                    style={{
-                        position: "absolute",
-                        width: exportConfig.width * centerPreviewToPreviewArea.scale,
-                        height: exportConfig.height * centerPreviewToPreviewArea.scale,
-                        left: centerPreviewToPreviewArea.x,
-                        top: centerPreviewToPreviewArea.y,
-                    }}
+                    style={centerPreviewToPreviewStyle}
                 />
 
                 <ControlPoints
-                    style={{
-                        position: "absolute",
-                        width: exportConfig.width * centerPreviewToPreviewArea.scale,
-                        height: exportConfig.height * centerPreviewToPreviewArea.scale,
-                        left: centerPreviewToPreviewArea.x,
-                        top: centerPreviewToPreviewArea.y,
-                    }}
-                ></ControlPoints>
+                    style={centerPreviewToPreviewStyle}
+                />
             </div>
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
