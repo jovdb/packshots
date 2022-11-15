@@ -6,12 +6,13 @@ import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./config/ActionBar";
-import { useLayers, useLayersActions } from "../src/layers/layers";
+import { useLayersActions } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 import { ControlPoints } from "./ControlPoints";
 import { Renderer } from "./Renderer";
+import { Layers } from "./Layers";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -53,9 +54,6 @@ export function useZoom(
 }
 
 export function Test() {
-    // Layers 
-    const layers = useLayers();
-
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
     const [exportConfig, setExportConfig] = useState(defaultExportConfig);
 
@@ -109,15 +107,7 @@ export function Test() {
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
                     <ActionBar />
-                    {
-                        // Like photoshop, top layer is also on top in panel
-                        layers.slice().reverse().map((layer, i) => {
-                            i = layers.length - 1 - i;
-                            return (
-                                <Layer key={i} layer={layer} layerIndex={i} />
-                            );
-                        })
-                    }
+                    <Layers />
                     <Accordion title="Export" isExpanded={isExportExpanded} setIsExpanded={setIsExportExpanded}>
                         <AccordionPanel>
                             <ExportConfig config={exportConfig} onChange={setExportConfig} />
