@@ -14,6 +14,7 @@ import { isPromise } from "../src/renderers/PlaneGlFxRenderer";
 import { IRenderer } from "../src/renderers/IRenderer";
 import { ControlPoints } from "./ControlPoints";
 import { useAllControlPoints, useControlPoints } from "../src/controlPoints/store";
+import { Renderer } from "./Renderer";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -35,56 +36,18 @@ export function useImageFromUrls(urls: string[]) {
 
 
 export function Test() {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    
     // Layers 
     const layers = useLayers();
 
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
     const [exportConfig, setExportConfig] = useState(defaultExportConfig);
 
-    // Create a render target 
-    const targetContext = canvasRef.current?.getContext("2d");
-
-    const renderers = useRenderers();
-
-    const configs = useConfigs();
-
-    const allControlPoints = useAllControlPoints();
-
-    // Rerender
-    useQuery(
-        ["loaded-renderers", renderers, configs, allControlPoints],
-        async () => {
-            const render = (loadedRenderers: IRenderer[]) => {
-                if (!targetContext) return [];
-                targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
-                loadedRenderers.forEach((renderer, i) => {
-                    const config = configs[i];
-                    const controlPoints = allControlPoints[i];
-                    renderer.render(targetContext, {
-                        ...config,
-                        controlPoints,
-                    });
-                });
-                return loadedRenderers;
-            }
-        
-            // Load
-            const loaders = renderers.map((r, i) => r.loadAsync?.(configs[i]));
-            const isAsync = loaders.some(isPromise);
-
-            if (!isAsync) return render(renderers);
-            return Promise.all(loaders).then(() => render(renderers));
-        },
-    );
-
     const [isExportExpanded, setIsExportExpanded] = useState(false);
 
     // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);
     const previewAreaRect = useElementSize(previewAreaRef);
-    const margin = 10;
+    const margin = 15;
 
     const centerPreviewToPreviewArea = useMemo(() => {
         return fitRectTransform({
@@ -100,9 +63,6 @@ export function Test() {
         });
     }, [exportConfig.height, exportConfig.width, previewAreaRect.height, previewAreaRect.width]);
 
-    const checkBoardSize = 25;
-    const checkBoardDark = "#e8e8e8";
-    const checkBoardLight = "#f8f8f8";
     return (
         <div style={{ display: "flex", height: "100vh" }}>
             <div
@@ -114,8 +74,7 @@ export function Test() {
                     height: "100%",
                 }}
             >
-                <canvas
-                    ref={canvasRef}
+                <Renderer
                     width={exportConfig.width}
                     height={exportConfig.height}
                     style={{
@@ -124,22 +83,9 @@ export function Test() {
                         height: exportConfig.height * centerPreviewToPreviewArea.scale,
                         left: centerPreviewToPreviewArea.x,
                         top: centerPreviewToPreviewArea.y,
-                        outline: "1px solid #ddd",
-                        boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
-                        // checkboard background
-                        backgroundImage: `
-                            linear-gradient(45deg, ${checkBoardDark} 25%, transparent 25%),
-                            linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
-                            linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
-                            linear-gradient(45deg, ${checkBoardDark} 25%, ${checkBoardLight} 25%)`,
-                        backgroundSize: `${checkBoardSize}px ${checkBoardSize}px`,
-                        backgroundPosition: `
-                            0 0,
-                            0 0,
-                            calc(${checkBoardSize}px * -0.5) calc(${checkBoardSize}px * -0.5),
-                            calc(${checkBoardSize}px * 0.5) calc(${checkBoardSize}px * 0.5)`,
                     }}
                 />
+
                 <ControlPoints
                     style={{
                         position: "absolute",
