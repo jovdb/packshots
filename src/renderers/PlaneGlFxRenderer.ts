@@ -2,16 +2,10 @@ import { IPlaneConfig2 } from "../../components/config/PlaneConfig2";
 import type { IRenderer } from "./IRenderer";
 import * as fx from "glfx";
 import { ImageCache } from "./ImageCache";
+import { isPromise } from "../../utils/promise";
 
 // Inspired by:
 // https://github.com/evanw/glfx.js/tree/master/src/core
-
-export function isPromise(promise: null | undefined): false;
-export function isPromise<T>(promise: Promise<T>): promise is Promise<T>;
-export function isPromise(promise: any): promise is Promise<unknown>;
-export function isPromise(promise: any): promise is Promise<unknown> {
-    return !!promise && typeof promise.then === "function";
-}
 
 export class PlaneGlFxRenderer implements IRenderer {
     private fxCanvas: any;

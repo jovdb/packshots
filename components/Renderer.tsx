@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { CSSProperties, useMemo, useRef, useState } from "react";
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { useAllControlPoints } from "../src/controlPoints/store";
 import { useConfigs, useRenderers } from "../src/layers/layers";
 import { IRenderer } from "../src/renderers/IRenderer";
-import { isPromise } from "../src/renderers/PlaneGlFxRenderer";
+import { isPromise } from "../utils/promise";
 
 export function Renderer({
     width,
