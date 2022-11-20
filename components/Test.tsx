@@ -13,6 +13,9 @@ import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 import { ControlPoints } from "./ControlPoints";
 import { Renderer } from "./Renderer";
 import { Layers } from "./Layers";
+import MaskIcon from "../icons/mask.svg";
+import EyeIcon from "../icons/eye.svg";
+import DelLayer from "../icons/del-layer.svg";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -126,7 +129,7 @@ export function Layer({
     layer: ILayerConfig,
     layerIndex: number,
 }) {
-    const { deleteLayer, updateConfig, updateUi } = useLayersActions();
+    const { deleteLayer, updateConfig, updateUi, updateLayer } = useLayersActions();
     const ConfigComponent = getConfigComponent(layer);
     return (
         <Accordion
@@ -135,7 +138,7 @@ export function Layer({
             setIsExpanded={(value) => {
                 updateUi(layerIndex, { isExpanded: value });
             }}
-            right={<>
+            left={<>
                 <AccordionButton
                     title="Show/Hide layer"
                     style={{ opacity: (layer.ui?.isVisible ?? true) ? 1 : 0.5 }}
@@ -143,16 +146,31 @@ export function Layer({
                         const isVisible = layer.ui?.isVisible ?? true;
                         updateUi(layerIndex, { isVisible: !isVisible });
                     }}>
-                    👁
+                    <EyeIcon width={16} />
                 </AccordionButton>
                 <AccordionButton
+                    title="Enable/Disable Mask"
+                    style={{ opacity: (layer.mask ?? false) ? 1 : 0.5 }}
+                    onClick={() => {
+                        const hasMask = !!layer.mask; // later add isEnabled flag so we don't lose the configuration
+                        updateLayer(layerIndex, {
+                            ...layer,
+                            mask: hasMask ? undefined : {},
+                        });
+                    }}>
+                    <MaskIcon width={16} />
+                </AccordionButton>
+            </>}
+            right={<>
+                <AccordionButton
                     title="Remove layer"
+                    style={{ paddingRight: 10}}
                     onClick={() => {
                         const shouldRemove = confirm("Are you sure you want to remove this layer?");
                         if (shouldRemove) deleteLayer(layerIndex);
                     }}
                 >
-                    ✕
+                    <DelLayer width={20} />
                 </AccordionButton>
             </>}
         >

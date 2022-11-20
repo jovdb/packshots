@@ -151,6 +151,7 @@ export function useLayersActions() {
     const addLayer = useLayersConfig(s => s.addLayer);
     const setLayers = useLayersConfig(s => s.setLayers);
     const deleteLayer = useLayersConfig(s => s.deleteLayer);
+    const updateLayer = useLayersConfig(s => s.updateLayer);
     const updateConfig = useLayersConfig(s => s.updateConfig);
     const updateUi = useLayersConfig(s => s.updateUi);
 
@@ -178,11 +179,12 @@ export function useLayersActions() {
 
     return useMemo(() => ({
         addLayer: add,
-        replaceLayer: replace,
+        replaceLayers: replace,
         deleteLayer: delete2,
+        updateLayer,
         updateConfig,
         updateUi,
-    }), [add, replace, delete2, updateConfig, updateUi]);
+    }), [add, replace, delete2, updateLayer, updateConfig, updateUi]);
 }
 
 

@@ -4,11 +4,12 @@ import { useLayers, useLayersActions } from "../../src/layers/layers";
 import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
 import { flowerPotLayers } from "../samples/flowerpot";
 import { photobookLayers } from "../samples/photobook";
+import AddLayer from "../../icons/add-layer.svg";
 
 export function ActionBar() {
     const [action, setAction] = useState("");
     const layers = useLayers();
-    const { addLayer, replaceLayer } = useLayersActions()
+    const { addLayer, replaceLayers: replaceLayer } = useLayersActions()
 
     const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
 
@@ -17,7 +18,7 @@ export function ActionBar() {
             isExpanded={!!action}
             title=""
             right={
-                <AccordionButton onClick={() => setAction(action === "add" ? "" : "add")} title="Add layer">＋ Add</AccordionButton>
+                <AccordionButton onClick={() => setAction(action === "add" ? "" : "add")} title="Add layer"><AddLayer width={20} style={{ marginRight: 5}} /></AccordionButton>
             }
         >
             {action === "add" && (<>

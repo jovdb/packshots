@@ -1,4 +1,6 @@
 import React, { PropsWithChildren, useRef, useState } from "react";
+import ArrowLeft from "../icons/dbl-arrow-left.svg";
+import ArrowRight from "../icons/dbl-arrow-right.svg";
 
 export function ConfigPanel({
     isOpen,
@@ -32,18 +34,20 @@ export function ConfigPanel({
                     position: "absolute",
                     top: 0,
                     transform: "translate(-100%, 10px)",
+                    paddingTop: 4,
                     height: 32,
-                    width: 32,
+                    width: 30,
                     borderTopLeftRadius: 8,
                     borderBottomLeftRadius: 8,
                     cursor: "pointer",
                     background: "#888",
                     color: "rgb(238, 238, 238)",
+                    fill: "currentcolor",
                     border: "none",
                     //boxShadow: "0 0 3px rgba(0 0 0, 0.2)",
                 }}
             >
-                {isOpen ? ">>" : "<<"}
+                {isOpen ? <ArrowRight width={16} />: <ArrowLeft width={16} />}
             </button>
         </div>
     );

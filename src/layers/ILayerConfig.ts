@@ -7,5 +7,6 @@ export interface ILayerConfig<TConfig = {}> {
     ui?: {
         isExpanded?: boolean;
         isVisible?: boolean;
-    }
+    };
+    mask?: {};
 }
