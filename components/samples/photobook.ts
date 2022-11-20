@@ -22,10 +22,10 @@ const spread: ILayerConfig<IPlaneConfig2> = {
             imageUrl: "./products/Book/Spread.jpg"
         },
         controlPoints: [
-            [-0.8, -0.8],
-            [0.8, -0.8],
-            [-0.8, 0.8],
-            [0.8, 0.8],
+            [-0.414, -0.499],
+            [0.612, -0.37],
+            [0.614, 0.68],
+            [-0.414, 0.412],
         ],
     },
 };

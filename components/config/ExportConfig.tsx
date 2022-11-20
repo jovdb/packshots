@@ -7,8 +7,8 @@ export interface IExportConfig {
 }
 
 export const defaultExportConfig: IExportConfig = {
-    width: 700,
-    height: 700,
+    width: 900,
+    height: 900,
     isTransparent: true,
 };
 
