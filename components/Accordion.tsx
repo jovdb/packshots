@@ -1,5 +1,4 @@
-import { ButtonHTMLAttributes, Children, CSSProperties, PropsWithChildren, useState } from "react";
-import UpIcon from "../icons/up.svg";
+import { ButtonHTMLAttributes, CSSProperties, PropsWithChildren } from "react";
 import DownIcon from "../icons/down.svg";
 
 export function Accordion({
@@ -24,7 +23,6 @@ export function Accordion({
             <AccordionBar
                 style={{
                     padding: "0 0 0 10px",
-                    minHeight: 33,
                     fontWeight: "bold",
                     cursor: isExpandable ? "pointer" : undefined,
                     userSelect: "none",
@@ -35,7 +33,7 @@ export function Accordion({
                 onClick={() => { isExpandable && setIsExpanded?.(!isExpanded); }}
             >
                 <span style={{ display: isExpandable ? "inline-block" : "none", width: "1em", fill: "currentcolor" }}>
-                    <DownIcon width={10} style={{ transform: `rotateZ(${isExpanded ? "-180deg" : "0" })`, transitionDuration: "0.3s" }}/>
+                    <DownIcon width={10} style={{ transform: `rotateZ(${isExpanded ? "-180deg" : "0"})`, transitionDuration: "0.3s" }} />
                 </span>
                 <span style={{ display: "inline-flex" }}>{left}</span>
                 <span style={{ flex: "1", padding: "0 5px" }}>{title}</span>
@@ -51,68 +49,78 @@ export function Accordion({
 }
 
 
-export const AccordionButton = (props: ButtonHTMLAttributes<HTMLButtonElement>) => {
-    const { children, ...buttonProps } = props;
-    const { style = {}, onClick, ...restButtonProps } = buttonProps;
+export const AccordionButton = (props: { isActive?: boolean } & ButtonHTMLAttributes<HTMLButtonElement>) => {   
+    const { children, isActive, onClick, ...rest } = props;
     return (
-        <button
-            style={{
-                background: "transparent",
-                color: "#eee",
-                fill: "currentColor",
-                padding: "5px 5px",
-                // fontWeight: "bold",
-                borderTop: "1px solid #444",
-                border: "none",
-                // boxShadow: "0 5px 5px rgba(0, 0, 0, 0.2)",
-                textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)",
-                cursor: "pointer",
-                userSelect: "none",
-                display: "flex",
-                fontWeight: "bold",
-                ...style,
-            }}
+        <button className={`accordion-button ${isActive ? "" : "accordion-button--off"}`}
             onClick={(e) => {
                 e.stopPropagation();
                 onClick?.(e);
             }}
-            {...restButtonProps}
-        >{children}</button>
+            {...rest}
+        >
+            <style jsx>{`
+                .accordion-button {
+                    background: transparent;
+                    fill: currentColor;
+                    padding: 5px 5px;
+                    border-top: 1px solid #444;
+                    border: none;
+                    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+                    cursor: pointer;
+                    user-select: "none";
+                    display: flex;
+                    font-weight: bold;
+                    color: #eee;
+                }
+                .accordion-button--off {
+                    opacity: 0.5;
+                }
+                .accordion-button:hover {
+                    color: #fff;
+                }
+            `}</style>
+            {children}</button>
     );
 }
 
 
 export const AccordionPanel = (props: ButtonHTMLAttributes<HTMLButtonElement>) => {
+    const { children, ...rest } = props;
     return (
         <div
-            style={{
-                padding: 5,
-                boxShadow: "0 5px 8px rgba(0, 0, 0, 0.2) inset",
-                borderBottom: "1px solid #ccc",
-                backgroundColor: "##e7e7e7",
-                ...props.style || {},
-            }}
+            className="accordion-panel"
+            {...rest as any}
         >
+            <style jsx>{`
+                .accordion-panel {
+                    padding: 5ps;
+                    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.2) inset;
+                    border-bottom: 1px solid #ccc;
+                    background-color:"##e7e7e7;
+                }
+            `}</style>
             {props.children}
         </div>
     );
 }
 export const AccordionBar = (props: ButtonHTMLAttributes<HTMLButtonElement>) => {
-    4
-    const { children, style, ...rest } = props;
+    const { children, ...rest } = props;
     return (
         <div
-            style={{
-                background: "#888",
-                color: "#eee",
-                minHeight: 33,
-                borderTop: "1px solid #444",
-                boxShadow: "0 5px 5px rgba(0, 0, 0, 0.1) inset",
-                textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)",
-                ...style
-            }}
+            className="accordion-bar"
             {...rest as any}
         >
+            <style jsx>{`
+                .accordion-bar {
+                    background: #888;
+                    color: #eee;
+                    min-height: 33px;
+                    border-top: 1px solid #444;
+                    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1) inset;
+                    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+                }
+            `}</style>
             {children}
         </div>
     );

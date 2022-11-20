@@ -141,7 +141,7 @@ export function Layer({
             left={<>
                 <AccordionButton
                     title="Show/Hide layer"
-                    style={{ opacity: (layer.ui?.isVisible ?? true) ? 1 : 0.5 }}
+                    isActive={layer.ui?.isVisible ?? true}
                     onClick={() => {
                         const isVisible = layer.ui?.isVisible ?? true;
                         updateUi(layerIndex, { isVisible: !isVisible });
@@ -150,7 +150,7 @@ export function Layer({
                 </AccordionButton>
                 <AccordionButton
                     title="Enable/Disable Mask"
-                    style={{ opacity: (layer.mask ?? false) ? 1 : 0.5 }}
+                    isActive={!!layer.mask}
                     onClick={() => {
                         const hasMask = !!layer.mask; // later add isEnabled flag so we don't lose the configuration
                         updateLayer(layerIndex, {
