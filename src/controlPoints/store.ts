@@ -3,7 +3,9 @@ import type { ControlPoint } from "./IControlPoints";
 
 export interface IControlPointsStore {
     controlPoints: (ControlPoint[] | undefined)[];
+    draggingIndex: number;
 
+    setDraggingControlPointsIndex(draggingIndex: number): void;
     addControlPoints(controlPoints: ControlPoint[] | undefined, insertIndex?: number): number;
     deleteControlPoints(index: number): void;
     updateControlPoints(index: number, controlPoints: ControlPoint[] | undefined): void;
@@ -12,6 +14,13 @@ export interface IControlPointsStore {
 
 const useControlPointsStore = create<IControlPointsStore>((set) => ({
     controlPoints: [],
+    draggingIndex: -1,
+
+    setDraggingControlPointsIndex(draggingIndex) {
+        set({
+            draggingIndex,
+        });
+    },
 
     addControlPoints(controlPoints, insertIndex) {
         set((state) => {
@@ -60,6 +69,10 @@ export function useAllControlPoints() {
     return useControlPointsStore(s => s.controlPoints);
 }
 
+export function useDraggingControlPointsIndex() {
+    return useControlPointsStore(s => s.draggingIndex);
+}
+
 export function useControlPoints(index: number) {
     return useControlPointsStore(s => s.controlPoints[index]);
 }
@@ -67,6 +80,6 @@ export function useControlPoints(index: number) {
 // TODO, only return functions
 export type Functions<T> = { [K in keyof T]: T[K] extends (...args: any[]) => any ? T[K] : never }
 
-export function useControlPointsActions(): Functions<IControlPointsStore> {
-    return useControlPointsStore((s: any) => s, () => true) as any;
+export function useControlPointsActions() {
+    return useControlPointsStore.getState() as Functions<IControlPointsStore>;
 }

@@ -6,6 +6,7 @@ export function usePointsSets(
     ref: React.RefObject<HTMLDivElement>,
     layersPoints: ([number, number][] | undefined)[] | undefined,
     setPoints: (index: number, value: [x: number, y: number][], isLast: boolean) => unknown,
+    setDraggingIndex: (index: number) => void,
 ) {
     const dragingPointIndexRef = useRef<{
         layerIndex: number;
@@ -47,6 +48,9 @@ export function usePointsSets(
                 layerIndex: minLayerIndex,
                 pointIndex: minPointIndex,
             };
+            setDraggingIndex(state.last ? -1 : minLayerIndex);
+        } else if (state.last) {
+            setDraggingIndex(-1);
         }
 
         const { layerIndex, pointIndex } = dragingPointIndexRef.current;

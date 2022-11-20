@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
-import { useAllControlPoints } from "../src/controlPoints/store";
+import { useAllControlPoints, useDraggingControlPointsIndex } from "../src/controlPoints/store";
 import { useConfigs, useRenderers } from "../src/layers/layers";
 import { IRenderer } from "../src/renderers/IRenderer";
 import { isPromise } from "../utils/promise";
@@ -26,10 +26,11 @@ export function Renderer({
     const renderers = useRenderers();
     const configs = useConfigs();
     const allControlPoints = useAllControlPoints();
+    const draggingIndex = useDraggingControlPointsIndex();
 
     // Rerender
     useQuery(
-        ["loaded-renderers", renderers, configs, allControlPoints],
+        ["loaded-renderers", renderers, configs, allControlPoints, draggingIndex],
         async () => {
             const render = (loadedRenderers: IRenderer[]) => {
                 const targetContext = targetContextRef.current;
@@ -38,10 +39,15 @@ export function Renderer({
                 loadedRenderers.forEach((renderer, i) => {
                     const config = configs[i];
                     const controlPoints = allControlPoints[i];
+                    const isDragging = draggingIndex === i;
+                    targetContext.globalAlpha = isDragging ? 0.5 : 1;
+
                     renderer.render(targetContext, {
                         ...config,
                         controlPoints,
-                    });
+                    }, isDragging);
+
+                    targetContext.globalAlpha = 1;
                 });
                 return loadedRenderers;
             }

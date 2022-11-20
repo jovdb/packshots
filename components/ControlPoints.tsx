@@ -11,7 +11,7 @@ export function ControlPoints({
 
     const divRef = useRef<HTMLDivElement>(null);
     const allControlPoints = useAllControlPoints();
-    const { updateControlPoints: updateControlPoints } = useControlPointsActions();
+    const { updateControlPoints, setDraggingControlPointsIndex } = useControlPointsActions();
     const elementRect = useElementSize(divRef);
 
     // Convert controlPoints to screen coordinates
@@ -31,7 +31,7 @@ export function ControlPoints({
     const controlPointsDraggingHandles = usePointsSets(
         divRef,
         controlPointsInScreenCoordinates,
-        (layerIndex, newPointsInScreenCoordinates) => {
+        (layerIndex, newPointsInScreenCoordinates, isLast) => {
             const newPointsInTargetCoordinates = newPointsInScreenCoordinates
                 .map(([x, y]) => [
                     x / elementRect.width * 2 - 1,
@@ -39,7 +39,8 @@ export function ControlPoints({
                 ] as [x: number, y: number])
 
             updateControlPoints(layerIndex, newPointsInTargetCoordinates);
-        }
+        },
+        setDraggingControlPointsIndex,
     );
 
     return (
