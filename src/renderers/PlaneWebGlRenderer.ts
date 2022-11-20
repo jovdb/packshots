@@ -120,13 +120,12 @@ export class PlaneWebGlRenderer implements IRenderer {
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         // Calculate matrix
-        const matrix = m4.identity();
-        m4.ortho(0, targetWidth, targetHeight, 0, -1, 1, matrix); // Convert from pixels to clip space
+        const matrix = m4.ortho(0, targetWidth, targetHeight, 0, -1, 1); // Convert from pixels to clip space
 
         // Get perspective matrix
         const projectionMatrix = this.getProjectionMatrixFromControlPoints(config.controlPoints, targetWidth, targetHeight);
         if (projectionMatrix) {
-            // console.log(matrixToString(matrix2, "matrix2s"));
+            // console.log(matrixToString(matrix2, "matrix2"));
             m4.multiply(matrix, projectionMatrix, matrix);
         } else {
             m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
