@@ -42,7 +42,7 @@ export class PlaneWebGlRenderer implements IRenderer {
         `;
 
         const fragmentShader = `
-            precision mediump float;
+            precision highp float;
 
             varying vec2 texcoord;
             uniform sampler2D texture;
@@ -123,14 +123,14 @@ export class PlaneWebGlRenderer implements IRenderer {
         const matrix = m4.identity();
         m4.ortho(0, targetWidth, targetHeight, 0, -1, 1, matrix); // Convert from pixels to clip space
 
-        // Apply perspective
-        const matrix2 = this.getControlPointsMatrix(config.controlPoints, targetWidth, targetHeight);
-        if (matrix2) {
-            console.log(matrixToString(matrix2, "matrix2s"));
-            m4.multiply(matrix, matrix2, matrix);
+        // Get perspective matrix
+        const projectionMatrix = this.getProjectionMatrixFromControlPoints(config.controlPoints, targetWidth, targetHeight);
+        if (projectionMatrix) {
+            // console.log(matrixToString(matrix2, "matrix2s"));
+            m4.multiply(matrix, projectionMatrix, matrix);
+        } else {
+            m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
         }
-
-        // m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
         this.uniforms.matrix = matrix;
 
         // Render
@@ -146,8 +146,12 @@ export class PlaneWebGlRenderer implements IRenderer {
     }
 
 
-    /** Get matrix to convert controlPoints (range: -1 to 1) to normaized matrix (range: 0 to 1) */
-    public getControlPointsMatrix(
+    /**
+     * Get matrix to convert controlPoints (range: -1 to 1) to a matrix (range: 0 to canvas size)
+     * TODO:  I would like to use control points in (0-1 range) to normalized matrix (range: 0 to 1)
+     * At this way the default is a identity matrix and independent of the LOD used for the image
+     */
+    public getProjectionMatrixFromControlPoints(
         controlPoints: ControlPoint[] | undefined,
         canvasWidth: number,
         canvasHeight: number,
@@ -156,6 +160,7 @@ export class PlaneWebGlRenderer implements IRenderer {
     ) {
         if (!controlPoints || !canvasWidth || !canvasHeight) return twgl.m4.identity();
 
+        /** Convert control point (range [-1,1]) to image range (0-image size) */
         function getCanvasControlPoint(x: number, y: number) {
             return [
                 canvasWidth / 2 + x * packshotWidth / 2,
@@ -171,40 +176,35 @@ export class PlaneWebGlRenderer implements IRenderer {
             p3: ControlPoint,
         ): number[] | undefined {
             /*
-                
-                p0       p1
-                +-------+
-                |       |
-                |       |
-                +-------+
-                p3       p2
+            p0       p1
+            +-------+
+            |       |
+            |       |
+            +-------+
+            p3       p2
 
-                */
+            https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript/339033#339033
+        
+            See also
+            https://math.stackexchange.com/questions/62936/transforming-2d-outline-into-3d-plane/63100#63100
+            https://math.stackexchange.com/questions/185708/problem-in-deducing-perspective-projection-matrix/186254#186254
+            https://en.wikipedia.org/wiki/Homography#Mathematical_definition
 
-            // https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript/339033#339033
-            //
-            // TODO: See also
-            // https://math.stackexchange.com/questions/62936/transforming-2d-outline-into-3d-plane/63100#63100
-            // https://math.stackexchange.com/questions/185708/problem-in-deducing-perspective-projection-matrix/186254#186254
-            // https://en.wikipedia.org/wiki/Homography#Mathematical_definition
+            q3       q1
+            +-------+
+            |       |
+            |       |
+            +-------+
+            q2       q4
+           */
 
+            // q: reordered points
+            const q1 = p1;
+            const q2 = p3;
+            const q3 = p0;
+            const q4 = p2;
 
-            /*
-                q3       q1
-                +-------+
-                |       |
-                |       |
-                +-------+
-                q2       q4
-                */
-
-            // TODO: Copy needed?
-            const q1 = [...p1];
-            const q2 = [...p3];
-            const q3 = [...p0];
-            const q4 = [...p2];
-
-            // WebGL matrixes have horizontal columns
+            // Remark: WebGL matrices have horizontal columns!
             const mat = [
                 q1[0], q2[0], q3[0], 0,
                 q1[1], q2[1], q3[1], 0,
@@ -213,13 +213,14 @@ export class PlaneWebGlRenderer implements IRenderer {
             ];
 
             const inv = twgl.m4.inverse(mat);
-            const vector = twgl.v3.create(q4[0], q4[1], 1);
+            const normalVector = twgl.v3.create(q4[0], q4[1], 1);
 
-            const scales = transformNormal(inv, vector);
-            const s1 = scales[0]; 
-            const s2 = scales[1]; 
-            const s3 = scales[2]; 
+            const scales = transformNormal(inv, normalVector); // Remark: TWGL does invert for use
+            const s1 = scales[0];
+            const s2 = scales[1];
+            const s3 = scales[2];
 
+            // TODO: Returned as 4x4 Matrix, OK?
             return [
                 q1[0] * s1, q1[1] * s1, s1, 0,
                 q2[0] * s2, q2[1] * s2, s2, 0,
@@ -228,26 +229,24 @@ export class PlaneWebGlRenderer implements IRenderer {
             ];
         }
 
-        const dst0 = getCanvasControlPoint(...controlPoints[0]);
-        const dst1 = getCanvasControlPoint(...controlPoints[1]);
-        const dst2 = getCanvasControlPoint(...controlPoints[2]);
-        const dst3 = getCanvasControlPoint(...controlPoints[3]);
-
         const src0 = [0, 0] as ControlPoint;
         const src1 = [1, 0] as ControlPoint;
         const src2 = [1, 1] as ControlPoint;
         const src3 = [0, 1] as ControlPoint;
 
+        const dst0 = getCanvasControlPoint(...controlPoints[0]);
+        const dst1 = getCanvasControlPoint(...controlPoints[1]);
+        const dst2 = getCanvasControlPoint(...controlPoints[2]);
+        const dst3 = getCanvasControlPoint(...controlPoints[3]);
+
         const matrixA = getMapping(src0, src1, src2, src3);
         const matrixB = getMapping(dst0, dst1, dst2, dst3);
         if (!matrixA || !matrixB) return null;
 
-        const invA = twgl.m4.inverse(matrixA);
-        console.log(matrixToString(invA, "invA"));
-        console.log(matrixToString(matrixB, "matrixB"));
-        //const matrixC = twgl.m4.multiply(invA, matrixB);
-        const matrixC = twgl.m4.multiply(matrixB, invA);
-        console.log(matrixToString(matrixC, "matrixC"));
+        // const invA = twgl.m4.inverse(matrixA);
+        // const matrixC = twgl.m4.multiply(invA, matrixB);
+
+        const matrixC = twgl.m4.multiply(matrixB, matrixA);
 
         return matrixC;
     }
@@ -282,36 +281,28 @@ export class PlaneWebGlRenderer implements IRenderer {
  * @return {module:twgl/v3.Vec3} The transformed normal.
  */
 function transformNormal(m: twgl.m4.Mat4, v: twgl.v3.Vec3, dst?: twgl.v3.Vec3) {
-    dst = dst || twgl.v3.create();
-
-    // https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Vector3.cs,b1c5f8d8b60c6ccc
-    dst[0] = v[0] * m[0] + v[1] * m[1] + v[2] * m[2];
-    dst[1] = v[0] * m[4] + v[1] * m[5] + v[2] * m[6];
-    dst[2] = v[0] * m[8] + v[1] * m[9] + v[2] * m[10];
-
-    // dst[0] = v[0] * m[0] + v[1] * m[4] + v[2] * m[8];
-    // dst[1] = v[0] * m[1] + v[1] * m[5] + v[2] * m[9];
-    // dst[2] = v[0] * m[2] + v[1] * m[6] + v[2] * m[10];
-
-    // dst[0] = v[0] * m[11] + v[1] * m[21] + v[2] * m[31];
-    // dst[1] = v[0] * m[12] + v[1] * m[22] + v[2] * m[32];
-    // dst[2] = v[0] * m[13] + v[1] * m[23] + v[2] * m[33];
-
-    /*
-    const mi = twgl.m4.inverse(m);
-    const v0 = v[0];
-    const v1 = v[1];
-    const v2 = v[2];
-
-    dst[0] = v0 * mi[0 * 4 + 0] + v1 * mi[0 * 4 + 1] + v2 * mi[0 * 4 + 2];
-    dst[1] = v0 * mi[1 * 4 + 0] + v1 * mi[1 * 4 + 1] + v2 * mi[1 * 4 + 2];
-    dst[2] = v0 * mi[2 * 4 + 0] + v1 * mi[2 * 4 + 1] + v2 * mi[2 * 4 + 2];
-    */
-
-    return dst;
+    // Remark: TWGL.transformNormal implementation didn't work, I seems to do an invert for use?
+    // Used implementation from Skia and transposed matrix
+    // TWGL version: https://github.com/greggman/twgl.js/blob/master/src/m4.js#L1260
+    // CS version: https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Vector3.cs,b1c5f8d8b60c6ccc
+    return [
+        v[0] * m[0] + v[1] * m[1] + v[2] * m[2],
+        v[0] * m[4] + v[1] * m[5] + v[2] * m[6],
+        v[0] * m[8] + v[1] * m[9] + v[2] * m[10],
+    ];
 }
 
-/** Draw the matrix in Math form (translate n the last column) */
+/**
+ * The matrix as string in Math form instead of WebGL form (transposed)
+ * Sample output:
+ * ┌─                         ─┐
+ * │  0.00, -0.00, -0.00, 0.00 │
+ * │  0.00,  0.00, -0.00, 0.00 │
+ * │ -0.57, -0.47,  2.04, 0.00 │
+ * │  0.00,  0.00,  0.00, 1.00 │
+ * └─                         ─┘
+ */
+
 function matrixToString(m: twgl.m4.Mat4 | null | undefined, name = "") {
 
     if (!m) return `${name ? `${name}: ` : ""}${m}`;
