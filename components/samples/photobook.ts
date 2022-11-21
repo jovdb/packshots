@@ -1,6 +1,5 @@
 import { ILayerConfig } from "../../src/layers/ILayerConfig";
 import { IImageConfig } from "../config/ImageConfig";
-import { IPlaneConfig } from "../config/PlaneConfig";
 import { IPlaneConfig2 } from "../config/PlaneConfig2";
 
 const background: ILayerConfig<IImageConfig> = {
@@ -15,11 +14,11 @@ const background: ILayerConfig<IImageConfig> = {
 const spread: ILayerConfig<IPlaneConfig2> = {
     name: "Spread",
     type: "plane3",
-    
+
     config: {
         image: {
             name: "Spread.jpg",
-            imageUrl: "./products/Book/Spread.jpg"
+            imageUrl: "./products/Book/Spread.jpg",
         },
         controlPoints: [
             [-0.414, -0.499],
@@ -27,6 +26,11 @@ const spread: ILayerConfig<IPlaneConfig2> = {
             [0.614, 0.68],
             [-0.414, 0.412],
         ],
+    },
+
+    mask: {
+        name: "Mask.jpg",
+        imageUrl: "./products/Book/Mask.png",
     },
 };
 

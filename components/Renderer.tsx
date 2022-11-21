@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { checkBoardStyle } from "../src/checkboard";
 import { useAllControlPoints, useDraggingControlPointsIndex } from "../src/controlPoints/store";
 import { useConfigs, useRenderers } from "../src/layers/layers";
 import { IRenderer } from "../src/renderers/IRenderer";
@@ -71,17 +72,7 @@ export function Renderer({
                 outline: "1px solid #ddd",
                 boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
                 // checkboard background
-                backgroundImage: `
-                            linear-gradient(45deg, ${checkBoardDark} 25%, transparent 25%),
-                            linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
-                            linear-gradient(45deg, transparent 75%, ${checkBoardDark} 75%),
-                            linear-gradient(45deg, ${checkBoardDark} 25%, ${checkBoardLight} 25%)`,
-                backgroundSize: `${checkBoardSize}px ${checkBoardSize}px`,
-                backgroundPosition: `
-                            0 0,
-                            0 0,
-                            calc(${checkBoardSize}px * -0.5) calc(${checkBoardSize}px * -0.5),
-                            calc(${checkBoardSize}px * 0.5) calc(${checkBoardSize}px * 0.5)`,
+                ...checkBoardStyle,
             }}
         />
     )

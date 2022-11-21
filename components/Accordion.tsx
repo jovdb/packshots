@@ -50,7 +50,7 @@ export function Accordion({
 
 
 export const AccordionButton = (props: { isActive?: boolean } & ButtonHTMLAttributes<HTMLButtonElement>) => {   
-    const { children, isActive, onClick, ...rest } = props;
+    const { children, isActive = true, onClick, ...rest } = props;
     return (
         <button className={`accordion-button ${isActive ? "" : "accordion-button--off"}`}
             onClick={(e) => {
@@ -94,7 +94,7 @@ export const AccordionPanel = (props: ButtonHTMLAttributes<HTMLButtonElement>) =
         >
             <style jsx>{`
                 .accordion-panel {
-                    padding: 5ps;
+                    padding: 5px;
                     box-shadow: 0 5px 8px rgba(0, 0, 0, 0.2) inset;
                     border-bottom: 1px solid #ccc;
                     background-color:"##e7e7e7;

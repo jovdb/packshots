@@ -1,3 +1,4 @@
+import { IMaskConfig } from "../../components/config/MaskConfig";
 import { IRenderer } from "../renderers/IRenderer";
 
 export interface ILayerConfig<TConfig = {}> {
@@ -8,5 +9,5 @@ export interface ILayerConfig<TConfig = {}> {
         isExpanded?: boolean;
         isVisible?: boolean;
     };
-    mask?: {};
+    mask?: IMaskConfig;
 }

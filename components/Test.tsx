@@ -16,6 +16,7 @@ import { Layers } from "./Layers";
 import MaskIcon from "../icons/mask.svg";
 import EyeIcon from "../icons/eye.svg";
 import DelLayer from "../icons/del-layer.svg";
+import { IMaskConfig, MaskConfig } from "./config/MaskConfig";
 
 export function useImageDataFromUrl(url: string) {
     return useQuery(["imageData", url], () => url ? getImageDataAsync(url) : null, {
@@ -148,23 +149,23 @@ export function Layer({
                     }}>
                     <EyeIcon width={16} />
                 </AccordionButton>
-                <AccordionButton
-                    title="Enable/Disable Mask"
-                    isActive={!!layer.mask}
-                    onClick={() => {
-                        const hasMask = !!layer.mask; // later add isEnabled flag so we don't lose the configuration
-                        updateLayer(layerIndex, {
-                            ...layer,
-                            mask: hasMask ? undefined : {},
-                        });
-                    }}>
-                    <MaskIcon width={16} />
-                </AccordionButton>
+                {layer.mask && (
+                    <AccordionButton
+                        title="Enable/Disable Mask"
+                        isActive={!layer.mask.isDisabled}
+                        onClick={() => {
+                            const mask = layer.mask || {}; 
+                            mask.isDisabled = !(mask?.isDisabled ?? true);
+                            updateLayer(layerIndex, { ...layer, mask });
+                        }}>
+                        <MaskIcon width={16} />
+                    </AccordionButton>
+                )}
             </>}
             right={<>
                 <AccordionButton
                     title="Remove layer"
-                    style={{ paddingRight: 10}}
+                    style={{ paddingRight: 10 }}
                     onClick={() => {
                         const shouldRemove = confirm("Are you sure you want to remove this layer?");
                         if (shouldRemove) deleteLayer(layerIndex);
@@ -175,14 +176,39 @@ export function Layer({
             </>}
         >
             <AccordionPanel>
-                {ConfigComponent && (
+                {ConfigComponent && (<>
                     <ConfigComponent
                         config={layer.config}
                         onChange={(config) => {
                             updateConfig(layerIndex, config);
                         }}
                     />
-                )}
+                    {layer.mask && (
+                        <fieldset>
+                            <legend style={{ userSelect: "none" }}>
+                                <input
+                                    type="checkbox"
+                                    id={`mask_${layerIndex}`}
+                                    checked={!layer.mask.isDisabled}
+                                    style={{ transform: "translate(0, 2px)" }}
+                                    onChange={(e) => {
+                                        const isChecked = e.target.checked;
+                                        const mask = layer.mask || {}; 
+                                        mask.isDisabled = !isChecked;
+                                        updateLayer(layerIndex, { ...layer, mask });
+                                    }}
+                                />
+                                <label htmlFor={`mask_${layerIndex}`} style={{ cursor: "pointer" }}>Mask</label>
+                            </legend>
+                            <MaskConfig
+                                config={layer.mask}
+                                onChange={(mask) => {
+                                    updateLayer(layerIndex, { ...layer, mask });
+                                }}
+                            />
+                        </fieldset>
+                    )}
+                </>)}
             </AccordionPanel>
         </Accordion>
     );
