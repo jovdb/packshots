@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
+import { checkBoardStyle } from "../../src/checkboard";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
@@ -101,7 +102,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                     )}
                     <tr>
                         <td colSpan={2} style={{ textAlign: "center" }}>
-                            {config?.imageUrl && <img alt="preview" src={config.imageUrl} style={{ width: "100%", height: "auto", maxWidth: 200, maxHeight: 200, border: "1px solid #aaa" }} />}
+                            {config?.imageUrl && <img alt="preview" src={config.imageUrl} style={{ width: "100%", height: "auto", maxWidth: 200, maxHeight: 200, border: "1px solid #aaa", ...checkBoardStyle }} />}
                         </td>
                     </tr>
                 </tbody>
