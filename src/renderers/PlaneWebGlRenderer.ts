@@ -219,12 +219,11 @@ export class PlaneWebGlRenderer implements IRenderer {
             const s2 = scales[1];
             const s3 = scales[2];
 
-            // TODO: Returned as 4x4 Matrix, OK?
             return [
-                q1[0] * s1, q1[1] * s1, s1, 0,
-                q2[0] * s2, q2[1] * s2, s2, 0,
-                q3[0] * s3, q3[1] * s3, s3, 0,
-                0, 0, 0, 1,
+                q1[0] * s1, q1[1] * s1, 0, s1,
+                q2[0] * s2, q2[1] * s2, 0, s2,
+                0, 0, 1, 0,
+                q3[0] * s3, q3[1] * s3, 0, s3,
             ];
         }
 
