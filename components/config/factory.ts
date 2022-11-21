@@ -16,8 +16,6 @@ export function getConfigComponent(
     switch (layer.type) {
         case "image": return ImageConfig;
         case "plane": return PlaneConfig;
-        case "plane2": return PlaneConfig2;
-        case "plane3": return PlaneConfig2;
         case "cone": return ConeConfig;
         default: throw new Error(`Unknown config type: ${layer.type}`);
     }

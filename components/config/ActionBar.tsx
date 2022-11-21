@@ -58,20 +58,6 @@ export function ActionBar() {
                             // Add below overlay
                             const index = layers.findIndex(l => l.name === "Overlay");
                             const layer: ILayerConfig = {
-                                name: "Spread 1 on a plane2",
-                                type: "plane2",
-                                config: {},
-                                ui: {
-                                    isExpanded: true,
-                                }
-                            }
-                            addLayer(layer, index < 0 ? undefined : index);
-                            setAction(""); // close panel
-                        }}><a href="#">Spread on a rectangle2</a></li>
-                        <li style={style} onClick={() => {
-                            // Add below overlay
-                            const index = layers.findIndex(l => l.name === "Overlay");
-                            const layer: ILayerConfig = {
                                 name: "Spread 1 on a cone",
                                 type: "cone",
                                 config: {},

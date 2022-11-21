@@ -4,6 +4,9 @@ import { useControlPointsActions } from "../controlPoints/store";
 import { useEvent } from "../hooks/useEvent";
 import { createRenderer } from "../renderers/factory";
 import { IRenderer } from "../renderers/IRenderer";
+import { MaskRenderer } from "../renderers/MaskRendering";
+import { TreeList, TreeNode } from "../Tree";
+import { ILayer } from "./ILayer";
 import { ILayerConfig } from "./ILayerConfig";
 
 
@@ -38,6 +41,13 @@ Layers
     └───────────────────────┘
 */
 
+function createRendererNode(layer: ILayerConfig): TreeNode<IRenderer> {
+    const renderer = new TreeNode(createRenderer(layer.type));
+    if (!layer.mask) return renderer;
+    const maskRenderer = createRenderer("mask");
+    return new TreeNode(maskRenderer, [renderer]);
+}
+
 const useLayersConfig = create<{
     layers: ILayerConfig[];
     renderers: IRenderer[];
@@ -47,15 +57,19 @@ const useLayersConfig = create<{
     updateLayer(index: number, layer: ILayerConfig): void;
     updateConfig(index: number, config: {}): void;
     updateUi(index: number, ui: ILayerConfig["ui"]): void;
+    renderers2: TreeList<IRenderer>;
 }>((set, get) => ({
     layers: [],
     renderers: [],
+    renderers2: [],
 
     setLayers(layers) {
         // Dispose renderers
         get().renderers.forEach(r => r.dispose?.());
-        const renderers = layers.map(l => createRenderer(l.type, l.config));
-        set({ layers, renderers });
+        const renderers = layers.map(l => createRenderer(l.type));
+        const renderers2 = layers.map(createRendererNode);
+
+        set({ layers, renderers, renderers2 });
     },
 
     addLayer(layer, insertIndex) {
@@ -65,13 +79,18 @@ const useLayersConfig = create<{
             const newLayers = state.layers.slice();
             newLayers.splice(insertIndex, 0, layer);
 
-            const renderer = createRenderer(layer.type, layer.config);
+            const renderer = createRenderer(layer.type);
             const newRenderers = state.renderers.slice();
             newRenderers.splice(insertIndex, 0, renderer);
+
+            const rendererNode = createRendererNode(layer);
+            const newRendererNodes = state.renderers2.slice();
+            newRendererNodes.splice(insertIndex, 0, rendererNode);
 
             return {
                 layers: newLayers,
                 renderers: newRenderers,
+                renderers2: newRendererNodes,
             };
         });
         return get().layers.length - 1;
@@ -83,6 +102,7 @@ const useLayersConfig = create<{
             return {
                 layers: state.layers.filter((_, i) => (i !== index)),
                 renderers: state.renderers.filter((_, i) => (i !== index)),
+                renderers2: state.renderers2.filter((_, i) => (i !== index)),
             };
         });
     },
@@ -92,13 +112,18 @@ const useLayersConfig = create<{
             const newLayers = state.layers.slice();
             newLayers.splice(index, 1, layer);
 
-            const renderer = createRenderer(layer.type, layer.config);
+            const renderer = createRenderer(layer.type);
             const newRenderers = state.renderers.slice();
             newRenderers.splice(index, 0, renderer);
+
+            const rendererNode = createRendererNode(layer);
+            const newRendererNodes = state.renderers2.slice();
+            newRendererNodes.splice(index, 0, rendererNode);
 
             return {
                 layers: newLayers,
                 renderer: newRenderers,
+                renderers2: newRendererNodes,
             };
         });
     },
@@ -205,4 +230,14 @@ export function useRenderers() {
         (a, b) => a.join() === b.join(),
     );
     return useLayersConfig((s) => s.renderers.filter((_, i) => isVisibles[i]));
+}
+
+
+
+export function useRenderers2() {
+    const isVisibles = useLayersConfig(
+        s => s.layers.map(l => l.ui?.isVisible ?? true),
+        (a, b) => a.join() === b.join(),
+    );
+    return useLayersConfig((s) => s.renderers2.filter(()) => isVisibles[i]));
 }

@@ -15,10 +15,6 @@ export function Renderer({
     height: number;
     style?: CSSProperties;
 }) {
-    const checkBoardSize = 25;
-    const checkBoardDark = "#e8e8e8";
-    const checkBoardLight = "#f8f8f8";
-
     // Create a render target 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const targetContextRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -41,6 +37,7 @@ export function Renderer({
                     const config = configs[i];
                     const controlPoints = allControlPoints[i];
                     const isDragging = draggingIndex === i;
+
                     targetContext.globalAlpha = isDragging ? 0.5 : 1;
 
                     renderer.render(targetContext, {
