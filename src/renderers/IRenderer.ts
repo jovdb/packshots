@@ -1,4 +1,4 @@
-export interface IRenderer<TRenderResult = void> {
+export interface IRenderer<TRenderResult = unknown> {
     render(
         targetContext: CanvasRenderingContext2D,
         config: {},

@@ -130,7 +130,8 @@ export function Layer({
     layer: ILayerConfig,
     layerIndex: number,
 }) {
-    const { deleteLayer, updateConfig, updateUi, updateLayer } = useLayersActions();
+    const { deleteLayer, updateConfig, updateUi } = useLayersActions();
+    const updateMask = (...args: any[]) => undefined;
     const ConfigComponent = getConfigComponent(layer);
     return (
         <Accordion
@@ -154,9 +155,9 @@ export function Layer({
                         title="Enable/Disable Mask"
                         isActive={!layer.mask.isDisabled}
                         onClick={() => {
-                            const mask = layer.mask || {}; 
-                            mask.isDisabled = !(mask?.isDisabled ?? true);
-                            updateLayer(layerIndex, { ...layer, mask });
+                            const mask = layer.mask ? {...layer.mask} : {}; 
+                            mask.isDisabled = !(mask.isDisabled ?? true);
+                            updateMask(layerIndex, mask);
                         }}>
                         <MaskIcon width={16} />
                     </AccordionButton>
@@ -193,9 +194,9 @@ export function Layer({
                                     style={{ transform: "translate(0, 2px)" }}
                                     onChange={(e) => {
                                         const isChecked = e.target.checked;
-                                        const mask = layer.mask || {}; 
+                                        const mask = layer.mask ? {...layer.mask} : {}; 
                                         mask.isDisabled = !isChecked;
-                                        updateLayer(layerIndex, { ...layer, mask });
+                                        updateMask(layerIndex, mask);
                                     }}
                                 />
                                 <label htmlFor={`mask_${layerIndex}`} style={{ cursor: "pointer" }}>Mask</label>
@@ -203,7 +204,7 @@ export function Layer({
                             <MaskConfig
                                 config={layer.mask}
                                 onChange={(mask) => {
-                                    updateLayer(layerIndex, { ...layer, mask });
+                                    updateMask(layerIndex, mask);
                                 }}
                             />
                         </fieldset>

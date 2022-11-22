@@ -231,13 +231,3 @@ export function useRenderers() {
     );
     return useLayersConfig((s) => s.renderers.filter((_, i) => isVisibles[i]));
 }
-
-
-
-export function useRenderers2() {
-    const isVisibles = useLayersConfig(
-        s => s.layers.map(l => l.ui?.isVisible ?? true),
-        (a, b) => a.join() === b.join(),
-    );
-    return useLayersConfig((s) => s.renderers2.filter(()) => isVisibles[i]));
-}
