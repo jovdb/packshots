@@ -1,8 +1,8 @@
-import { ILayerConfig } from "../../src/layers/ILayerConfig";
-import { ImageConfig } from "./ImageConfig";
-import { PlaneConfig } from "./PlaneConfig";
+import { ImageConfig } from "./ImageConfig2";
 import { ConeConfig } from "./ConeConfig";
-import { PlaneConfig2 } from "./PlaneConfig2";
+import { PlaneRendererConfig } from "./PlaneRendererConfig";
+import { MaskRendererConfig } from "./MaskRendererConfig";
+import { ImageRendererConfig } from "./ImageRendererConfig";
 
 export type ConfigComponent<T extends {}> = React.FC<{
     config: T;
@@ -11,12 +11,13 @@ export type ConfigComponent<T extends {}> = React.FC<{
 
 
 export function getConfigComponent(
-    layer: ILayerConfig,
+    type: string,
 ): ConfigComponent<any> | null | undefined {
-    switch (layer.type) {
-        case "image": return ImageConfig;
-        case "plane": return PlaneConfig;
+    switch (type) {
+        case "image": return ImageRendererConfig;
+        case "plane": return PlaneRendererConfig;
         case "cone": return ConeConfig;
-        default: throw new Error(`Unknown config type: ${layer.type}`);
+        case "mask": return MaskRendererConfig;
+        default: throw new Error(`Unknown config type: ${type}`);
     }
 }

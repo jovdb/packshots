@@ -132,7 +132,7 @@ export function Layer({
 }) {
     const { deleteLayer, updateConfig, updateUi } = useLayersActions();
     const updateMask = (...args: any[]) => undefined;
-    const ConfigComponent = getConfigComponent(layer);
+    const ConfigComponent = getConfigComponent(layer.type);
     return (
         <Accordion
             title={layer.name}
