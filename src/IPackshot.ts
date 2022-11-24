@@ -66,12 +66,14 @@ export interface IMaskRenderer extends IRenderer {
 
 export type Renderers = IImageRenderer | IMaskRenderer | IPlaneRenderer;
 
+export interface ILayerConfig {
+    isDisabled?: boolean;
+    isExpanded?: boolean;
+}
+
 export interface ILayer {
     name?: string;
-    config?: {
-        isDisabled?: boolean;
-        isExpanded?: boolean;
-    }
+    config?: ILayerConfig;
     renderer: Renderers;
 }
 
@@ -80,7 +82,7 @@ export interface IPackshotConfig {
     height: number;
 }
 
-export interface IPackshot{
+export interface IPackshot {
     name?: string;
     config: IPackshotConfig,
     layers: ILayer[];

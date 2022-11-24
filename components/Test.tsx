@@ -8,8 +8,6 @@ import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./ActionBar";
 import { useLayersActions } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
-import { ILayerConfig } from "../src/layers/ILayerConfig";
-import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 import { ControlPoints } from "./ControlPoints";
 import { Renderer } from "./Renderer";
 import { Layers } from "./Layers";
@@ -59,7 +57,7 @@ export function useZoom(
 
 export function Test() {
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
-    const [exportConfig, setExportConfig] = useState(defaultExportConfig);
+    const [exportConfig, setExportConfig] = useState();
 
     const [isExportExpanded, setIsExportExpanded] = useState(false);
 
@@ -127,7 +125,7 @@ export function Layer({
     layer,
     layerIndex
 }: {
-    layer: ILayerConfig,
+    layer: any,
     layerIndex: number,
 }) {
     const { deleteLayer, updateConfig, updateUi } = useLayersActions();

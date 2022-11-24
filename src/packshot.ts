@@ -1,6 +1,5 @@
 import create from "zustand";
-import { IPackshot, IPackshotConfig, IRenderer, Renderers } from "./IPackshot";
-import { ILayerConfig } from "./layers/ILayerConfig";
+import { ILayerConfig, IPackshot, IPackshotConfig, IRenderer, Renderers } from "./IPackshot";
 
 const usePackshotStore = create<IPackshot & {
     actions: {

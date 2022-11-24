@@ -2,9 +2,8 @@ import { useMemo, useRef, useState } from "react";
 import { ConfigPanel } from "./ConfigPanel";
 import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
-import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
+import { Accordion, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./ActionBar";
-import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 import { PackshotConfig } from "./config/PackshotConfig";
 import { usePackshotConfig } from "../src/packshot";
 import { PackshotLayers } from "./PackshotLayers";
@@ -31,36 +30,33 @@ export function useZoom(
 
 export function App() {
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
-    const [exportConfig, setExportConfig] = useState(defaultExportConfig);
-
     const [isExportExpanded, setIsExportExpanded] = useState(false);
+    const [packshotConfig, setPackshotConfig] = usePackshotConfig();
 
     // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);
     const previewAreaRect = useElementSize(previewAreaRef);
 
+
     const centerPreviewToPreviewArea = useZoom(
-        exportConfig,
+        packshotConfig,
         previewAreaRect,
         15,
     )
 
     const centerPreviewToPreviewStyle = useMemo(() => ({
         position: "absolute",
-        width: exportConfig.width * centerPreviewToPreviewArea.scale,
-        height: exportConfig.height * centerPreviewToPreviewArea.scale,
+        width: packshotConfig.width * centerPreviewToPreviewArea.scale,
+        height: packshotConfig.height * centerPreviewToPreviewArea.scale,
         left: centerPreviewToPreviewArea.x,
         top: centerPreviewToPreviewArea.y,
     } as const), [
         centerPreviewToPreviewArea.scale,
         centerPreviewToPreviewArea.x,
         centerPreviewToPreviewArea.y,
-        exportConfig.height,
-        exportConfig.width,
+        packshotConfig.height,
+        packshotConfig.width,
     ]);
-
-
-    const [packshotConfig, setPackshotConfig] = usePackshotConfig();
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
