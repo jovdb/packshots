@@ -5,7 +5,7 @@ import { ConfigPanel } from "./ConfigPanel";
 import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
-import { ActionBar } from "./config/ActionBar";
+import { ActionBar } from "./ActionBar";
 import { useLayersActions } from "../src/layers/layers";
 import { getConfigComponent } from "./config/factory";
 import { ILayerConfig } from "../src/layers/ILayerConfig";
@@ -156,7 +156,7 @@ export function Layer({
                         isActive={!layer.mask.isDisabled}
                         onClick={() => {
                             const mask = layer.mask ? {...layer.mask} : {}; 
-                            mask.isDisabled = !(mask.isDisabled ?? true);
+                            // mask.isDisabled = !(mask.isDisabled ?? true);
                             updateMask(layerIndex, mask);
                         }}>
                         <MaskIcon width={16} />
@@ -195,7 +195,7 @@ export function Layer({
                                     onChange={(e) => {
                                         const isChecked = e.target.checked;
                                         const mask = layer.mask ? {...layer.mask} : {}; 
-                                        mask.isDisabled = !isChecked;
+                                        // mask.isDisabled = !isChecked;
                                         updateMask(layerIndex, mask);
                                     }}
                                 />

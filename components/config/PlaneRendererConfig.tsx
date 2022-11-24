@@ -1,6 +1,6 @@
 import { IControlPointsConfig } from "../../src/controlPoints/IControlPoints";
 import { ConfigComponent } from "./factory";
-import { IImageConfig, ImageConfig, imageDefaultConfig } from "./ImageConfig2";
+import { IImageConfig, ImageConfig, imageDefaultConfig } from "./ImageConfig";
 
 export interface IPlaneRendererConfig extends IControlPointsConfig {
     image: IImageConfig;

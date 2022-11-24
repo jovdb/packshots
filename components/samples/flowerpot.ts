@@ -2,6 +2,7 @@ import { ILayerConfig } from "../../src/layers/ILayerConfig";
 import { IConeConfig } from "../config/ConeRenderingConfig";
 import { IImageConfig } from "../config/ImageConfig";
 
+/*
 const background: ILayerConfig<IImageConfig> = {
     name: "Background",
     type: "image",
@@ -36,3 +37,4 @@ export const flowerPotLayers: ILayerConfig[] = [
     background,
     spread,
 ];
+*/

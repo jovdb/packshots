@@ -1,6 +1,6 @@
 import { CameraConfig, cameraDefaultConfig, ICameraConfig } from "./CameraConfig";
 import { ConfigComponent } from "./factory";
-import { ISpreadImageConfig, spreadImageDefaultConfig, SpreadImageConfig } from "./SpreadImageConfig";
+import { IImageConfig, ImageConfig, imageDefaultConfig } from "./ImageConfig";
 
 export interface IConeConfig {
     cone: {
@@ -8,7 +8,7 @@ export interface IConeConfig {
         bottomDiameter: number;
         height: number;
     };
-    image: ISpreadImageConfig;
+    image: IImageConfig;
     camera: ICameraConfig;
 }
 
@@ -23,7 +23,7 @@ export const ConeRenderingConfig: ConfigComponent<IConeConfig> = ({
             bottomDiameter: 10,
             height: 15,
         },
-        image = spreadImageDefaultConfig,
+        image = imageDefaultConfig,
         camera: cameraConfig = cameraDefaultConfig,
     } = config;
 
@@ -110,7 +110,7 @@ export const ConeRenderingConfig: ConfigComponent<IConeConfig> = ({
             </fieldset>
             <fieldset>
                 <legend>Spread</legend>
-                <SpreadImageConfig
+                <ImageConfig
                     config={image}
                     onChange={(newConfig) => {
                         onChange({

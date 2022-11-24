@@ -2,8 +2,9 @@
 import { useId, useState } from "react";
 import { checkBoardStyle } from "../../src/checkboard";
 import { ImageSelection } from "../FileSelection";
-import { IImageConfig, IRendererConfig } from "../samples/IPackshot";
+import { IRendererConfig } from "../../src/IPackshot";
 import { ConfigComponent } from "./factory";
+import { IImageConfig } from "./ImageConfig";
 
 export interface IMaskRenderingConfig extends IRendererConfig {
     image: IImageConfig;

@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ConfigComponent } from "./factory";
-import { IImageConfig, ImageConfig } from "./ImageConfig2";
+import { IImageConfig, ImageConfig } from "./ImageConfig";
 
 
 export interface IImageRendererConfig {

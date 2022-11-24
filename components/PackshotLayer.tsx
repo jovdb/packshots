@@ -1,7 +1,7 @@
 import { usePackshotActions } from "../src/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ConfigComponent, getConfigComponent } from "./config/factory";
-import { ILayer, IPackshot } from "./samples/IPackshot";
+import { ILayer, IPackshot } from "../src/IPackshot";
 import EyeIcon from "../icons/eye.svg";
 import DelLayer from "../icons/del-layer.svg";
 import { flattenTree, replaceTreeNode, walkTree } from "../src/Tree";

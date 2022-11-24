@@ -1,9 +1,9 @@
 import { CSSProperties, useState } from "react";
-import { ILayerConfig } from "../../src/layers/ILayerConfig";
-import { Accordion, AccordionButton, AccordionPanel } from "../Accordion";
-import AddLayer from "../../icons/add-layer.svg";
-import { usePackshotActions } from "../../src/packshot";
-import { photobookLayers } from "../samples/IPackshot";
+import { ILayerConfig } from "../src/layers/ILayerConfig";
+import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
+import AddLayer from "../icons/add-layer.svg";
+import { usePackshotActions } from "../src/packshot";
+import { photobookLayers } from "./samples/photobook";
 
 export function ActionBar() {
     const [action, setAction] = useState("");

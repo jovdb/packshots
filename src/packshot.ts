@@ -1,6 +1,6 @@
-import { useCallback } from "react";
 import create from "zustand";
-import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderer, Renderers } from "../components/samples/IPackshot";
+import { IPackshot, IPackshotConfig, IRenderer, Renderers } from "./IPackshot";
+import { ILayerConfig } from "./layers/ILayerConfig";
 
 const usePackshotStore = create<IPackshot & {
     actions: {

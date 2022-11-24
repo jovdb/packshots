@@ -1,4 +1,4 @@
-import { IPackshotConfig } from "../samples/IPackshot";
+import { IPackshotConfig } from "../../src/IPackshot";
 import { ConfigComponent } from "./factory";
 
 export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({

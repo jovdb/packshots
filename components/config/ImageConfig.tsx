@@ -4,9 +4,15 @@ import { checkBoardStyle } from "../../src/checkboard";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
+
 export interface IImageConfig {
-    name: string;
-    imageUrl: string;
+    name?: string;
+    url: string;
+}
+
+export const imageDefaultConfig = {
+    name: "",
+    url: "",
 }
 
 export const ImageConfig: ConfigComponent<IImageConfig> = ({
@@ -15,7 +21,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
 }) => {
 
     const [type, setType] = useState(() => {
-        if (config.imageUrl?.startsWith("blob://")) return "local";
+        if (config.url?.startsWith("blob://")) return "local";
         return "url";
     });
 
@@ -33,12 +39,12 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                                     setType(value);
                                     switch (value) {
                                         case "local": {
-                                            onChange({ imageUrl: "", name: "" });
+                                            onChange({ url: "", name: "" });
                                             break;
                                         }
                                         default: {
                                             console.error("Unknown Background type:", value)
-                                            onChange({ imageUrl: "", name: "" });
+                                            onChange({ url: "", name: "" });
                                             break;
                                         }
                                     }
@@ -56,7 +62,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                                     File name:
                                     <div style={{ display: "flex" }}>
                                         <input
-                                            value={config?.name || config?.imageUrl || ""}
+                                            value={config?.name || config?.url || ""}
                                             style={{ width: "100%", marginRight: 5 }}
                                             readOnly
                                             disabled
@@ -65,7 +71,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                                             onSelect={(info) => {
                                                 onChange({
                                                     name: info.name,
-                                                    imageUrl: info.url,
+                                                    url: info.url,
                                                 });
                                             }}
                                         />
@@ -84,7 +90,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                             <tr>
                                 <td colSpan={2}>
                                     <input
-                                        value={config?.imageUrl || ""}
+                                        value={config?.url || ""}
                                         style={{ width: "100%" }}
                                         onChange={(e) => {
                                             const value = e.target.value;
@@ -92,7 +98,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                                             const name = lastSlashIndex < 0 ? value : value.substring(lastSlashIndex + 1);
                                             onChange({
                                                 name,
-                                                imageUrl: value
+                                                url: value
                                             });
                                         }}
                                     />
@@ -102,7 +108,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                     )}
                     <tr>
                         <td colSpan={2} style={{ textAlign: "center" }}>
-                            {config?.imageUrl && <img alt="preview" src={config.imageUrl} style={{ width: "100%", height: "auto", maxWidth: 200, maxHeight: 200, border: "1px solid #aaa", ...checkBoardStyle }} />}
+                            {config?.url && <img alt="preview" src={config.url} style={{ width: "100%", height: "auto", maxWidth: 200, maxHeight: 200, border: "1px solid #aaa", ...checkBoardStyle }} />}
                         </td>
                     </tr>
                 </tbody>

@@ -1,40 +1,52 @@
-import { ILayerConfig } from "../../src/layers/ILayerConfig";
-import { IImageConfig } from "../config/ImageConfig";
-import { IPlaneConfig2 } from "../config/PlaneConfig2";
+import { IPackshot } from "../../src/IPackshot";
 
-const background: ILayerConfig<IImageConfig> = {
-    name: "Background",
-    type: "image",
+export const photobookLayers: IPackshot = {
+    name: "PhotoBook",
     config: {
-        name: "Background.png",
-        imageUrl: "./products/Book/Background.png"
+        width: 900,
+        height: 900,
     },
-};
-
-const spread: ILayerConfig<IPlaneConfig2> = {
-    name: "Spread",
-    type: "plane",
-
-    config: {
-        image: {
-            name: "Spread.jpg",
-            imageUrl: "./products/Book/Spread.jpg",
+    layers: [
+        {
+            name: "Background",
+            renderer: {
+                type: "image",
+                config: {
+                    image: {
+                        name: "Background.png",
+                        url: "./products/Book/Background.png",
+                    }
+                },
+            },
         },
-        controlPoints: [
-            [-0.414, -0.499],
-            [0.612, -0.37],
-            [0.614, 0.68],
-            [-0.414, 0.412],
-        ],
-    },
-
-    mask: {
-        name: "Mask.jpg",
-        imageUrl: "./products/Book/Mask.png",
-    },
+        {
+            name: "Spread",
+            renderer: {
+                type: "mask",
+                config: {
+                    image: {
+                        name: "Mask.,png",
+                        url: "./products/Book/Mask.png",
+                    }
+                },
+                children: [
+                    {
+                        type: "plane",
+                        config: {
+                            image: {
+                                name: "Spread.jpg",
+                                url: "./products/Book/Spread.jpg",
+                            },
+                            controlPoints: [
+                                [-0.414, -0.499],
+                                [0.612, -0.37],
+                                [0.614, 0.68],
+                                [-0.414, 0.412],
+                            ],
+                        },
+                    },
+                ]
+            },
+        }
+    ]
 };
-
-export const photobookLayers: ILayerConfig[] = [
-    background,
-    spread,
-];

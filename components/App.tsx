@@ -3,7 +3,7 @@ import { ConfigPanel } from "./ConfigPanel";
 import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
-import { ActionBar } from "./config/ActionBar2";
+import { ActionBar } from "./ActionBar";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
 import { PackshotConfig } from "./config/PackshotConfig";
 import { usePackshotConfig } from "../src/packshot";

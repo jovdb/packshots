@@ -1,5 +1,5 @@
-import { ImageRenderer } from "./ImageRenderer";
 import { IRenderer } from "./IRenderer";
+import { ImageRenderer } from "./ImageRenderer";
 import { MaskRenderer } from "./MaskRendering";
 import { PlaneWebGlRenderer } from "./PlaneWebGlRenderer";
 

@@ -1,4 +1,4 @@
-import { ImageConfig } from "./ImageConfig2";
+import { ImageConfig } from "./ImageConfig";
 import { ConeRenderingConfig } from "./ConeRenderingConfig";
 import { PlaneRendererConfig } from "./PlaneRendererConfig";
 import { MaskRendererConfig } from "./MaskRendererConfig";

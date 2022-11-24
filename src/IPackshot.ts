@@ -33,10 +33,10 @@
                                                  ╚═══════════════════╝
 */
 
-import { IImageConfig } from "../config/ImageConfig2";
-import { IImageRendererConfig } from "../config/ImageRendererConfig";
-import { IMaskRenderingConfig } from "../config/MaskRendererConfig";
-import { IPlaneRendererConfig } from "../config/PlaneRendererConfig";
+import { IImageConfig } from "../components/config/ImageConfig";
+import { IImageRendererConfig } from "../components/config/ImageRendererConfig";
+import { IMaskRenderingConfig } from "../components/config/MaskRendererConfig";
+import { IPlaneRendererConfig } from "../components/config/PlaneRendererConfig";
 
 export interface IRendererConfig {
     isDisabled?: boolean;
@@ -86,54 +86,3 @@ export interface IPackshot{
     layers: ILayer[];
 }
 
-export const photobookLayers: IPackshot = {
-    name: "PhotoBook",
-    config: {
-        width: 900,
-        height: 900,
-    },
-    layers: [
-        {
-            name: "Background",
-            renderer: {
-                type: "image",
-                config: {
-                    image: {
-                        name: "Background.png",
-                        url: "./products/Book/Background.png",
-                    }
-                },
-            },
-        },
-        {
-            name: "Spread",
-            renderer: {
-                type: "mask",
-                config: {
-                    
-                    image: {
-                        name: "Mask.,png",
-                        url: "./products/Book/Mask.png",
-                    }
-                },
-                children: [
-                    {
-                        type: "plane",
-                        config: {
-                            image: {
-                                name: "Spread.jpg",
-                                url: "./products/Book/Spread.jpg",
-                            },
-                            controlPoints: [
-                                [-0.414, -0.499],
-                                [0.612, -0.37],
-                                [0.614, 0.68],
-                                [-0.414, 0.412],
-                            ],
-                        },
-                    },
-                ]
-            },
-        }
-    ]
-};
