@@ -34,6 +34,9 @@
 */
 
 import { IImageConfig } from "../config/ImageConfig2";
+import { IImageRendererConfig } from "../config/ImageRendererConfig";
+import { IMaskRenderingConfig } from "../config/MaskRendererConfig";
+import { IPlaneRendererConfig } from "../config/PlaneRendererConfig";
 
 export interface IRendererConfig {
     isDisabled?: boolean;
@@ -47,24 +50,17 @@ export interface IRenderer {
 
 export interface IImageRenderer extends IRenderer {
     type: "image";
-    config: IRendererConfig & {
-        image: IImageConfig;
-    };
+    config: IImageRendererConfig;
 }
 
 export interface IPlaneRenderer extends IRenderer {
     type: "plane";
-    config: IRendererConfig & {
-        image: IImageConfig;
-        controlPoints: [number, number][];
-    };
+    config: IPlaneRendererConfig;
 }
 
 export interface IMaskRenderer extends IRenderer {
     type: "mask";
-    config: IRendererConfig & {
-        image: IImageConfig;
-    };
+    config: IMaskRenderingConfig;
     children: Renderers[];
 }
 

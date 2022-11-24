@@ -1,5 +1,5 @@
 import { ILayerConfig } from "../../src/layers/ILayerConfig";
-import { IConeConfig } from "../config/ConeConfig";
+import { IConeConfig } from "../config/ConeRenderingConfig";
 import { IImageConfig } from "../config/ImageConfig";
 
 const background: ILayerConfig<IImageConfig> = {

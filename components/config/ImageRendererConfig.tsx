@@ -1,7 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import { useState } from "react";
-import { checkBoardStyle } from "../../src/checkboard";
-import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig } from "./ImageConfig2";
 

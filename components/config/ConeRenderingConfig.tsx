@@ -12,7 +12,7 @@ export interface IConeConfig {
     camera: ICameraConfig;
 }
 
-export const ConeConfig: ConfigComponent<IConeConfig> = ({
+export const ConeRenderingConfig: ConfigComponent<IConeConfig> = ({
     config,
     onChange,
 }) => {
