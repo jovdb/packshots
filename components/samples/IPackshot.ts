@@ -33,10 +33,7 @@
                                                  ╚═══════════════════╝
 */
 
-export interface IImageConfig {
-    name?: string;
-    url: string;
-}
+import { IImageConfig } from "../config/ImageConfig2";
 
 export interface IRendererConfig {
     isDisabled?: boolean;
@@ -113,9 +110,11 @@ export const photobookLayers: IPackshot = {
             },
         },
         {
+            name: "Spread",
             renderer: {
                 type: "mask",
                 config: {
+                    
                     image: {
                         name: "Mask.,png",
                         url: "./products/Book/Mask.png",

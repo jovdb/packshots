@@ -1,21 +1,13 @@
 import { useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getImageDataAsync, loadImageAsync } from "../utils/image";
 import { ConfigPanel } from "./ConfigPanel";
 import { useElementSize } from "../src/hooks/useElementSize";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
-import { ActionBar } from "./config/ActionBar";
-import { useLayersActions } from "../src/layers/layers";
-import { getConfigComponent } from "./config/factory";
-import { ILayerConfig } from "../src/layers/ILayerConfig";
+import { ActionBar } from "./config/ActionBar2";
 import { defaultExportConfig, ExportConfig } from "./config/ExportConfig";
-import { ControlPoints } from "./ControlPoints";
-import { Renderer } from "./Renderer";
-import { Layers } from "./Layers";
-import MaskIcon from "../icons/mask.svg";
-import EyeIcon from "../icons/eye.svg";
-import DelLayer from "../icons/del-layer.svg";
+import { PackshotConfig } from "./config/PackshotConfig";
+import { usePackshotConfig } from "../src/packshot";
+import { PackshotLayers } from "./PackshotLayers";
 
 export function useZoom(
     imagesSize: { width: number; height: number },
@@ -67,6 +59,9 @@ export function App() {
         exportConfig.width,
     ]);
 
+
+    const [packshotConfig, setPackshotConfig] = usePackshotConfig();
+
     return (
         <div style={{ display: "flex", height: "100vh" }}>
             <div
@@ -83,10 +78,10 @@ export function App() {
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
                     <ActionBar />
-                    <Layers />
+                    <PackshotLayers/>
                     <Accordion title="Export" isExpanded={isExportExpanded} setIsExpanded={setIsExportExpanded}>
                         <AccordionPanel>
-                            <ExportConfig config={exportConfig} onChange={setExportConfig} />
+                            <PackshotConfig config={packshotConfig} onChange={setPackshotConfig} />
                         </AccordionPanel>
                     </Accordion>
                 </ConfigPanel>
