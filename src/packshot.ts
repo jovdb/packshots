@@ -138,8 +138,6 @@ export function useRenderers() {
                 layerRenderers.forEach(renderer => renderer.dispose?.());
             });
 
-            console.log("RECREATE renderers", layersRenderers, "TODO: Check if previous are dispoase");
-
             // Create new renderers
             return usePackshotStore.getState().layers.map((layer) => (
                 flattenTree(layer.renderTree).map(rendererInfo => createRenderer(rendererInfo.type))

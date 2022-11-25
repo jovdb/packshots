@@ -45,20 +45,24 @@ export function Renderer({
     const renderTrees = useRenderTrees();
 
     const {isFetching: isLoadingRenderer, data: renderId } = useQuery([renderTrees], () => {
-        console.log("Loading renderers");
         return Promise
             .all(
                 renderTrees.flatMap(renderTree => flattenTree(renderTree)
-                    .map(renderNode => renderNode.renderer?.loadAsync?.(renderNode.config))
+                    .map(renderNode => {
+                        return renderNode.renderer?.loadAsync?.(renderNode.config)
+                    })
                 )
             )
+            .catch((err) => {
+                console.error("Error Loading renderers", err);
+                return Math.random();
+            })
             .then(() => {
-                console.log("Loaded renderers");
                 render(targetContextRef.current, renderTrees);
                 return Math.random(); // Return a unique result that can be used in a dependency array
             })
-            .catch(() => {
-                console.log("Error Loading renderers");
+            .catch((err) => {
+                console.error("Error rendering", err);
                 return Math.random();
             });
     });

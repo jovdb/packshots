@@ -10,12 +10,12 @@ export class MaskRenderer implements IRenderer<boolean> {
     }
 
     async loadAsync(config: IMaskConfig) {
-        const url = config?.imageUrl ?? "";
+        const url = config?.image.url ?? "";
         await this.imageCache.loadImage(url);
     }
 
     render(targetContext: CanvasRenderingContext2D, config: IMaskConfig): boolean {
-        const url = config?.imageUrl ?? "";
+        const url = config?.image.url ?? "";
         const image = this.imageCache.getImage(url, true);
 
         // Stretch image to full canvas size

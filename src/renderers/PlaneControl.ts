@@ -114,7 +114,6 @@ export class PlaneRenderer2 implements IRenderer {
                 0, 0, this.targetSize.width, this.targetSize.height,
                 0, 0, targetContext.canvas.width, targetContext.canvas.height,
             );
-            console.log("rendered", this.texture);
         }
     }
 
@@ -126,7 +125,6 @@ export class PlaneRenderer2 implements IRenderer {
         this.material = new MeshBasicMaterial({ map: this.texture, side: DoubleSide });
         // Update Mesh
         if (this.mesh) this.mesh.material = this.material;
-        console.log("loaded");
     }
 
     private getCanvasControlPoint(vector: [x: number, y: number]): Vector2 | undefined {

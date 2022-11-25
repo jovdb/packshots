@@ -1,7 +1,7 @@
-import { IPlaneConfig2 } from "../../components/config/PlaneConfig2";
 import type { IRenderer } from "./IRenderer";
 import * as twgl from "twgl.js/dist/5.x/twgl-full";
 import { ControlPoint } from "../controlPoints/IControlPoints";
+import { IPlaneRendererConfig } from "../../components/config/PlaneRendererConfig";
 
 // TWGL: https://twgljs.org/
 // https://twgljs.org/docs/module-twgl.html
@@ -74,18 +74,19 @@ export class PlaneWebGlRenderer implements IRenderer {
      * Load the image and set the texture and image member variable
      */
     loadAsync(
-        config: IPlaneConfig2,
+        config: IPlaneRendererConfig,
     ) {
-        if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
+        if (this.image ) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
+        if (!config.image.url) return;
 
         return new Promise<void>((resolve, reject) => {
             const { gl } = this;
             this.image = undefined;
             if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
             this.uniforms.texture = twgl.createTexture(gl, {
-                src: config.image.imageUrl,
+                src: config.image.url,
                 // src: "https://farm6.staticflickr.com/5695/21506311038_9557089086_m_d.jpg",
-                crossOrigin: '', // not needed if image on same origin
+                crossOrigin: '', // not needed if image is on same origin
             }, (err, tex, img) => {
                 // wait for the image to load because we need to know it's size
                 if (err) {
@@ -95,7 +96,6 @@ export class PlaneWebGlRenderer implements IRenderer {
                     reject(err);
                 } else {
                     this.image = img as HTMLImageElement;
-                    if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
                     this.uniforms.texture = tex;
                     resolve();
                 }
@@ -105,7 +105,7 @@ export class PlaneWebGlRenderer implements IRenderer {
 
     render(
         targetContext: CanvasRenderingContext2D,
-        config: IPlaneConfig2
+        config: IPlaneRendererConfig
     ): void {
         const { gl, uniforms, image, bufferInfo, programInfo } = this;
         if (!uniforms.texture || !image || !programInfo) throw new Error("Only call render after a succesful loadAsync");
