@@ -19,7 +19,6 @@ export const photobookLayers: IPackshot = {
                 },
             },
         },
-        /*
         {
             name: "Spread",
             renderTree: {
@@ -47,24 +46,6 @@ export const photobookLayers: IPackshot = {
                         },
                     },
                 ]
-            },
-        }*/
-        {
-            name: "Spread",
-            renderTree: {
-                type: "plane",
-                config: {
-                    image: {
-                        name: "Spread.jpg",
-                        url: "./products/Book/Spread.jpg",
-                    },
-                    controlPoints: [
-                        [-0.414, -0.499],
-                        [0.612, -0.37],
-                        [0.614, 0.68],
-                        [-0.414, 0.412],
-                    ],
-                },
             },
         }
     ]
