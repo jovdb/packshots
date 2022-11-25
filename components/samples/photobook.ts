@@ -9,7 +9,7 @@ export const photobookLayers: IPackshot = {
     layers: [
         {
             name: "Background",
-            renderer: {
+            renderTree: {
                 type: "image",
                 config: {
                     image: {
@@ -21,7 +21,7 @@ export const photobookLayers: IPackshot = {
         },
         {
             name: "Spread",
-            renderer: {
+            renderTree: {
                 type: "mask",
                 config: {
                     image: {

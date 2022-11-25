@@ -1,3 +1,11 @@
+/*
+Steps
+------
+- loadAsync(config)
+- render() => A
+- renderAfterChild(A)
+- dispose()
+*/
 export interface IRenderer<TRenderResult = unknown> {
     render(
         targetContext: CanvasRenderingContext2D,
@@ -12,6 +20,8 @@ export interface IRenderer<TRenderResult = unknown> {
         renderResult: TRenderResult,
     ): void;
 
+    // Prepare this renderer with the specified data
+    // If missing or returns undefined, no async data is needed are already available.
     loadAsync?(config: {}): void | Promise<void>;
 
     dispose?(): void;

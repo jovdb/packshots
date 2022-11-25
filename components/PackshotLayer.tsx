@@ -4,7 +4,7 @@ import { ConfigComponent, getConfigComponent } from "./config/factory";
 import { ILayer, IPackshot } from "../src/IPackshot";
 import EyeIcon from "../icons/eye.svg";
 import DelLayer from "../icons/del-layer.svg";
-import { flattenTree, replaceTreeNode, walkTree } from "../src/Tree";
+import { flattenTree, replaceTreeNode } from "../src/Tree";
 import { createElement } from "react";
 
 export function PackshotLayerAccordion({
@@ -63,9 +63,9 @@ export function PackshotLayerConfig({
     layer: ILayer;
     layerIndex: number;
 }) {
-    const { updateLayerRenderer } = usePackshotActions();
+    const { updateLayerRenderTree } = usePackshotActions();
 
-    const renderers = flattenTree(layer.renderer);
+    const renderers = flattenTree(layer.renderTree);
     
     const RendererConfigComponents = renderers
         .map(r => getConfigComponent(r.type))
@@ -84,8 +84,8 @@ export function PackshotLayerConfig({
                             config: newConfig,
                         };
                         
-                        const newRenderer = replaceTreeNode(layer.renderer, prevRendererNode, newRendererNode);
-                        updateLayerRenderer(layerIndex, newRenderer);
+                        const newRenderTree = replaceTreeNode(layer.renderTree, prevRendererNode, newRendererNode);
+                        updateLayerRenderTree(layerIndex, newRenderTree);
                     }}
                 />
             ))}

@@ -5,8 +5,9 @@ import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./ActionBar";
 import { PackshotConfig } from "./config/PackshotConfig";
-import { usePackshotConfig } from "../src/packshot";
+import { useLoadedRenderers, usePackshotConfig, useRenderers } from "../src/packshot";
 import { PackshotLayers } from "./PackshotLayers";
+import { Renderer } from "./Renderer";
 
 export function useZoom(
     imagesSize: { width: number; height: number },
@@ -32,6 +33,9 @@ export function App() {
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
     const [isExportExpanded, setIsExportExpanded] = useState(false);
     const [packshotConfig, setPackshotConfig] = usePackshotConfig();
+
+    const { layersRenderers, isFetching } = useLoadedRenderers();
+    console.log(layersRenderers, isFetching);
 
     // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);
@@ -69,7 +73,11 @@ export function App() {
                     height: "100%",
                 }}
             >
-                TODO
+                <Renderer
+                    width={packshotConfig.width}
+                    height={packshotConfig.height}
+                    style={centerPreviewToPreviewStyle}
+                />
             </div>
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>

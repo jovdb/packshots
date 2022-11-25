@@ -45,7 +45,7 @@ export class ImageCache {
     public getImage(url: string | undefined, required?: boolean) {
         url ||= undefined;
         if (this.isLoaded(url)) return this.image;
-        if (required && !this.image) throw new Error("Image not loaded");
+        if (required && !this.image) throw new Error("Loaded image expected.");
         return undefined; // No or other image is loaded4
     }
 

@@ -7,7 +7,7 @@
 ║ -config         ║    ║ -config         ║   │   ║ -config           ║
 ║   -width        ║    ║   -isDisabled?  ║   │   ║   -image          ║
 ║   -height       ║    ║   -isExpanded?  ║   │   ╚═══════════════════╝
-║ -layers:        ║    ║ -renderer   ────║───┤   ╔═══════════════════╗
+║ -layers:        ║    ║ -renderTree   ──║───┤   ╔═══════════════════╗
 ║  ┌───────┐      ║    ╚═════════════════╝   ├──→║ PlaneRenderer     ║
 ║  │ Layer │ ┐    ║                          │   ╟───────────────────╢
 ║  └───────┘ │ ┐  ║                          │   ║ -type: "plane"    ║
@@ -33,32 +33,36 @@
                                                  ╚═══════════════════╝
 */
 
-import { IImageConfig } from "../components/config/ImageConfig";
 import { IImageRendererConfig } from "../components/config/ImageRendererConfig";
 import { IMaskRenderingConfig } from "../components/config/MaskRendererConfig";
 import { IPlaneRendererConfig } from "../components/config/PlaneRendererConfig";
+import { IRenderer } from "./renderers/IRenderer";
 
 export interface IRendererConfig {
     isDisabled?: boolean;
 }
 
-export interface IRenderer {
+/** Render information from packshot configuration */
+export interface IRenderTree {
     name?: string;
     type: string;
+    /** That code that will do the rendering */
+    renderer?: IRenderer;
+    /** A tree of render information (example a mask with as child an image) */
     children?: Renderers[];
 }
 
-export interface IImageRenderer extends IRenderer {
+export interface IImageRenderer extends IRenderTree {
     type: "image";
     config: IImageRendererConfig;
 }
 
-export interface IPlaneRenderer extends IRenderer {
+export interface IPlaneRenderer extends IRenderTree {
     type: "plane";
     config: IPlaneRendererConfig;
 }
 
-export interface IMaskRenderer extends IRenderer {
+export interface IMaskRenderer extends IRenderTree {
     type: "mask";
     config: IMaskRenderingConfig;
     children: Renderers[];
@@ -74,7 +78,7 @@ export interface ILayerConfig {
 export interface ILayer {
     name?: string;
     config?: ILayerConfig;
-    renderer: Renderers;
+    renderTree: Renderers;
 }
 
 export interface IPackshotConfig {

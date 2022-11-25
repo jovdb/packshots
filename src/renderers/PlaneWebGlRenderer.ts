@@ -81,6 +81,7 @@ export class PlaneWebGlRenderer implements IRenderer {
         return new Promise<void>((resolve, reject) => {
             const { gl } = this;
             this.image = undefined;
+            if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
             this.uniforms.texture = twgl.createTexture(gl, {
                 src: config.image.imageUrl,
                 // src: "https://farm6.staticflickr.com/5695/21506311038_9557089086_m_d.jpg",
@@ -89,10 +90,12 @@ export class PlaneWebGlRenderer implements IRenderer {
                 // wait for the image to load because we need to know it's size
                 if (err) {
                     this.image = undefined;
+                    if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
                     this.uniforms.texture = undefined;
                     reject(err);
                 } else {
                     this.image = img as HTMLImageElement;
+                    if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
                     this.uniforms.texture = tex;
                     resolve();
                 }

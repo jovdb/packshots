@@ -1,14 +1,19 @@
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import create from "zustand";
-import { ILayerConfig, IPackshot, IPackshotConfig, IRenderer, Renderers } from "./IPackshot";
+import shallow from "zustand/shallow";
+import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree, Renderers } from "./IPackshot";
+import { createRenderer } from "./renderers/factory";
+import { flattenTree, walkTree } from "./Tree";
 
-const usePackshotStore = create<IPackshot & {
+export const usePackshotStore = create<IPackshot & {
     actions: {
         setPackshot(packshot: IPackshot): void;
         updatePackshotName(name: string): void;
         updatePackshotConfig(config: IPackshotConfig): void;
         deleteLayer(index: number): void;
         updateLayerConfig(index: number, config: Partial<ILayerConfig>): void;
-        updateLayerRenderer(index: number, renderer: IRenderer): void;
+        updateLayerRenderTree(index: number, renderer: IRenderTree): void;
     },
 }>((set) => ({
     config: {
@@ -18,7 +23,19 @@ const usePackshotStore = create<IPackshot & {
     layers: [],
     actions: {
         setPackshot(packshot) {
-            set({ ...packshot });
+            set((state) => {
+
+                // Dispose previous renderers
+                state.layers.forEach(layer => {
+                    walkTree(layer.renderTree, renderNode => renderNode.renderer?.dispose?.());
+                });
+                // Create new renderers
+                packshot.layers.forEach(layer => {
+                    walkTree(layer.renderTree, renderNode => { renderNode.renderer = createRenderer(renderNode.type); });
+                });
+
+                return { ...packshot };
+            });
         },
         updatePackshotName(name) {
             set({ name });
@@ -28,7 +45,15 @@ const usePackshotStore = create<IPackshot & {
         },
         deleteLayer(index) {
             set((state) => ({
-                layers: state.layers.filter((_, i) => (i !== index)),
+                layers: state.layers.filter((layer, i) => {
+                    if (i !== index) {
+                        return true;
+                    } else {
+                        // Dispose renderers before removing layer
+                        walkTree(layer.renderTree, renderNode => renderNode.renderer?.dispose?.());
+                        return false;
+                    }
+                }),
             }));
         },
         updateLayerConfig(index, config) {
@@ -41,22 +66,26 @@ const usePackshotStore = create<IPackshot & {
                 };
                 const newLayers = state.layers.slice();
                 newLayers.splice(index, 1, newLayer);
-    
+
                 return {
                     layers: newLayers,
                 };
             });
         },
-        updateLayerRenderer(index, renderer: Renderers) {
+        updateLayerRenderTree(index, renderTree: Renderers) {
             set((state) => {
                 const oldLayer = state.layers[index];
-                const newLayer = {
+                const newLayer: ILayer = {
                     ...oldLayer,
-                    renderer,
+                    renderTree,
                 };
                 const newLayers = state.layers.slice();
                 newLayers.splice(index, 1, newLayer);
-    
+
+                // Update renderers
+                walkTree(oldLayer.renderTree, renderNode => renderNode.renderer?.dispose?.());
+                walkTree(newLayer.renderTree, renderNode => { renderNode.renderer = createRenderer(renderNode.type); });
+
                 return {
                     layers: newLayers,
                 };
@@ -85,4 +114,91 @@ export function usePackshotConfig() {
 
 export function usePackshotLayers() {
     return usePackshotStore(s => s.layers);
+}
+
+/**
+ * Create renderers that follow the packshot configuration
+ * Returns a flatt array
+ */
+export function useRenderers() {
+
+    /** A string that updates a rerender when a renderer type changes */
+    const renderTypes = usePackshotStore(
+        s => JSON.stringify(s.layers.map(l => flattenTree(l.renderTree).map(r => r.type))),
+        shallow,
+    );
+
+    // 'var' used because it is hoisted (so available inside memo)
+    // otherwise we need a useEffect with a useRef
+    var layersRenderers = useMemo(
+        () => {
+
+            // Dispose previous renderers
+            layersRenderers?.forEach(layerRenderers => {
+                layerRenderers.forEach(renderer => renderer.dispose?.());
+            });
+
+            console.log("RECREATE renderers", layersRenderers, "TODO: Check if previous are dispoase");
+
+            // Create new renderers
+            return usePackshotStore.getState().layers.map((layer) => (
+                flattenTree(layer.renderTree).map(rendererInfo => createRenderer(rendererInfo.type))
+            ));
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [renderTypes],
+    )
+
+    return layersRenderers;
+}
+
+
+export function useLoadedRenderers() {
+    const layersRenderers = useRenderers();
+
+    // Detect some config changes
+    // TODO: can we quickly detect which config is changed and only load that renderer?
+    const configs = usePackshotStore(
+        s => s.layers.map(l => JSON.stringify(flattenTree(l.renderTree).map(r => r.config))),
+        shallow,
+    );
+
+    function loadRenderers() {
+        return Promise.all(
+            layersRenderers.flatMap((layerRenderers, layerIndex) => (
+                layerRenderers.map((renderer, rendererIndex) => {
+                    // TODO: find a better way, I think because react async behavior, this can become incorrect
+                    const config = flattenTree(usePackshotStore.getState().layers[layerIndex].renderTree)[rendererIndex].config;
+                    renderer.loadAsync?.(config);
+                })
+            )),
+        );
+    }
+
+    const { isFetching } = useQuery([configs], loadRenderers);
+
+    return {
+        layersRenderers,
+        isFetching,
+    };
+
+}
+
+/**
+ * Returns the renderTree
+ * Updates if something in the tree changes, (a renderer config, name, ...)
+ */
+export function useRenderTrees() {
+    // Layers, but only triggers rerender if renderTree changes
+    const layers = usePackshotStore(
+        s => s.layers,
+        (renderTreesA, renderTreesB) => {
+            const compareA = renderTreesA.map(a => a.renderTree);
+            const compareB = renderTreesB.map(b => b.renderTree);
+            return shallow(compareA, compareB);
+        },
+    );
+
+    // Return the same array when no renderTree changes
+    return useMemo(() => layers.map(l => l.renderTree), [layers]);
 }

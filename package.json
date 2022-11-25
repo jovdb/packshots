@@ -13,9 +13,9 @@
     "@tanstack/react-query": "^4.13.0",
     "@use-gesture/react": "^10.2.21",
     "glfx": "^0.0.4",
-    "next": "13.0.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "next": "^13.0.5",
+    "react": "experimental",
+    "react-dom": "experimental",
     "styled-jsx": "^5.1.0",
     "three": "^0.146.0",
     "twgl.js": "^5.2.0",
@@ -27,7 +27,7 @@
     "@types/react-dom": "18.0.8",
     "@types/three": "^0.144.0",
     "eslint": "8.26.0",
-    "eslint-config-next": "13.0.0",
+    "eslint-config-next": "^13.0.5",
     "typescript": "4.8.4"
   }
 }
