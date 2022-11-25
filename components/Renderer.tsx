@@ -21,8 +21,7 @@ function render(
             (renderNode) => {
                 const config = renderNode.config;
                 const renderer = renderNode.renderer;
-                const renderResult = renderer?.render(targetContext, config, false);
-                return () => renderer?.renderAfterChild?.(targetContext, renderResult);
+                return renderer?.render(targetContext, config, false);
             }
         )
     });

@@ -23,6 +23,8 @@ export type LayerNode = RenderingNode;
  * A Layer can have nested rendereres, like a Mask Renderer
  * The layer renderer will pass the config to the renderer
 */
+
+/*
 export function layerRenderer(treeNode: LayerNode) {
 
     return {
@@ -50,3 +52,4 @@ export function layerRenderer(treeNode: LayerNode) {
         }
     };
 }
+*/

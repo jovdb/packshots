@@ -2,7 +2,7 @@ import { IMaskConfig } from "../../components/config/MaskConfig";
 import { ImageCache } from "./ImageCache";
 import { IRenderer } from "./IRenderer";
 
-export class MaskRenderer implements IRenderer<boolean> {
+export class MaskRenderer implements IRenderer {
     public imageCache: ImageCache;
     private context: CanvasRenderingContext2D | null;
 
@@ -17,37 +17,36 @@ export class MaskRenderer implements IRenderer<boolean> {
         await this.imageCache.loadImage(url);
     }
 
-    render(targetContext: CanvasRenderingContext2D, config: IMaskConfig): boolean {
+    render(targetContext: CanvasRenderingContext2D, config: IMaskConfig) {
         const url = config?.image.url ?? "";
         const image = this.imageCache.getImage(url, true);
-        if (!this.context) return false;
+        const { context } = this;
+        if (!context) return undefined;
 
         // Stretch image to full canvas size
         if (image) {
-            this.context.canvas.width = targetContext.canvas.width;
-            this.context.canvas.height = targetContext.canvas.height;
+            context.canvas.width = targetContext.canvas.width;
+            context.canvas.height = targetContext.canvas.height;
             
-            this.context.globalCompositeOperation = "source-in";
+            context.globalCompositeOperation = "source-in";
 
-            this.context.drawImage(
+            context.drawImage(
                 image,
                 0, 0, image.width, image.height,
-                0, 0, this.context.canvas.width, this.context.canvas.height,
+                0, 0, context.canvas.width, context.canvas.height,
             );
+
+            return () => {
+                context.globalCompositeOperation = "source-out";
+    
+                targetContext.drawImage(
+                    context.canvas,
+                    0, 0, context.canvas.width, context.canvas.height,
+                    0, 0, targetContext.canvas.width, targetContext.canvas.height,
+                );
+            }
         }
 
-        return !!image
+        return undefined;
     }
-
-    renderAfterChild(targetContext: CanvasRenderingContext2D, renderResult: boolean) {
-        if (!this.context) return;
-        if (renderResult) this.context.globalCompositeOperation = "source-out";
-    
-        targetContext.drawImage(
-            this.context.canvas,
-            0, 0, this.context.canvas.width, this.context.canvas.height,
-            0, 0, targetContext.canvas.width, targetContext.canvas.height,
-        );
-    }
-
 }
