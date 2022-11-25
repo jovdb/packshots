@@ -190,13 +190,24 @@ export function useRenderTrees() {
     // Layers, but only triggers rerender if renderTree changes
     const layers = usePackshotStore(
         s => s.layers,
-        (renderTreesA, renderTreesB) => {
-            const compareA = renderTreesA.map(a => a.renderTree);
-            const compareB = renderTreesB.map(b => b.renderTree);
-            return shallow(compareA, compareB);
+        (layerA, layerB) => {
+            const renderTreeA = layerA.map(a => a.renderTree);
+            const renderTreeB = layerB.map(b => b.renderTree);
+
+            const disabledA = layerA.map(a => a.config?.isDisabled);
+            const disabledB = layerB.map(a => a.config?.isDisabled);
+            return (
+                shallow(renderTreeA, renderTreeB) && // we can do a shallow compare because renderTree is replaced on update (immutable)
+                shallow(disabledA, disabledB)
+            );
         },
     );
 
     // Return the same array when no renderTree changes
-    return useMemo(() => layers.map(l => l.renderTree), [layers]);
+    return useMemo(
+        () => layers
+            .filter(l => !l.config?.isDisabled)
+            .map(l => l.renderTree),
+        [layers],
+    );
 }
