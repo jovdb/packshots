@@ -11,9 +11,9 @@ export const usePackshotStore = create<IPackshot & {
         setPackshot(packshot: IPackshot): void;
         updatePackshotName(name: string): void;
         updatePackshotConfig(config: IPackshotConfig): void;
-        deleteLayer(index: number): void;
-        updateLayerConfig(index: number, config: Partial<ILayerConfig>): void;
-        updateLayerRenderTree(index: number, renderer: IRenderTree): void;
+        deleteLayer(layerIndex: number): void;
+        updateLayerConfig(layerIndex: number, config: Partial<ILayerConfig>): void;
+        updateLayerRenderTree(layerIndex: number, renderTree: IRenderTree): void;
     },
 }>((set) => ({
     config: {

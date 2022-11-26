@@ -1,4 +1,4 @@
-import type { IRenderer } from "./IRenderer";
+import type { IRenderer, IRenderResult } from "./IRenderer";
 import * as twgl from "twgl.js/dist/5.x/twgl-full";
 import { ControlPoint } from "../controlPoints/IControlPoints";
 import { IPlaneRendererConfig } from "../../components/config/PlaneRendererConfig";
@@ -104,14 +104,14 @@ export class PlaneWebGlRenderer implements IRenderer {
     }
 
     render(
-        targetContext: CanvasRenderingContext2D,
+        drawOnContext: CanvasRenderingContext2D,
         config: IPlaneRendererConfig
-    ): void {
+    ): IRenderResult | undefined | void {
         const { gl, uniforms, image, bufferInfo, programInfo } = this;
         if (!uniforms.texture || !image || !programInfo) throw new Error("Only call render after a succesful loadAsync");
         const m4 = twgl.m4;
         const webGlCanvas = gl.canvas as HTMLCanvasElement;
-        const { width: targetWidth, height: targetHeight } = targetContext.canvas;
+        const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
 
         // Set size
         webGlCanvas.width = targetWidth;
@@ -140,7 +140,7 @@ export class PlaneWebGlRenderer implements IRenderer {
         twgl.drawBufferInfo(gl, this.bufferInfo);
 
         // Draw WebGl canvas on destination canvas
-        targetContext.drawImage(
+        drawOnContext.drawImage(
             webGlCanvas,
             0, 0, webGlCanvas.width, webGlCanvas.height,
             0, 0, targetWidth, targetHeight,
@@ -256,7 +256,7 @@ export class PlaneWebGlRenderer implements IRenderer {
         if (this.uniforms.texture) {
             this.gl.deleteTexture(this.uniforms.texture);
         }
-
+/*
         if (this.bufferInfo) {
             this.gl.deleteBuffer(this.bufferInfo);
         }
@@ -264,6 +264,7 @@ export class PlaneWebGlRenderer implements IRenderer {
         if (this.programInfo) {
             this.gl.deleteProgram(this.programInfo);
         }
+        */
     }
 }
 

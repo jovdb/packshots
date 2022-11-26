@@ -8,6 +8,7 @@ import { IImageConfig } from "./ImageConfig";
 
 export interface IMaskRenderingConfig extends IRendererConfig {
     image: IImageConfig;
+    isDisabled?: boolean;
 };
 
 export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({

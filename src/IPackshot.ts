@@ -46,7 +46,7 @@ export interface IRendererConfig {
 export interface IRenderTree {
     name?: string;
     type: string;
-    /** That code that will do the rendering */
+    /** That code that will do the rendering, added by store */
     renderer?: IRenderer;
     /** A tree of render information (example a mask with as child an image) */
     children?: Renderers[];

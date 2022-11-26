@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CSSProperties, useEffect, useLayoutEffect, useRef } from "react";
 import { checkBoardStyle } from "../src/checkboard";
 import { Renderers } from "../src/IPackshot";
-import { usePackshotStore, useRenderTrees } from "../src/packshot";
+import { useRenderTrees } from "../src/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
 
 
@@ -15,14 +15,30 @@ function render(
     // Clear Canvas
     targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
 
+    let currentDrawContext = targetContext;
+
     renderTrees.forEach((renderTree) => {
         walkTree(
             renderTree,
             (renderNode) => {
                 const config = renderNode.config;
                 const renderer = renderNode.renderer;
-                return renderer?.render(targetContext, config, false);
-            }
+                if (!renderer) return;
+
+                // Render
+                const renderResult = renderer.render(currentDrawContext, config, false);
+                
+                // Set next drawing Context
+                const restoreContext = currentDrawContext;
+                currentDrawContext = renderResult?.nextContext || currentDrawContext;
+
+                // TODO shouldn't we restore the drawContext ouself?
+                return () => {
+                    renderResult?.afterChildren?.();
+                    // Restore context
+                    currentDrawContext = restoreContext;
+                }
+            },
         )
     });
 }

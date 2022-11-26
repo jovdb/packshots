@@ -1,11 +1,14 @@
 import { usePackshotActions } from "../src/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ConfigComponent, getConfigComponent } from "./config/factory";
-import { ILayer, IPackshot } from "../src/IPackshot";
+import { ILayer, IMaskRenderer, IPackshot } from "../src/IPackshot";
 import EyeIcon from "../icons/eye.svg";
 import DelLayer from "../icons/del-layer.svg";
-import { flattenTree, replaceTreeNode } from "../src/Tree";
+import MaskIcon from "../icons/mask.svg";
+
+import { findTreeNode, flattenTree, replaceTreeNode, walkTree } from "../src/Tree";
 import { createElement } from "react";
+import { IMaskRenderingConfig } from "./config/MaskRendererConfig";
 
 export function PackshotLayerAccordion({
     layer,
@@ -16,7 +19,10 @@ export function PackshotLayerAccordion({
     layerIndex: number;
     children: any;
 }) {
-    const { deleteLayer, updateLayerConfig } = usePackshotActions();
+    const { deleteLayer, updateLayerConfig, updateLayerRenderTree } = usePackshotActions();
+    const maskRenderNode = findTreeNode(layer.renderTree, treeNode => treeNode.type === "mask") as IMaskRenderer | undefined;
+    const isMaskEnabled = !maskRenderNode?.config.isDisabled;
+
     return (
         <Accordion
             title={layer.name ?? ""}
@@ -34,6 +40,25 @@ export function PackshotLayerAccordion({
                     }}>
                     <EyeIcon width={16} />
                 </AccordionButton>
+                {maskRenderNode && (
+                    <AccordionButton
+                        title="Enable/Disable Mask"
+                        isActive={isMaskEnabled}
+                        onClick={() => {
+                            if (!maskRenderNode) return;
+
+                            const newRenderTree = replaceTreeNode(layer.renderTree, maskRenderNode, {
+                                ...maskRenderNode,
+                                config: {
+                                    ...maskRenderNode.config,
+                                    isDisabled: !maskRenderNode.config.isDisabled,
+                                },
+                            })
+                            updateLayerRenderTree(layerIndex, newRenderTree);
+                        }}>
+                        <MaskIcon width={16} />
+                    </AccordionButton>
+                )}
             </>}
             right={<>
                 <AccordionButton
@@ -66,7 +91,7 @@ export function PackshotLayerConfig({
     const { updateLayerRenderTree } = usePackshotActions();
 
     const renderers = flattenTree(layer.renderTree);
-    
+
     const RendererConfigComponents = renderers
         .map(r => getConfigComponent(r.type))
         .filter(c => !!c) as ConfigComponent<any>[]; // Remove empty onces
@@ -83,7 +108,7 @@ export function PackshotLayerConfig({
                             ...prevRendererNode,
                             config: newConfig,
                         };
-                        
+
                         const newRenderTree = replaceTreeNode(layer.renderTree, prevRendererNode, newRendererNode);
                         updateLayerRenderTree(layerIndex, newRenderTree);
                     }}

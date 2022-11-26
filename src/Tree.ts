@@ -32,6 +32,16 @@ export function mapTree<T extends ITreeNode<unknown>, U extends ITreeNode<unknow
     return newNode;
 }
 
+/** Walk trough a tree return node  */
+export function findTreeNode<T extends ITreeNode<unknown>>(
+    treeNode: T,
+    predicate: (value: T) => boolean,
+): T | undefined {
+    if (predicate(treeNode)) return treeNode;
+    return treeNode.children?.find(child => findTreeNode(child as any, predicate)) as T | undefined;
+}
+
+
 /** Replace a node in a tree */
 export function replaceTreeNode<T extends ITreeNode<unknown>>(
     rootNode: T,

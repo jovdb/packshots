@@ -1,6 +1,7 @@
+import RenderResult from "next/dist/server/render-result";
 import { IImageRendererConfig } from "../../components/config/ImageRendererConfig";
 import { ImageCache } from "./ImageCache";
-import type { IRenderer } from "./IRenderer";
+import type { IRenderer, IRenderResult } from "./IRenderer";
 
 export class ImageRenderer implements IRenderer {
     public imageCache: ImageCache;
@@ -17,7 +18,7 @@ export class ImageRenderer implements IRenderer {
     public render(
         targetContext: CanvasRenderingContext2D,
         config: IImageRendererConfig,
-    ) {
+    ): IRenderResult | undefined | void {
         const url = config?.image.url ?? "";
         const image = this.imageCache.getImage(url, true);
 
