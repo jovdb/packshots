@@ -1,3 +1,5 @@
+"use client";
+
 // source: https://gist.github.com/morajabi/523d7a642d8c0a2f71fcfa0d8b3d2846
 import { useLayoutEffect, useCallback, useState } from "react";
 
