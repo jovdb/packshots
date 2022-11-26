@@ -47,6 +47,9 @@ export const photobookLayers: IPackshot = {
                     },
                 ]
             },
+            config: {
+                composition: "multiply",
+            }
         }
     ]
 };

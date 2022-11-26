@@ -108,7 +108,10 @@ export class PlaneWebGlRenderer implements IRenderer {
         config: IPlaneRendererConfig
     ): IRenderResult | undefined | void {
         const { gl, uniforms, image, bufferInfo, programInfo } = this;
-        if (!uniforms.texture || !image || !programInfo) throw new Error("Only call render after a succesful loadAsync");
+        if (!uniforms.texture || !image || !programInfo) {
+            debugger;
+            throw new Error("Only call render after a succesful loadAsync");
+        }
         const m4 = twgl.m4;
         const webGlCanvas = gl.canvas as HTMLCanvasElement;
         const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
@@ -126,9 +129,9 @@ export class PlaneWebGlRenderer implements IRenderer {
         const matrix = m4.ortho(0, targetWidth, targetHeight, 0, -1, 1); // Convert from pixels to clip space
 
         // Get perspective matrix
-        const projectionMatrix = this.getProjectionMatrixFromControlPoints(config.controlPoints, targetWidth, targetHeight);
+        const projectionMatrix = this.getProjectionMatrixFromControlPoints(config.controlPoints);
         if (projectionMatrix) {
-            // console.log(matrixToString(matrix2, "matrix2"));
+            m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
             m4.multiply(matrix, projectionMatrix, matrix);
         } else {
             m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
@@ -155,18 +158,14 @@ export class PlaneWebGlRenderer implements IRenderer {
      */
     public getProjectionMatrixFromControlPoints(
         controlPoints: ControlPoint[] | undefined,
-        canvasWidth: number,
-        canvasHeight: number,
-        packshotWidth = canvasWidth,
-        packshotHeight = canvasHeight,
     ) {
-        if (!controlPoints || !canvasWidth || !canvasHeight) return twgl.m4.identity();
+        if (!controlPoints) return twgl.m4.identity();
 
-        /** Convert control point (range [-1,1]) to image range (0-image size) */
+        /** Convert control point (range [-1,1]) to image range (0-1) */
         function getCanvasControlPoint(x: number, y: number) {
             return [
-                canvasWidth / 2 + x * packshotWidth / 2,
-                canvasHeight / 2 + y * packshotHeight / 2,
+                0.5 + x * 0.5,
+                0.5 + y * 0.5,
             ] as ControlPoint;
         }
 
