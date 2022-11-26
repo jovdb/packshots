@@ -1,6 +1,6 @@
 import RenderResult from "next/dist/server/render-result";
 import { IImageRendererConfig } from "../../components/config/ImageRendererConfig";
-import { ImageCache } from "./ImageCache";
+import { ImageCache } from "../ImageCache";
 import type { IRenderer, IRenderResult } from "./IRenderer";
 
 export class ImageRenderer implements IRenderer {

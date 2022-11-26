@@ -1,5 +1,5 @@
 import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
-import { ImageCache } from "./ImageCache";
+import { ImageCache } from "../ImageCache";
 import { IRenderer, IRenderResult } from "./IRenderer";
 
 export class MaskRenderer implements IRenderer {
