@@ -8,16 +8,16 @@ export function Accordion({
     right,
     left,
     style,
-    setIsExpanded,
+    onTitleClick,
 }: PropsWithChildren<{
     title: string;
     isExpanded?: boolean;
     right?: any;
     left?: any;
     style?: CSSProperties;
-    setIsExpanded?(value: boolean): void;
+    onTitleClick?(): void;
 }>) {
-    const isExpandable = !!setIsExpanded;
+    const isExpandable = !!onTitleClick;
     return (
         <div>
             <AccordionBar
@@ -30,7 +30,7 @@ export function Accordion({
                     alignItems: "center",
                     ...style,
                 }}
-                onClick={() => { isExpandable && setIsExpanded?.(!isExpanded); }}
+                onClick={() => { onTitleClick?.() }}
             >
                 <span style={{ display: isExpandable ? "inline-block" : "none", width: "1em", fill: "currentcolor" }}>
                     <DownIcon width={10} style={{ transform: `rotateZ(${isExpanded ? "-180deg" : "0"})`, transitionDuration: "0.3s" }} />

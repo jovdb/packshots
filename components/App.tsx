@@ -82,7 +82,9 @@ export function App() {
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
                     <ActionBar />
                     <PackshotLayers/>
-                    <Accordion title="Export" isExpanded={isExportExpanded} setIsExpanded={setIsExportExpanded}>
+                    <Accordion title="Export" isExpanded={isExportExpanded} onTitleClick={() => {
+                        setIsExportExpanded(prev => !prev);
+                    }}>
                         <AccordionPanel>
                             <PackshotConfig config={packshotConfig} onChange={setPackshotConfig} />
                         </AccordionPanel>

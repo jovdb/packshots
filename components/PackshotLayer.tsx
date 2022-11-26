@@ -8,17 +8,14 @@ import MaskIcon from "../icons/mask.svg";
 import MoreIcon from "../icons/more.svg";
 
 import { findTreeNode, flattenTree, replaceTreeNode, walkTree } from "../src/Tree";
-import { useState } from "react";
 
 export function PackshotLayerAccordion({
     layer,
     layerIndex,
-    onToggleOptions,
     children,
 }: {
     layer: ILayer;
     layerIndex: number;
-    onToggleOptions: () => void
     children: any;
 }) {
     const { deleteLayer, updateLayerConfig, updateLayerRenderTree } = usePackshotActions();
@@ -28,11 +25,9 @@ export function PackshotLayerAccordion({
     return (
         <Accordion
             title={layer.name ?? ""}
-            isExpanded={!!layer.config?.isRenderConfigExpanded}
-            setIsExpanded={(value) => {
-                updateLayerConfig(layerIndex, { isRenderConfigExpanded: value });
-                // Hide Layer options
-
+            isExpanded={!!(layer.config?.isRenderConfigExpanded || layer.config?.isLayerOptionExpanded)}
+            onTitleClick={() => {
+                updateLayerConfig(layerIndex, { isRenderConfigExpanded: !layer.config?.isRenderConfigExpanded });
             }}
             left={<>
                 <AccordionButton
@@ -69,7 +64,9 @@ export function PackshotLayerAccordion({
                     title="Layer options..."
                     style={{ paddingRight: 10 }}
                     onClick={() => {
-                        onToggleOptions();
+                        updateLayerConfig(layerIndex, {
+                            isLayerOptionExpanded: !layer.config?.isLayerOptionExpanded,
+                        });
                     }}
                 >
                     <MoreIcon width={16} height={20} />
@@ -203,35 +200,25 @@ export function PackshotLayer({
     layerIndex: number,
 }) {
 
-    const [showLayerOptions, setShowLayerOptions] = useState(false);
     const { updateLayerConfig } = usePackshotActions();
 
     return (
         <PackshotLayerAccordion
             layer={layer}
             layerIndex={layerIndex}
-            onToggleOptions={() => {
-                if (layer.config?.isRenderConfigExpanded) {
-                    setShowLayerOptions(prev => !prev);
-                } else {
-                    setShowLayerOptions(true);
-                    updateLayerConfig(layerIndex, {
-                        ...layer.config,
-                        isRenderConfigExpanded: true,
-                    });
-                }
-            }}
         >
-            {showLayerOptions && (
+            {layer.config?.isLayerOptionExpanded && (
                 <PackshotLayerConfig
                     config={layer.config || {}}
                     onChange={(newConfig) => updateLayerConfig(layerIndex, newConfig)}
                 />
             )}
-            <PackshotLayerRenderTreeConfig
-                layer={layer}
-                layerIndex={layerIndex}
-            />
+            {layer.config?.isRenderConfigExpanded && (
+                <PackshotLayerRenderTreeConfig
+                    layer={layer}
+                    layerIndex={layerIndex}
+                />
+            )}
         </PackshotLayerAccordion>
     );
 }
