@@ -9,7 +9,7 @@ import MoreIcon from "../icons/more.svg";
 
 import { findTreeNode, flattenTree, replaceTreeNode, walkTree } from "../src/Tree";
 
-export function PackshotLayerAccordion({
+export function LayerAccordion({
     layer,
     layerIndex,
     children,
@@ -90,7 +90,7 @@ export function PackshotLayerAccordion({
     );
 }
 
-export function PackshotLayerRenderTreeConfig({
+export function LayerRenderTreeConfig({
     layer,
     layerIndex,
 }: {
@@ -128,7 +128,7 @@ export function PackshotLayerRenderTreeConfig({
 }
 
 
-export function PackshotLayerConfig({
+export function LayerConfig({
     config,
     onChange
 }: {
@@ -192,7 +192,7 @@ export function PackshotLayerConfig({
     );
 }
 
-export function PackshotLayer({
+export function Layer({
     layer,
     layerIndex
 }: {
@@ -203,22 +203,22 @@ export function PackshotLayer({
     const { updateLayerConfig } = usePackshotActions();
 
     return (
-        <PackshotLayerAccordion
+        <LayerAccordion
             layer={layer}
             layerIndex={layerIndex}
         >
             {layer.config?.isLayerOptionExpanded && (
-                <PackshotLayerConfig
+                <LayerConfig
                     config={layer.config || {}}
                     onChange={(newConfig) => updateLayerConfig(layerIndex, newConfig)}
                 />
             )}
             {layer.config?.isRenderConfigExpanded && (
-                <PackshotLayerRenderTreeConfig
+                <LayerRenderTreeConfig
                     layer={layer}
                     layerIndex={layerIndex}
                 />
             )}
-        </PackshotLayerAccordion>
+        </LayerAccordion>
     );
 }

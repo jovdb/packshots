@@ -6,7 +6,7 @@ import { Accordion, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./ActionBar";
 import { PackshotConfig } from "./config/PackshotConfig";
 import { useLoadedRenderers, usePackshotConfig } from "../src/packshot";
-import { PackshotLayers } from "./PackshotLayers";
+import { Layers } from "./Layers";
 import { Renderer } from "./Renderer";
 
 export function useZoom(
@@ -81,7 +81,7 @@ export function App() {
             <div>
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
                     <ActionBar />
-                    <PackshotLayers/>
+                    <Layers/>
                     <Accordion title="Export" isExpanded={isExportExpanded} onTitleClick={() => {
                         setIsExportExpanded(prev => !prev);
                     }}>

@@ -1,9 +1,9 @@
-import { usePackshotLayers } from "../src/packshot";
-import { PackshotLayer } from "./PackshotLayer";
+import { useLayers } from "../src/packshot";
+import { Layer } from "./Layer";
 
-export function PackshotLayers() {
+export function Layers() {
     // Layers 
-    const layers = usePackshotLayers();
+    const layers = useLayers();
 
     return (
         <>
@@ -15,7 +15,7 @@ export function PackshotLayers() {
                     .map((layer, i) => {
                         i = layers.length - 1 - i;
                         return (
-                            <PackshotLayer key={i} layer={layer} layerIndex={i} />
+                            <Layer key={i} layer={layer} layerIndex={i} />
                         );
                     })
             }

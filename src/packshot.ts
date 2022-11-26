@@ -112,7 +112,7 @@ export function usePackshotConfig() {
     ] as const;
 }
 
-export function usePackshotLayers() {
+export function useLayers() {
     return usePackshotStore(s => s.layers);
 }
 
