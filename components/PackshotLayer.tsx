@@ -1,22 +1,24 @@
 import { usePackshotActions } from "../src/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { ConfigComponent, getConfigComponent } from "./config/factory";
-import { ILayer, IMaskRenderer, IPackshot } from "../src/IPackshot";
+import { ILayer, ILayerConfig, IMaskRenderer, IPackshot, IPackshotConfig } from "../src/IPackshot";
 import EyeIcon from "../icons/eye.svg";
 import DelLayer from "../icons/del-layer.svg";
 import MaskIcon from "../icons/mask.svg";
+import MoreIcon from "../icons/more.svg";
 
 import { findTreeNode, flattenTree, replaceTreeNode, walkTree } from "../src/Tree";
-import { createElement } from "react";
-import { IMaskRenderingConfig } from "./config/MaskRendererConfig";
+import { useState } from "react";
 
 export function PackshotLayerAccordion({
     layer,
     layerIndex,
+    onToggleOptions,
     children,
 }: {
     layer: ILayer;
     layerIndex: number;
+    onToggleOptions: () => void
     children: any;
 }) {
     const { deleteLayer, updateLayerConfig, updateLayerRenderTree } = usePackshotActions();
@@ -26,9 +28,11 @@ export function PackshotLayerAccordion({
     return (
         <Accordion
             title={layer.name ?? ""}
-            isExpanded={!!layer.config?.isExpanded}
+            isExpanded={!!layer.config?.isRenderConfigExpanded}
             setIsExpanded={(value) => {
-                updateLayerConfig(layerIndex, { isExpanded: value });
+                updateLayerConfig(layerIndex, { isRenderConfigExpanded: value });
+                // Hide Layer options
+
             }}
             left={<>
                 <AccordionButton
@@ -62,6 +66,15 @@ export function PackshotLayerAccordion({
             </>}
             right={<>
                 <AccordionButton
+                    title="Layer options..."
+                    style={{ paddingRight: 10 }}
+                    onClick={() => {
+                        onToggleOptions();
+                    }}
+                >
+                    <MoreIcon width={16} height={20} />
+                </AccordionButton>
+                <AccordionButton
                     title="Remove layer"
                     style={{ paddingRight: 10 }}
                     onClick={() => {
@@ -80,8 +93,7 @@ export function PackshotLayerAccordion({
     );
 }
 
-
-export function PackshotLayerConfig({
+export function PackshotLayerRenderTreeConfig({
     layer,
     layerIndex,
 }: {
@@ -118,6 +130,71 @@ export function PackshotLayerConfig({
     );
 }
 
+
+export function PackshotLayerConfig({
+    config,
+    onChange
+}: {
+    config: ILayerConfig,
+    onChange: (newConfig: ILayerConfig) => void,
+}) {
+    let composition: GlobalCompositeOperation | "disabled" | "normal";
+    if (config.isDisabled) composition = "disabled";
+    else if (!config.composition) composition = "normal";
+    else composition = config.composition;
+
+    return (
+        <table style={{
+            backgroundColor: "#ccc",
+            boxShadow: "0 5px 8px rgba(0, 0, 0, 0.2) inset",
+            borderBottom: "1px solid #666",
+            marginBottom: 5,
+            padding: 5,
+
+            /** HACK */
+            width: "calc(100% + 10px)",
+            margin: -5,
+        }}>
+            <tbody>
+                <tr>
+                    <td>Composition:</td>
+                    <td>
+                        <select
+                            value={composition}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "disable") {
+                                    onChange({
+                                        ...config,
+                                        isDisabled: true,
+                                    });
+                                } else if (value === "normal") {
+                                    onChange({
+                                        ...config,
+                                        isDisabled: false,
+                                        composition: undefined,
+                                    });
+                                } else {
+                                    onChange({
+                                        ...config,
+                                        isDisabled: false,
+                                        composition: value as GlobalCompositeOperation,
+                                    });
+                                }
+                            }}
+                            style={{ minWidth: 150 }}
+                        >
+                            <option value="disable">Disable</option>
+                            <option value="normal">Normal</option>
+                            <option value="multiply">Multiply</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    );
+}
+
 export function PackshotLayer({
     layer,
     layerIndex
@@ -125,9 +202,36 @@ export function PackshotLayer({
     layer: ILayer,
     layerIndex: number,
 }) {
+
+    const [showLayerOptions, setShowLayerOptions] = useState(false);
+    const { updateLayerConfig } = usePackshotActions();
+
     return (
-        <PackshotLayerAccordion layer={layer} layerIndex={layerIndex}>
-            <PackshotLayerConfig layer={layer} layerIndex={layerIndex} />
+        <PackshotLayerAccordion
+            layer={layer}
+            layerIndex={layerIndex}
+            onToggleOptions={() => {
+                if (layer.config?.isRenderConfigExpanded) {
+                    setShowLayerOptions(prev => !prev);
+                } else {
+                    setShowLayerOptions(true);
+                    updateLayerConfig(layerIndex, {
+                        ...layer.config,
+                        isRenderConfigExpanded: true,
+                    });
+                }
+            }}
+        >
+            {showLayerOptions && (
+                <PackshotLayerConfig
+                    config={layer.config || {}}
+                    onChange={(newConfig) => updateLayerConfig(layerIndex, newConfig)}
+                />
+            )}
+            <PackshotLayerRenderTreeConfig
+                layer={layer}
+                layerIndex={layerIndex}
+            />
         </PackshotLayerAccordion>
     );
 }

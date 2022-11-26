@@ -211,3 +211,10 @@ export function useRenderTrees() {
         [layers],
     );
 }
+
+export function useLayersConfig() {
+    return usePackshotStore(
+        s => s.layers.map(l => l.config || {}),
+        shallow,
+    );
+}

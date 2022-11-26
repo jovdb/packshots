@@ -71,8 +71,17 @@ export interface IMaskRenderer extends IRenderTree {
 export type Renderers = IImageRenderer | IMaskRenderer | IPlaneRenderer;
 
 export interface ILayerConfig {
+    /** Disable Layer */
     isDisabled?: boolean;
-    isExpanded?: boolean;
+
+    /** Expand renderer options Config */
+    isRenderConfigExpanded?: boolean;
+
+    /** Expand the layer options */
+    isLayerOptionExpanded?: boolean;
+
+    /** Layer composition */
+    composition?: GlobalCompositeOperation;
 }
 
 export interface ILayer {

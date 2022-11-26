@@ -1,4 +1,4 @@
-import { IMaskConfig } from "../../components/config/MaskConfig";
+import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
 import { ImageCache } from "./ImageCache";
 import { IRenderer, IRenderResult } from "./IRenderer";
 
@@ -14,12 +14,12 @@ export class MaskRenderer implements IRenderer {
         this.context = context;
     }
 
-    async loadAsync(config: IMaskConfig) {
+    async loadAsync(config: IMaskRenderingConfig) {
         const url = config?.image.url ?? "";
         await this.imageCache.loadImage(url);
     }
 
-    render(drawOnContext: CanvasRenderingContext2D, config: IMaskConfig): IRenderResult {
+    render(drawOnContext: CanvasRenderingContext2D, config: IMaskRenderingConfig): IRenderResult | undefined {
         const url = config?.image.url ?? "";
         const image = this.imageCache.getImage(url, true);
         const { context } = this;

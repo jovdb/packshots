@@ -55,12 +55,12 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                                         setType(value);
                                         switch (value) {
                                             case "local": {
-                                                onChange({ image: { url: "", name: "" }});
+                                                onChange({ image: { url: "", name: "" } });
                                                 break;
                                             }
                                             default: {
                                                 console.error("Unknown Background type:", value)
-                                                onChange({ image: { url: "", name: "" }});
+                                                onChange({ image: { url: "", name: "" } });
                                                 break;
                                             }
                                         }
@@ -85,7 +85,7 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                                             />
                                             <ImageSelection
                                                 onSelect={(info) => {
-                                                    onChange({ image: { url: info.url, name: info.name }});
+                                                    onChange({ image: { url: info.url, name: info.name } });
                                                 }}
                                             />
                                         </div>
@@ -109,7 +109,7 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                                                 const value = e.target.value;
                                                 const lastSlashIndex = value.lastIndexOf("/");
                                                 const name = lastSlashIndex < 0 ? value : value.substring(lastSlashIndex + 1);
-                                                onChange({ image: { url: value, name }});
+                                                onChange({ image: { url: value, name } });
                                             }}
                                         />
                                     </td>
@@ -119,7 +119,7 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                         <tr>
                             <td colSpan={2} style={{ textAlign: "center" }}>
                                 {config?.image?.url && <img alt="preview" src={config.image.url} style={{ width: "100%", height: "auto", maxWidth: 200, maxHeight: 200, border: "1px solid #aaa", ...checkBoardStyle }} />}
-                            </td>   
+                            </td>
                         </tr>
                         <tr>
                             <td colSpan={2}>

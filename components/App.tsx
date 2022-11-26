@@ -5,7 +5,7 @@ import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./ActionBar";
 import { PackshotConfig } from "./config/PackshotConfig";
-import { useLoadedRenderers, usePackshotConfig, useRenderers } from "../src/packshot";
+import { useLoadedRenderers, usePackshotConfig } from "../src/packshot";
 import { PackshotLayers } from "./PackshotLayers";
 import { Renderer } from "./Renderer";
 

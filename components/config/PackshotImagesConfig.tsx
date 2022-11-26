@@ -1,7 +1,7 @@
 import { useState } from "react";
 import create from "zustand";
+import { useImageFromUrl } from "../../src/hooks/useImageFromUrl";
 import { ImageSelection } from "../FileSelection";
-import { useImageDataFromUrl, useImageFromUrl } from "../Test";
 
 
 export const usePackshotImagesConfig = create<{
@@ -21,10 +21,12 @@ export function usePackshotBackgroundImage() {
     return useImageFromUrl(packshotBackgroundUrl);
 }
 
+/*
 export function usePackshotOverlayImageData() {
     const url = usePackshotImagesConfig(store => store.overlayUrl);
     return useImageDataFromUrl(url);
 }
+*/
 
 export function usePackshotOverlayImage() {
     const packshotOverlayUrl = usePackshotImagesConfig(s => s.overlayUrl);
@@ -37,18 +39,20 @@ export function PackshotImagesConfig() {
     const [type, setType] = useState("walldeco1");
     const [lastBackgroundFile, setLastBackgroundFile] = useState<{ url: string; name: string }>({ name: "", url: "" });
     const [lastOverlayFile, setLastOverlayFile] = useState<{ url: string; name: string }>({ name: "", url: "" });
-    const { isFetching: isBackgroundFetching, isFetched: isBackgroundFetched, isError: isBackgroundError, data: packshotBackgroundImage } = usePackshotBackgroundImage();
-    const { isFetching: isOverlayFetching, isFetched: isOverlayFetched, isError: isOverlayError, data: packshotOverlayImage } = usePackshotOverlayImage();
+    //const { isFetching: isBackgroundFetching, isFetched: isBackgroundFetched, isError: isBackgroundError, data: packshotBackgroundImage } = usePackshotBackgroundImage();
+    //const { isFetching: isOverlayFetching, isFetched: isOverlayFetched, isError: isOverlayError, data: packshotOverlayImage } = usePackshotOverlayImage();
     const [loadBackgroundError, setLoadBackgroudError] = useState("");
     const [loadOverlayError, setLoadOverlayError] = useState("");
 
+    /*
     const packshotWidth = packshotBackgroundImage?.width || packshotOverlayImage?.width || 0; 
     const packshotHeight = packshotBackgroundImage?.height || packshotOverlayImage?.height || 0;
     const hasOverlayBadSize = packshotBackgroundImage && packshotOverlayImage && (
         packshotBackgroundImage.width !== packshotOverlayImage.width || 
         packshotBackgroundImage.height !== packshotOverlayImage.height
     )
-    const errorMessage = loadBackgroundError || loadOverlayError || hasOverlayBadSize ? "Overlay should have the same size." : ""
+    */
+    const errorMessage = loadBackgroundError || loadOverlayError ? "Overlay should have the same size." : ""
 
     return (
         <table>
@@ -110,7 +114,6 @@ export function PackshotImagesConfig() {
                             <option value="walldeco1">Wall deco 1</option>
                             <option value="walldeco2">Wall deco 2</option>
                         </select>
-                        {(isBackgroundFetching || isOverlayFetching) && "⌛"}
                     </td>
                 </tr>
                 {type === "local" && (
@@ -186,7 +189,6 @@ export function PackshotImagesConfig() {
                 <tr>
                     <td colSpan={2}>
                         {errorMessage}
-                        {packshotWidth && packshotHeight && `Size: ${packshotWidth} x ${packshotHeight}` || ""}
                     </td>
                 </tr>
 

@@ -1,14 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { CSSProperties, useEffect, useLayoutEffect, useRef } from "react";
 import { checkBoardStyle } from "../src/checkboard";
-import { Renderers } from "../src/IPackshot";
-import { useRenderTrees } from "../src/packshot";
+import { ILayerConfig, Renderers } from "../src/IPackshot";
+import { useLayersConfig, useRenderTrees } from "../src/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
 
 
 function render(
     targetContext: CanvasRenderingContext2D | null | undefined,
-    renderTrees: Renderers[], 
+    renderTrees: Renderers[],
+    layersConfig: ILayerConfig[],
 ) {
     if (!targetContext) return;
 
@@ -17,29 +18,43 @@ function render(
 
     let currentDrawContext = targetContext;
 
-    renderTrees.forEach((renderTree) => {
-        walkTree(
-            renderTree,
-            (renderNode) => {
-                const config = renderNode.config;
-                const renderer = renderNode.renderer;
-                if (!renderer) return;
+    renderTrees.forEach((renderTree, layerIndex) => {
 
-                // Render
-                const renderResult = renderer.render(currentDrawContext, config, false);
-                
-                // Set next drawing Context
-                const restoreContext = currentDrawContext;
-                currentDrawContext = renderResult?.nextContext || currentDrawContext;
+        const layerConfig = layersConfig[layerIndex] || {};
+        currentDrawContext.save();
 
-                // TODO shouldn't we restore the drawContext ouself?
-                return () => {
-                    renderResult?.afterChildren?.();
-                    // Restore context
-                    currentDrawContext = restoreContext;
-                }
-            },
-        )
+        try {
+            const composition = layerConfig.composition;
+            if (composition) {
+                currentDrawContext.globalCompositeOperation = composition as GlobalCompositeOperation;
+            }
+
+            walkTree(
+                renderTree,
+                (renderNode) => {
+                    const config = renderNode.config;
+                    const renderer = renderNode.renderer;
+                    if (!renderer) return;
+
+                    // Render
+                    const renderResult = renderer.render(currentDrawContext, config, false);
+
+                    // Set next drawing Context
+                    const restoreContext = currentDrawContext;
+                    currentDrawContext = renderResult?.nextContext || currentDrawContext;
+
+                    // TODO shouldn't we restore the drawContext ouself?
+                    return () => {
+                        renderResult?.afterChildren?.();
+                        // Restore context
+                        currentDrawContext = restoreContext;
+                    }
+                },
+            )
+        }
+        finally {
+            currentDrawContext.restore();
+        }
     });
 }
 
@@ -58,8 +73,9 @@ export function Renderer({
     if (!targetContextRef.current) targetContextRef.current = canvasRef.current?.getContext("2d") || null;
 
     const renderTrees = useRenderTrees();
+    const layersConfig = useLayersConfig();
 
-    const {isFetching: isLoadingRenderer, data: renderId } = useQuery([renderTrees], () => {
+    const { isFetching: isLoadingRenderer, data: renderId } = useQuery([renderTrees, layersConfig], () => {
         return Promise
             .all(
                 renderTrees.flatMap(renderTree => flattenTree(renderTree)
@@ -73,7 +89,7 @@ export function Renderer({
                 return Math.random();
             })
             .then(() => {
-                render(targetContextRef.current, renderTrees);
+                render(targetContextRef.current, renderTrees, layersConfig);
                 return Math.random(); // Return a unique result that can be used in a dependency array
             })
             .catch((err) => {
@@ -81,11 +97,11 @@ export function Renderer({
                 return Math.random();
             });
     });
-/*
-    useLayoutEffect(() => {
-        if(isLoadingRenderer) render(targetContextRef.current, renderTrees);
-    }, [isLoadingRenderer, renderId]);
-  */  
+    /*
+        useLayoutEffect(() => {
+            if(isLoadingRenderer) render(targetContextRef.current, renderTrees);
+        }, [isLoadingRenderer, renderId]);
+      */
     return (
         <canvas
             ref={canvasRef}
