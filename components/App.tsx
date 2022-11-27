@@ -14,19 +14,22 @@ export function useZoom(
     previewSize: { width: number; height: number },
     margin: number,
 ) {
-    return useMemo(() => {
-        return fitRectTransform({
-            top: 0,
-            left: 0,
-            width: imagesSize.width,
-            height: imagesSize.height,
-        }, {
-            top: margin,
-            left: margin,
-            width: previewSize.width - margin * 2,
-            height: previewSize.height - margin * 2,
-        });
-    }, [imagesSize.height, imagesSize.width, margin, previewSize.height, previewSize.width]);
+    return useMemo(
+        () => (
+            fitRectTransform({
+                top: 0,
+                left: 0,
+                width: imagesSize.width,
+                height: imagesSize.height,
+            }, {
+                top: margin,
+                left: margin,
+                width: previewSize.width - margin * 2,
+                height: previewSize.height - margin * 2,
+            })
+        ),
+        [imagesSize.height, imagesSize.width, margin, previewSize.height, previewSize.width],
+    );
 }
 
 export function App() {

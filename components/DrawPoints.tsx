@@ -69,7 +69,7 @@ export function useLayersControlPointsDragging(
 
         const renderNodeControlPoints = layerControlPoints[closestRenderNodeIndex];
         if (!renderNodeControlPoints) return;
-        
+
         const newPoints = [...renderNodeControlPoints]; // Copy
         newPoints[closestControlPointIndex] = [polygonX, polygonY]; // Update copy
         onChangeControlPoints(closestLayerIndex, closestRenderNodeIndex, newPoints, state.last);
@@ -82,23 +82,21 @@ export const DrawPoints = forwardRef<SVGSVGElement, {
 }>(({
     points,
     style,
-}, ref) => {
-    return (
-        <svg
-            ref={ref}
-            style={{
-                pointerEvents: "none",
-                ...style,
-            }}
-        >{
-                points
-                    .map(([x, y], i) => (
-                        <g key={`${i}`}>
-                            <circle cx={x} cy={y} r={7} stroke="rgba(255,255,255, 1)" strokeWidth="4" fill="transparent" />
-                            <circle cx={x} cy={y} r={7} stroke="blue" strokeWidth="1" fill="transparent" />
-                        </g>
-                    ))
-            }</svg>
-    );
-});
+}, ref) => (
+    <svg
+        ref={ref}
+        style={{
+            pointerEvents: "none",
+            ...style,
+        }}
+    >{
+            points
+                .map(([x, y], i) => (
+                    <g key={`${i}`}>
+                        <circle cx={x} cy={y} r={7} stroke="rgba(255,255,255, 1)" strokeWidth="4" fill="transparent" />
+                        <circle cx={x} cy={y} r={7} stroke="blue" strokeWidth="1" fill="transparent" />
+                    </g>
+                ))
+        }</svg>
+));
 DrawPoints.displayName = "DrawPoints";

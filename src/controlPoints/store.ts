@@ -38,11 +38,9 @@ const useControlPointsStore = create<IControlPointsStore>((set) => ({
     },
 
     deleteControlPoints(index) {
-        set((state) => {
-            return {
-                controlPoints: state.controlPoints.filter((_, i) => (i !== index)),
-            };
-        });
+        set((state) => ({
+            controlPoints: state.controlPoints.filter((_, i) => (i !== index)),
+        }));
     },
 
     updateControlPoints(index, controlPoints) {

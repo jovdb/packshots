@@ -51,7 +51,7 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                                 <select
                                     value={type}
                                     onChange={(e) => {
-                                        const value = e.target.value;
+                                        const { value }  = e.target;
                                         setType(value);
                                         switch (value) {
                                             case "local": {
@@ -106,7 +106,7 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                                             value={config?.image?.url || ""}
                                             style={{ width: "100%" }}
                                             onChange={(e) => {
-                                                const value = e.target.value;
+                                                const { value }  = e.target;
                                                 const lastSlashIndex = value.lastIndexOf("/");
                                                 const name = lastSlashIndex < 0 ? value : value.substring(lastSlashIndex + 1);
                                                 onChange({ image: { url: value, name } });

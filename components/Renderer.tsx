@@ -26,7 +26,7 @@ function render(
 
         currentDrawContext.save();
         try {
-            const composition = layerConfig.composition;
+            const { composition } = layerConfig;
             if (composition) {
                 currentDrawContext.globalCompositeOperation = composition as GlobalCompositeOperation;
             }
@@ -34,8 +34,7 @@ function render(
             walkTree(
                 renderTree,
                 (renderNode) => {
-                    const config = renderNode.config;
-                    const renderer = renderNode.renderer;
+                    const { config, renderer } = renderNode;
                     if (!renderer) return;
 
                     // Render
@@ -77,14 +76,12 @@ export function Renderer({
     const renderTrees = useRenderTrees();
     const layersConfig = useLayersConfig();
 
-    useQuery([renderTrees, layersConfig], () => {
-        return Promise
+    useQuery([renderTrees, layersConfig], () => (
+        Promise
             .all(
                 renderTrees 
                     .flatMap(renderTree => flattenTree(renderTree)
-                        .map(renderNode => {
-                            return renderNode.renderer?.loadAsync?.(renderNode.config)
-                        })
+                        .map(renderNode => renderNode.renderer?.loadAsync?.(renderNode.config))
                     )
             )
             .catch((err) => {
@@ -98,8 +95,8 @@ export function Renderer({
             .catch((err) => {
                 console.error("Error rendering", err);
                 return Math.random();
-            });
-    });
+            })
+    ));
     /*
         useLayoutEffect(() => {
             if(isLoadingRenderer) render(targetContextRef.current, renderTrees);

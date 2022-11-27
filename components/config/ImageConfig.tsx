@@ -35,7 +35,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                             <select
                                 value={type}
                                 onChange={(e) => {
-                                    const value = e.target.value;
+                                    const { value }  = e.target;
                                     setType(value);
                                     switch (value) {
                                         case "local": {
@@ -93,7 +93,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                                         value={config?.url || ""}
                                         style={{ width: "100%" }}
                                         onChange={(e) => {
-                                            const value = e.target.value;
+                                            const { value }  = e.target;
                                             const lastSlashIndex = value.lastIndexOf("/");
                                             const name = lastSlashIndex < 0 ? value : value.substring(lastSlashIndex + 1);
                                             onChange({

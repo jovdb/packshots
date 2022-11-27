@@ -167,7 +167,7 @@ export function useLoadedRenderers() {
             layersRenderers.flatMap((layerRenderers, layerIndex) => (
                 layerRenderers.map((renderer, rendererIndex) => {
                     // TODO: find a better way, I think because react async behavior, this can become incorrect
-                    const config = flattenTree(usePackshotStore.getState().layers[layerIndex].renderTree)[rendererIndex].config;
+                    const { config } = flattenTree(usePackshotStore.getState().layers[layerIndex].renderTree)[rendererIndex];
                     renderer.loadAsync?.(config);
                 })
             )),
@@ -224,8 +224,8 @@ export function useAllControlPoints() {
     const renderTrees = useRenderTrees();
 
     // TODO: Optimize for less rerenders
-    return renderTrees.map((layerRenderTree) => {
-        return flattenTree(layerRenderTree)
+    return renderTrees.map((layerRenderTree) => (
+        flattenTree(layerRenderTree)
             .map(renderNode => (renderNode.config as IControlPointsConfig).controlPoints)
-    });
+    ));
 }

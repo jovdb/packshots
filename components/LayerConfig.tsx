@@ -35,7 +35,7 @@ export function LayerConfig({
                         <select
                             value={composition}
                             onChange={(e) => {
-                                const value = e.target.value;
+                                const { value }  = e.target;
                                 if (value === "disable") {
                                     onChange({
                                         ...config,

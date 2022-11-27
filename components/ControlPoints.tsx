@@ -19,8 +19,8 @@ function useControlPointsInScreenCoordinates(size: { width: number; height: numb
 
     // Convert controlPoints to screen coordinates
     const controlPointsInScreenCoordinates = useMemo(
-        () => {
-            return allControlPoints
+        () => (
+            allControlPoints
                 // Don't show controlpoints for disabled or collapsed layers
                 .map((layerControlPoints, layerIndex) => {
                     const layerConfig = layersConfig[layerIndex] || {};
@@ -39,7 +39,7 @@ function useControlPointsInScreenCoordinates(size: { width: number; height: numb
                             ]) as [number, number])
                         ))
                 ))
-        },
+        ),
         [allControlPoints, layersConfig, size.height, size.width],
     );
 

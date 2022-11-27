@@ -112,7 +112,7 @@ export class PlaneWebGlRenderer implements IRenderer {
             debugger;
             throw new Error("Only call render after a succesful loadAsync");
         }
-        const m4 = twgl.m4;
+        const { m4 } = twgl;
         const webGlCanvas = gl.canvas as HTMLCanvasElement;
         const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
 
@@ -216,10 +216,7 @@ export class PlaneWebGlRenderer implements IRenderer {
             const inv = twgl.m4.inverse(mat);
             const normalVector = twgl.v3.create(q4[0], q4[1], 1);
 
-            const scales = transformNormal(inv, normalVector); // Remark: TWGL does invert for use
-            const s1 = scales[0];
-            const s2 = scales[1];
-            const s3 = scales[2];
+            const [ s1, s2, s3 ] = transformNormal(inv, normalVector); // Remark: TWGL does invert for use
 
             return [
                 q1[0] * s1, q1[1] * s1, 0, s1,
@@ -326,7 +323,11 @@ export function matrixToString(m: twgl.m4.Mat4 | null | undefined, name = "") {
                 .padStart(widths[col])
         ))
         .join(", ");
-    const prefix = name ? new Array(name.length + 2).fill(" ").join("") : "";
+    const prefix = name
+        ? new Array(name.length + 2)
+            .fill(" ")
+            .join("")
+        : "";
     return `${prefix}┌─${line}─┐
 ${name ? `${name}: ` : ""}│ ${logRow(0)} │
 ${prefix}│ ${logRow(1)} │
