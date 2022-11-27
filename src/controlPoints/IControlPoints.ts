@@ -24,7 +24,7 @@ export interface IControlPointsConfig {
      * 0,0 = topLeft of target image
      * 1,1 = bottomLeft of target image
      */
-    controlPoints: ControlPoint[] | undefined;
+    controlPoints: ControlPoint[];
 }
 
 export function isControlPoints<TType extends ControlPoint[], T extends {}>(obj: T): obj is T & IControlPointsController<TType> {

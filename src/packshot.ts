@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import create from "zustand";
 import shallow from "zustand/shallow";
+import { IControlPointsConfig, IControlPointsController } from "./controlPoints/IControlPoints";
 import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree, Renderers } from "./IPackshot";
 import { createRenderer } from "./renderers/factory";
 import { flattenTree, walkTree } from "./Tree";
@@ -186,7 +187,7 @@ export function useLoadedRenderers() {
  * Returns the renderTree
  * Updates if something in the tree changes, (a renderer config, name, ...)
  */
-export function useRenderTrees() {
+export function useRenderTrees(onlyDisabled = false) {
     // Layers, but only triggers rerender if renderTree changes
     const layers = usePackshotStore(
         s => s.layers,
@@ -206,9 +207,9 @@ export function useRenderTrees() {
     // Return the same array when no renderTree changes
     return useMemo(
         () => layers
-            .filter(l => !l.config?.isDisabled)
+            .filter(l => !onlyDisabled || !l.config?.isDisabled)
             .map(l => l.renderTree),
-        [layers],
+        [layers, onlyDisabled],
     );
 }
 
@@ -217,4 +218,14 @@ export function useLayersConfig() {
         s => s.layers.map(l => l.config || {}),
         shallow,
     );
+}
+
+export function useAllControlPoints() {
+    const renderTrees = useRenderTrees();
+
+    // TODO: Optimize for less rerenders
+    return renderTrees.map((layerRenderTree) => {
+        return flattenTree(layerRenderTree)
+            .map(renderNode => (renderNode.config as IControlPointsConfig).controlPoints)
+    });
 }

@@ -1,7 +1,100 @@
-import { CSSProperties, useEffect, useMemo, useRef } from "react";
-import { useAllControlPoints, useControlPointsActions } from "../src/controlPoints/store";
+import { CSSProperties, useCallback, useEffect, useMemo, useRef } from "react";
+import { ControlPoint } from "../src/controlPoints/IControlPoints";
 import { useElementSize } from "../src/hooks/useElementSize";
-import { DrawPoints, usePointsSets } from "./DrawPoints";
+import { ILayer, ILayerConfig } from "../src/IPackshot";
+import { useAllControlPoints, useLayersConfig, usePackshotActions, useRenderTrees } from "../src/packshot";
+import { flattenTree, replaceTreeNode } from "../src/Tree";
+import { DrawPoints, useLayersControlPointsDragging } from "./DrawPoints";
+
+
+function filteredControlPoints(allControlPoints: ControlPoint[][][], layersConfig: ILayerConfig[]) {
+    return allControlPoints
+        .map((layerControlPoints, layerIndex) => {
+            const layerConfig = layersConfig[layerIndex] || {};
+            return (layerConfig.isRenderConfigExpanded && !layerConfig.isDisabled)
+                ? layerControlPoints
+                : [[]]
+        });
+}
+
+
+function layerControlPointsFilter(layerConfig: ILayerConfig) {
+    return !!(layerConfig.isRenderConfigExpanded && !layerConfig.isDisabled);
+}
+
+function useControlPointsInScreenCoordinates(size: { width: number; height: number; }) {
+
+    const allControlPoints = useAllControlPoints();
+    const layersConfig = useLayersConfig();
+    const renderTrees = useRenderTrees();
+    const { updateLayerRenderTree } = usePackshotActions();
+
+    // Convert controlPoints to screen coordinates
+    const controlPointsInScreenCoordinates = useMemo(
+        () => {
+            return allControlPoints
+                // Don't show controlpoints for disabled or collapsed layers
+                .map((layerControlPoints, layerIndex) => {
+                    const layerConfig = layersConfig[layerIndex] || {};
+                    return layerControlPointsFilter(layerConfig)
+                        ? layerControlPoints
+                        : []
+                })
+
+                // Convert controlpoints to screen coordinates
+                .map((layerControlPoints) => (
+                    layerControlPoints
+                        .map(nodeControlPoints => (
+                            nodeControlPoints?.map(([x, y]) => ([
+                                (x + 1) / 2 * size.width,
+                                (y + 1) / 2 * size.height,
+                            ]) as [number, number])
+                        ))
+                ))
+        },
+        [allControlPoints, layersConfig, size.height, size.width],
+    );
+
+    const setControlPointsInScreenCoordinates = useCallback(
+        (layerIndex: number, renderNodeIndex: number, newControlPointsInScreenCoordinates: ControlPoint[]) => {
+
+            // Get Layer to update
+            const renderTree = renderTrees[layerIndex];
+            if (!renderTree) throw new Error(`Layer ${layerIndex} not found`);
+
+            // Get renderNode Affected
+            const renderNode = flattenTree(renderTree)[renderNodeIndex];
+            if (!renderNode) throw new Error(`RenderNode not found: Layer ${layerIndex}, Render node: ${renderNodeIndex}`);
+
+            // Normalize ControlPoints
+            const normalizedControlPoints = newControlPointsInScreenCoordinates
+                .map(([x, y]) => [
+                    x / size.width * 2 - 1,
+                    y / size.height * 2 - 1,
+                ]);
+                
+            const newRenderNode = {
+                ...renderNode,
+                config: {
+                    ...renderNode.config,
+                    controlPoints: normalizedControlPoints as any,
+                },
+            };
+
+            // Update renderTree
+            const newRenderTree = replaceTreeNode(renderTree, renderNode, newRenderNode);
+
+            // Update renderNode Config
+            updateLayerRenderTree(layerIndex, newRenderTree);
+        },
+        [renderTrees, size.height, size.width, updateLayerRenderTree],
+    );
+
+    return [
+        controlPointsInScreenCoordinates,
+        setControlPointsInScreenCoordinates,
+    ] as const;
+}
 
 export function ControlPoints({
     style,
@@ -10,37 +103,22 @@ export function ControlPoints({
 }) {
 
     const divRef = useRef<HTMLDivElement>(null);
-    const allControlPoints = useAllControlPoints();
-    const { updateControlPoints, setDraggingControlPointsIndex } = useControlPointsActions();
+
+    // const { updateControlPoints, setDraggingControlPointsIndex } = useControlPointsActions();
     const elementRect = useElementSize(divRef);
 
-    // Convert controlPoints to screen coordinates
-    const controlPointsInScreenCoordinates = useMemo(
-        () => {
-                return allControlPoints
-                .map(controlPoints => (
-                    controlPoints?.map(([x, y]) => ([
-                        (x + 1) / 2 * elementRect.width,
-                        (y + 1) / 2 * elementRect.height,
-                    ]) as [number, number])
-                ))
-        },
-        [allControlPoints, elementRect.height, elementRect.width],
-    );
+    const [controlPointsInScreenCoordinates, setControlPointsInScreenCoordinates] = useControlPointsInScreenCoordinates(elementRect);
 
-    const controlPointsDraggingHandles = usePointsSets(
+    const controlPointsDraggingHandles = useLayersControlPointsDragging(
         divRef,
         controlPointsInScreenCoordinates,
-        (layerIndex, newPointsInScreenCoordinates, isLast) => {
-            const newPointsInTargetCoordinates = newPointsInScreenCoordinates
-                .map(([x, y]) => [
-                    x / elementRect.width * 2 - 1,
-                    y / elementRect.height * 2 - 1,
-                ] as [x: number, y: number])
-
-            updateControlPoints(layerIndex, newPointsInTargetCoordinates);
+        (layerIndex, renderNodeIndex, newPointsInScreenCoordinates, isLast) => {
+            setControlPointsInScreenCoordinates(layerIndex, renderNodeIndex, newPointsInScreenCoordinates);
         },
-        setDraggingControlPointsIndex,
+        () => {
+            // NOT NEEDED?
+            // setDraggingControlPointsIndex,
+        },
     );
 
     return (
@@ -52,7 +130,7 @@ export function ControlPoints({
             {...controlPointsDraggingHandles()}
         >
             {
-                controlPointsInScreenCoordinates.map((controlPoints, i) => (
+                controlPointsInScreenCoordinates.flat().map((controlPoints, i) => (
                     controlPoints && <DrawPoints
                         key={i}
                         points={controlPoints}

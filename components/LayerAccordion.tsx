@@ -23,8 +23,11 @@ export function LayerAccordion({
         <Accordion
             title={layer.name ?? ""}
             isExpanded={!!(layer.config?.isRenderConfigExpanded || layer.config?.isLayerOptionExpanded)}
-            onTitleClick={() => {
-                updateLayerConfig(layerIndex, { isRenderConfigExpanded: !layer.config?.isRenderConfigExpanded });
+            onExpandClick={() => {
+                updateLayerConfig(layerIndex, {
+                    isRenderConfigExpanded: !(layer.config?.isRenderConfigExpanded || layer.config?.isLayerOptionExpanded),
+                    isLayerOptionExpanded: false,
+                });
             }}
             left={<>
                 <AccordionButton

@@ -2,22 +2,25 @@ import { useDrag } from '@use-gesture/react'
 import { CSSProperties, forwardRef, Ref, useRef } from 'react';
 
 /** Allow dragging multiple control points with 1 drag handler */
-export function usePointsSets(
+export function useLayersControlPointsDragging(
     ref: React.RefObject<HTMLDivElement>,
-    layersPoints: ([number, number][] | undefined)[] | undefined,
-    setPoints: (index: number, value: [x: number, y: number][], isLast: boolean) => unknown,
+    /** [layerIndex][renderNodeIndex][ControlPoint1, ControlPoint2] */
+    layersControlPoints: [x: number, y: number][][][],
+    onChangeControlPoints: (layerIndex: number, renderNodeIndex: number, value: [x: number, y: number][], isLast: boolean) => unknown,
     setDraggingIndex: (index: number) => void,
 ) {
     const dragingPointIndexRef = useRef<{
-        layerIndex: number;
-        pointIndex: number;
+        closestLayerIndex: number;
+        closestRenderNodeIndex: number;
+        closestControlPointIndex: number;
     }>({
-        layerIndex: -1,
-        pointIndex: -1,
+        closestLayerIndex: -1,
+        closestRenderNodeIndex: -1,
+        closestControlPointIndex: -1,
     });
 
     return useDrag((state) => {
-        if (!layersPoints || !ref.current) return;
+        if (!layersControlPoints || !ref.current) return;
         const [x, y] = state.xy;
         const rect = ref.current?.getBoundingClientRect();
         const polygonX = (x - rect.left);
@@ -26,40 +29,50 @@ export function usePointsSets(
         // Find point in region
         if (state.first) {
             let minDistance = Infinity;
-            let minLayerIndex = -1;
-            let minPointIndex = -1;
+            let closestLayerIndex = -1;
+            let closestRenderNodeIndex = -1;
+            let closestControlPointIndex = -1;
             const snapDistance = 16;
             if (!rect) return;
-            layersPoints
-                .forEach((layerPoints, layerIndex) => {
-                    if (!layerPoints) return;
-                    layerPoints.forEach(([px, py], pointIndex) => {
-                        const dx = px - polygonX;
-                        const dy = py - polygonY;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        if (distance <= snapDistance && distance < minDistance) {
-                            minLayerIndex = layerIndex;
-                            minPointIndex = pointIndex;
-                            minDistance = distance;
-                        }
+            layersControlPoints
+                .forEach((layerControlPoints, layerIndex) => {
+                    layerControlPoints.forEach((points, renderNodeIndex) => {
+                        if (!points) return;
+                        points.forEach(([px, py], controlPointIndex) => {
+                            const dx = px - polygonX;
+                            const dy = py - polygonY;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            if (distance <= snapDistance && distance < minDistance) {
+                                closestLayerIndex = layerIndex;
+                                closestRenderNodeIndex = renderNodeIndex;
+                                closestControlPointIndex = controlPointIndex;
+                                minDistance = distance;
+                            }
+                        });
                     });
                 });
             dragingPointIndexRef.current = {
-                layerIndex: minLayerIndex,
-                pointIndex: minPointIndex,
+                closestLayerIndex,
+                closestRenderNodeIndex,
+                closestControlPointIndex,
             };
-            setDraggingIndex(state.last ? -1 : minLayerIndex);
+            setDraggingIndex(state.last ? -1 : closestRenderNodeIndex);
         } else if (state.last) {
             setDraggingIndex(-1);
         }
 
-        const { layerIndex, pointIndex } = dragingPointIndexRef.current;
-        if (layerIndex < 0 || pointIndex < 0) return;
-        const points = layersPoints[layerIndex];
-        if (!points) return;
-        const newPoints = [...points]; // Copy
-        newPoints[pointIndex] = [polygonX, polygonY]; // Update copy
-        setPoints(layerIndex, newPoints, state.last);
+        const { closestLayerIndex, closestRenderNodeIndex, closestControlPointIndex } = dragingPointIndexRef.current;
+        if (closestLayerIndex < 0 || closestRenderNodeIndex < 0 || closestControlPointIndex < 0) return;
+
+        const layerControlPoints = layersControlPoints[closestLayerIndex];
+        if (!layerControlPoints) return;
+
+        const renderNodeControlPoints = layerControlPoints[closestRenderNodeIndex];
+        if (!renderNodeControlPoints) return;
+        
+        const newPoints = [...renderNodeControlPoints]; // Copy
+        newPoints[closestControlPointIndex] = [polygonX, polygonY]; // Update copy
+        onChangeControlPoints(closestLayerIndex, closestRenderNodeIndex, newPoints, state.last);
     });
 }
 

@@ -82,7 +82,7 @@ export function App() {
                 <ConfigPanel isOpen={isConfigExpanded} setIsOpen={setIsConfigExpanded}>
                     <ActionBar />
                     <Layers/>
-                    <Accordion title="Export" isExpanded={isExportExpanded} onTitleClick={() => {
+                    <Accordion title="Export" isExpanded={isExportExpanded} onExpandClick={() => {
                         setIsExportExpanded(prev => !prev);
                     }}>
                         <AccordionPanel>

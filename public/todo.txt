@@ -17,6 +17,7 @@ Renderer
 - Cone Renderer
 
 Storage
+- Use the File System Access API?
 - Save configuration
 - Save fixed images (background / mask):
   - inline (base64) (for local images)

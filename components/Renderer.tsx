@@ -4,6 +4,7 @@ import { checkBoardStyle } from "../src/checkboard";
 import { ILayerConfig, Renderers } from "../src/IPackshot";
 import { useLayersConfig, useRenderTrees } from "../src/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
+import { ControlPoints } from "./ControlPoints";
 
 
 function render(
@@ -17,12 +18,13 @@ function render(
     targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
 
     let currentDrawContext = targetContext;
-
     renderTrees.forEach((renderTree, layerIndex) => {
 
         const layerConfig = layersConfig[layerIndex] || {};
-        currentDrawContext.save();
 
+        if (layerConfig.isDisabled) return;
+
+        currentDrawContext.save();
         try {
             const composition = layerConfig.composition;
             if (composition) {
@@ -78,11 +80,12 @@ export function Renderer({
     const { isFetching: isLoadingRenderer, data: renderId } = useQuery([renderTrees, layersConfig], () => {
         return Promise
             .all(
-                renderTrees.flatMap(renderTree => flattenTree(renderTree)
-                    .map(renderNode => {
-                        return renderNode.renderer?.loadAsync?.(renderNode.config)
-                    })
-                )
+                renderTrees 
+                    .flatMap(renderTree => flattenTree(renderTree)
+                        .map(renderNode => {
+                            return renderNode.renderer?.loadAsync?.(renderNode.config)
+                        })
+                    )
             )
             .catch((err) => {
                 console.error("Error Loading renderers", err);
@@ -103,17 +106,22 @@ export function Renderer({
         }, [isLoadingRenderer, renderId]);
       */
     return (
-        <canvas
-            ref={canvasRef}
-            width={width}
-            height={height}
-            style={{
-                ...style,
-                outline: "1px solid #ddd",
-                boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
-                // checkboard background
-                ...checkBoardStyle,
-            }}
-        />
+        <>
+            <canvas
+                ref={canvasRef}
+                width={width}
+                height={height}
+                style={{
+                    ...style,
+                    outline: "1px solid #ddd",
+                    boxShadow: "3px 3px 4px rgba(0,0,0,0.1)",
+                    // checkboard background
+                    ...checkBoardStyle,
+                }}
+            />
+            <ControlPoints
+                style={style}
+            />
+        </>
     )
 }
