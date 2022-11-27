@@ -1,7 +1,7 @@
 "use client";
 
 // source: https://gist.github.com/morajabi/523d7a642d8c0a2f71fcfa0d8b3d2846
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useState, RefObject } from "react";
 
 export interface IRect {
   left: number;
@@ -15,7 +15,7 @@ function getRect<T extends HTMLElement>(element?: T | null): IRect {
 }
 
 export function useElementSize<T extends HTMLElement>(
-  ref: React.RefObject<T>,
+  ref: RefObject<T>,
 ): IRect {
   const [rect, setRect] = useState<IRect>(
     () => getRect(ref?.current),

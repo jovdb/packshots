@@ -1,8 +1,9 @@
+import { FC } from "react";
 import { ImageRendererConfig } from "./ImageRendererConfig";
 import { MaskRendererConfig } from "./MaskRendererConfig";
 import { PlaneRendererConfig } from "./PlaneRendererConfig";
 
-export type ConfigComponent<T extends {}> = React.FC<{
+export type ConfigComponent<T extends {}> = FC<{
   config: T;
   onChange: (config: T) => void;
 }>;

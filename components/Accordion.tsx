@@ -117,7 +117,7 @@ export const AccordionPanel = (props: ButtonHTMLAttributes<HTMLButtonElement>) =
                 }
             `}
       </style>
-      {props.children}
+      {children}
     </div>
   );
 };

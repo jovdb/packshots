@@ -1,9 +1,10 @@
+import { RefObject } from "react";
 import { useDrag } from "@use-gesture/react";
 import { CSSProperties, forwardRef, useRef } from "react";
 
 /** Allow dragging multiple control points with 1 drag handler */
 export function useLayersControlPointsDragging(
-  ref: React.RefObject<HTMLDivElement>,
+  ref: RefObject<HTMLDivElement>,
   /** [layerIndex][renderNodeIndex][ControlPoint1, ControlPoint2] */
   layersControlPoints: [x: number, y: number][][][],
   onChangeControlPoints: (

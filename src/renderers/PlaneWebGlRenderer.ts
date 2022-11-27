@@ -109,7 +109,6 @@ export class PlaneWebGlRenderer implements IRenderer {
   ): IRenderResult | undefined | void {
     const { gl, uniforms, image, bufferInfo, programInfo } = this;
     if (!uniforms.texture || !image || !programInfo) {
-      debugger;
       throw new Error("Only call render after a succesful loadAsync");
     }
     const { m4 } = twgl;

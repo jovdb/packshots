@@ -1,10 +1,20 @@
 {
-  "extends": "next/core-web-vitals",
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "root": true,
   "rules": {
     "prefer-const": "error",
     "arrow-body-style": "error",
     "brace-style": "error",
     "comma-style": "error",
-    "semi-style": "error"
+    "semi-style": "error",
+
+    // override
+    "no-unused-vars": "off" // Problem i function arguments in interfaces or callbacks
   }
 }
