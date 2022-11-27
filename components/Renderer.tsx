@@ -52,8 +52,7 @@ function render(
                     }
                 },
             )
-        }
-        finally {
+        } finally {
             currentDrawContext.restore();
         }
     });

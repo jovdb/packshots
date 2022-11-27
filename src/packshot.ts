@@ -32,7 +32,9 @@ export const usePackshotStore = create<IPackshot & {
                 });
                 // Create new renderers
                 packshot.layers.forEach(layer => {
-                    walkTree(layer.renderTree, renderNode => { renderNode.renderer = createRenderer(renderNode.type); });
+                    walkTree(layer.renderTree, renderNode => {
+                        renderNode.renderer = createRenderer(renderNode.type);
+                    });
                 });
 
                 return { ...packshot };
@@ -85,7 +87,9 @@ export const usePackshotStore = create<IPackshot & {
 
                 // Update renderers
                 walkTree(oldLayer.renderTree, renderNode => renderNode.renderer?.dispose?.());
-                walkTree(newLayer.renderTree, renderNode => { renderNode.renderer = createRenderer(renderNode.type); });
+                walkTree(newLayer.renderTree, renderNode => {
+                    renderNode.renderer = createRenderer(renderNode.type);
+                });
 
                 return {
                     layers: newLayers,

@@ -18,7 +18,9 @@ export function walkTree<T extends ITreeNode<unknown>>(
 /** Faltten tree to an array */
 export function flattenTree<T extends ITreeNode<unknown>>(treeNode: T) {
     const nodes: T[] = [];
-    walkTree(treeNode, (node) => { nodes.push(node) });
+    walkTree(treeNode, (node) => {
+        nodes.push(node);
+    });
     return nodes;
 }
 

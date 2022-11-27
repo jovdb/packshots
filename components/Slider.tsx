@@ -33,7 +33,7 @@ export function Slider({
                 max={Math.max(max, value)}
                 step={step}
                 type="range"
-                style={{ position: "relative", transform: "translateY(4px)", width: 120}}
+                style={{ position: "relative", transform: "translateY(4px)", width: 120 }}
                 onChange={(e) => {
                     const el = e.target as HTMLInputElement;
                     onChange(parseFloat(el.value) || 0);
@@ -41,7 +41,9 @@ export function Slider({
             />
             {typeof defaultValue === "number" &&
                 <button
-                    onClick={() => { onChange(defaultValue); }}
+                    onClick={() => {
+                        onChange(defaultValue);
+                    }}
                     style={{ minWidth: 30, marginLeft: 5, padding: 0 }}
                 >
                     {defaultValue}

@@ -32,7 +32,9 @@ export function Accordion({
                     alignItems: "center",
                     ...style,
                 }}
-                onClick={() => { (onTitleClick || onExpandClick)?.() }}
+                onClick={() => {
+                    (onTitleClick || onExpandClick)?.()
+                }}
             >
                 <span style={{ display: isExpandable ? "inline-block" : "none", width: "1em", fill: "currentcolor" }}>
                     <DownIcon  
