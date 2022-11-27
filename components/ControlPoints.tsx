@@ -100,7 +100,7 @@ export function ControlPoints({
     const controlPointsDraggingHandles = useLayersControlPointsDragging(
         divRef,
         controlPointsInScreenCoordinates,
-        (layerIndex, renderNodeIndex, newPointsInScreenCoordinates, isLast) => {
+        (layerIndex, renderNodeIndex, newPointsInScreenCoordinates, _isLast) => {
             setControlPointsInScreenCoordinates(layerIndex, renderNodeIndex, newPointsInScreenCoordinates);
         },
         () => {
