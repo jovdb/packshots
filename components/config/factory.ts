@@ -10,6 +10,7 @@ export type ConfigComponent<T extends {}> = FC<{
 
 export function getConfigComponent(
   type: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): ConfigComponent<any> | null | undefined {
   switch (type) {
     case "image":

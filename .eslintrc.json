@@ -15,6 +15,13 @@
     "semi-style": "error",
 
     // override
-    "no-unused-vars": "off" // Problem i function arguments in interfaces or callbacks
+    "no-unused-vars": "off", // Problem i function arguments in interfaces or callbacks
+    "@typescript-eslint/ban-types": ["error", {
+      "types": {
+        // un-ban a type that's banned by default
+        "{}": false
+      },
+      "extendDefaults": true
+    }]
   }
 }

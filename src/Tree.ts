@@ -9,7 +9,7 @@ export function walkTree<T extends ITreeNode<unknown>>(
   enter: (value: T) => (() => void) | undefined | void,
 ) {
   const leave = enter?.(treeNode);
-  treeNode.children?.forEach(child => walkTree(child as any, enter));
+  treeNode.children?.forEach(child => walkTree(child as T, enter));
   leave?.();
 }
 
@@ -38,7 +38,7 @@ export function findTreeNode<T extends ITreeNode<unknown>>(
   predicate: (value: T) => boolean,
 ): T | undefined {
   if (predicate(treeNode)) return treeNode;
-  return treeNode.children?.find(child => findTreeNode(child as any, predicate)) as T | undefined;
+  return treeNode.children?.find(child => findTreeNode(child as T, predicate)) as T | undefined;
 }
 
 /** Replace a node in a tree */

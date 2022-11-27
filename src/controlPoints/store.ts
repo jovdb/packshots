@@ -34,7 +34,7 @@ const useControlPointsStore = create<IControlPointsStore>((set) => ({
         controlPoints: newControlPoints,
       };
     });
-    return insertIndex!;
+    return insertIndex || -1;
   },
 
   deleteControlPoints(index) {
@@ -75,7 +75,7 @@ export function useControlPoints(index: number) {
 }
 
 // TODO, only return functions
-export type Functions<T> = { [K in keyof T]: T[K] extends (...args: any[]) => any ? T[K] : never };
+export type Functions<T> = { [K in keyof T]: T[K] extends (...args: unknown[]) => unknown ? T[K] : never };
 
 export function useControlPointsActions() {
   return useControlPointsStore.getState() as Functions<IControlPointsStore>;

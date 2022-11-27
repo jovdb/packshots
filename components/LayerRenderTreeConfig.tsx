@@ -16,7 +16,7 @@ export function LayerRenderTreeConfig({
 
   const RendererConfigComponents = renderers
     .map(r => getConfigComponent(r.type))
-    .filter(c => !!c) as ConfigComponent<any>[]; // Remove empty onces
+    .filter(c => !!c) as ConfigComponent<{}>[]; // Remove empty onces
 
   return (
     <>

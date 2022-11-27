@@ -135,6 +135,7 @@ export function useRenderers() {
 
   // 'var' used because it is hoisted (so available inside memo)
   // otherwise we need a useEffect with a useRef
+  // eslint-disable-next-line no-var
   var layersRenderers = useMemo(
     () => {
       // Dispose previous renderers

@@ -32,14 +32,13 @@ export function useElementSize<T extends HTMLElement>(
 
     handleResize();
 
-    // @ts-ignore
     if (typeof ResizeObserver === "function") {
-      let resizeObserver = new ResizeObserver(() => handleResize());
+      let resizeObserver: ResizeObserver | null  = new ResizeObserver(() => handleResize());
       resizeObserver.observe(element);
       return () => {
         if (!resizeObserver) return;
         resizeObserver.disconnect();
-        (resizeObserver as any) = null;
+        resizeObserver = null;
       };
     }
   }, [handleResize, ref]);

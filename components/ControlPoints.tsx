@@ -58,13 +58,13 @@ function useControlPointsInScreenCoordinates(size: { width: number; height: numb
         .map(([x, y]) => [
           x / size.width * 2 - 1,
           y / size.height * 2 - 1,
-        ]);
+        ]) as ControlPoint[];
 
       const newRenderNode = {
         ...renderNode,
         config: {
           ...renderNode.config,
-          controlPoints: normalizedControlPoints as any,
+          controlPoints: normalizedControlPoints,
         },
       };
 
@@ -100,7 +100,7 @@ export function ControlPoints({
   const controlPointsDraggingHandles = useLayersControlPointsDragging(
     divRef,
     controlPointsInScreenCoordinates,
-    (layerIndex, renderNodeIndex, newPointsInScreenCoordinates, _isLast) => {
+    (layerIndex, renderNodeIndex, newPointsInScreenCoordinates) => {
       setControlPointsInScreenCoordinates(layerIndex, renderNodeIndex, newPointsInScreenCoordinates);
     },
     () => {

@@ -9,7 +9,7 @@ export class MaskRenderer implements IRenderer {
   constructor() {
     this.imageCache = new ImageCache();
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d")!;
+    const context = canvas.getContext("2d");
     if (!context) throw new Error("Error creating canvas context");
     this.context = context;
   }

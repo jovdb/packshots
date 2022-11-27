@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import DelLayer from "../icons/del-layer.svg";
 import EyeIcon from "../icons/eye.svg";
 import MaskIcon from "../icons/mask.svg";
@@ -14,7 +15,7 @@ export function LayerAccordion({
 }: {
   layer: ILayer;
   layerIndex: number;
-  children: any;
+  children: ReactNode;
 }) {
   const { deleteLayer, updateLayerConfig, updateLayerRenderTree } = usePackshotActions();
   const maskRenderNode = findTreeNode(layer.renderTree, treeNode => treeNode.type === "mask") as

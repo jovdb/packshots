@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, CSSProperties, PropsWithChildren } from "react";
+import { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, PropsWithChildren, ReactNode } from "react";
 import DownIcon from "../icons/down.svg";
 
 export function Accordion({
@@ -13,8 +13,8 @@ export function Accordion({
 }: PropsWithChildren<{
   title: string;
   isExpanded?: boolean;
-  right?: any;
-  left?: any;
+  right?: ReactNode;
+  left?: ReactNode;
   style?: CSSProperties;
   onTitleClick?(): void;
   onExpandClick?(): void;
@@ -100,12 +100,12 @@ export const AccordionButton = (props: { isActive?: boolean } & ButtonHTMLAttrib
   );
 };
 
-export const AccordionPanel = (props: ButtonHTMLAttributes<HTMLButtonElement>) => {
+export const AccordionPanel = (props: HTMLAttributes<HTMLDivElement>) => {
   const { children, ...rest } = props;
   return (
     <div
       className="accordion-panel"
-      {...rest as any}
+      {...rest}
     >
       <style jsx>
         {`
@@ -121,12 +121,12 @@ export const AccordionPanel = (props: ButtonHTMLAttributes<HTMLButtonElement>) =
     </div>
   );
 };
-export const AccordionBar = (props: ButtonHTMLAttributes<HTMLButtonElement>) => {
+export const AccordionBar = (props: HTMLAttributes<HTMLDivElement>) => {
   const { children, ...rest } = props;
   return (
     <div
       className="accordion-bar"
-      {...rest as any}
+      {...rest}
     >
       <style jsx>
         {`

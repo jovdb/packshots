@@ -58,4 +58,4 @@ export class ConeData implements IShapeData {
   }
 }
 
-export interface IConeData extends ConeData {}
+export type IConeData = ConeData
