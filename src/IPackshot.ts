@@ -1,4 +1,3 @@
-
 /*
 ╔═════════════════╗    ╔═════════════════╗       ╔═══════════════════╗
 ║ Packshot        ║    ║ Layer           ║   ┌──→║ ImageRenderer     ║
@@ -39,65 +38,64 @@ import { IPlaneRendererConfig } from "../components/config/PlaneRendererConfig";
 import { IRenderer } from "./renderers/IRenderer";
 
 export interface IRendererConfig {
-    isDisabled?: boolean;
+  isDisabled?: boolean;
 }
 
 /** Render information from packshot configuration */
 export interface IRenderTree {
-    name?: string;
-    type: string;
-    /** That code that will do the rendering, added by store */
-    renderer?: IRenderer;
-    /** A tree of render information (example a mask with as child an image) */
-    children?: Renderers[];
+  name?: string;
+  type: string;
+  /** That code that will do the rendering, added by store */
+  renderer?: IRenderer;
+  /** A tree of render information (example a mask with as child an image) */
+  children?: Renderers[];
 }
 
 export interface IImageRenderer extends IRenderTree {
-    type: "image";
-    config: IImageRendererConfig;
+  type: "image";
+  config: IImageRendererConfig;
 }
 
 export interface IPlaneRenderer extends IRenderTree {
-    type: "plane";
-    config: IPlaneRendererConfig;
+  type: "plane";
+  config: IPlaneRendererConfig;
 }
 
 export interface IMaskRenderer extends IRenderTree {
-    type: "mask";
-    config: IMaskRenderingConfig;
-    children: Renderers[];
+  type: "mask";
+  config: IMaskRenderingConfig;
+  children: Renderers[];
 }
 
 export type Renderers = IImageRenderer | IMaskRenderer | IPlaneRenderer;
 
 export interface ILayerConfig {
-    /** Disable Layer */
-    isDisabled?: boolean;
+  /** Disable Layer */
+  isDisabled?: boolean;
 
-    /** Expand renderer options Config */
-    isRenderConfigExpanded?: boolean;
+  /** Expand renderer options Config */
+  isRenderConfigExpanded?: boolean;
 
-    /** Expand the layer options */
-    isLayerOptionExpanded?: boolean;
+  /** Expand the layer options */
+  isLayerOptionExpanded?: boolean;
 
-    /** Layer composition */
-    composition?: GlobalCompositeOperation;
+  /** Layer composition */
+  composition?: GlobalCompositeOperation;
 }
 
 export interface ILayer {
-    name?: string;
-    config?: ILayerConfig;
-    renderTree: Renderers;
+  name?: string;
+  config?: ILayerConfig;
+  renderTree: Renderers;
 }
 
 export interface IPackshotConfig {
-    width: number;
-    height: number;
+  width: number;
+  height: number;
 }
 
 export interface IPackshot {
-    name?: string;
-    config: IPackshotConfig,
-    layers: ILayer[];
+  name?: string;
+  config: IPackshotConfig;
+  layers: ILayer[];
 }
-

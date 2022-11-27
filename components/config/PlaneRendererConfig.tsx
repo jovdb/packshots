@@ -3,31 +3,31 @@ import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig, imageDefaultConfig } from "./ImageConfig";
 
 export interface IPlaneRendererConfig extends IControlPointsConfig {
-    image: IImageConfig;
+  image: IImageConfig;
 }
 
 export const PlaneRendererConfig: ConfigComponent<IPlaneRendererConfig> = ({
-    config,
-    onChange,
+  config,
+  onChange,
 }) => {
-    const {
-        image = imageDefaultConfig,
-    } = config || {};
+  const {
+    image = imageDefaultConfig,
+  } = config || {};
 
-return (
+  return (
     <>
-        <fieldset>
-            <legend>Spread</legend>
-            <ImageConfig
-                config={image}
-                onChange={(newConfig) => {
-                    onChange({
-                        ...config,
-                        image: newConfig,
-                    });
-                }}
-            />
-        </fieldset>
+      <fieldset>
+        <legend>Spread</legend>
+        <ImageConfig
+          config={image}
+          onChange={(newConfig) => {
+            onChange({
+              ...config,
+              image: newConfig,
+            });
+          }}
+        />
+      </fieldset>
     </>
-);
-}
+  );
+};

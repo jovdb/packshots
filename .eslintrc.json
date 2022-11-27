@@ -3,7 +3,7 @@
   "rules": {
     "prefer-const": "error",
     "arrow-body-style": "error",
-    "brace-style":"error",
+    "brace-style": "error",
     "comma-style": "error",
     "semi-style": "error"
   }

@@ -1,37 +1,36 @@
-import { usePackshotActions } from "../src/packshot";
 import { ILayer } from "../src/IPackshot";
+import { usePackshotActions } from "../src/packshot";
 
+import { LayerAccordion } from "./LayerAccordion";
 import { LayerConfig } from "./LayerConfig";
 import { LayerRenderTreeConfig } from "./LayerRenderTreeConfig";
-import { LayerAccordion } from "./LayerAccordion";
 
 export function Layer({
-    layer,
-    layerIndex
+  layer,
+  layerIndex,
 }: {
-    layer: ILayer,
-    layerIndex: number,
+  layer: ILayer;
+  layerIndex: number;
 }) {
+  const { updateLayerConfig } = usePackshotActions();
 
-    const { updateLayerConfig } = usePackshotActions();
-
-    return (
-        <LayerAccordion
-            layer={layer}
-            layerIndex={layerIndex}
-        >
-            {layer.config?.isLayerOptionExpanded && (
-                <LayerConfig
-                    config={layer.config || {}}
-                    onChange={(newConfig) => updateLayerConfig(layerIndex, newConfig)}
-                />
-            )}
-            {layer.config?.isRenderConfigExpanded && (
-                <LayerRenderTreeConfig
-                    layer={layer}
-                    layerIndex={layerIndex}
-                />
-            )}
-        </LayerAccordion>
-    );
+  return (
+    <LayerAccordion
+      layer={layer}
+      layerIndex={layerIndex}
+    >
+      {layer.config?.isLayerOptionExpanded && (
+        <LayerConfig
+          config={layer.config || {}}
+          onChange={(newConfig) => updateLayerConfig(layerIndex, newConfig)}
+        />
+      )}
+      {layer.config?.isRenderConfigExpanded && (
+        <LayerRenderTreeConfig
+          layer={layer}
+          layerIndex={layerIndex}
+        />
+      )}
+    </LayerAccordion>
+  );
 }

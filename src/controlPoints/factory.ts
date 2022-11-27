@@ -1,7 +1,8 @@
 export function createControlPoints(
-    type: "image" | "plane" | "cone",
+  type: "image" | "plane" | "cone",
 ) {
-    switch (type) {
-        default: return undefined;
-    }
+  switch (type) {
+    default:
+      return undefined;
+  }
 }
