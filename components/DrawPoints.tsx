@@ -1,5 +1,5 @@
 import { useDrag } from '@use-gesture/react'
-import { CSSProperties, forwardRef, Ref, useRef } from 'react';
+import { CSSProperties, forwardRef, useRef } from 'react';
 
 /** Allow dragging multiple control points with 1 drag handler */
 export function useLayersControlPointsDragging(

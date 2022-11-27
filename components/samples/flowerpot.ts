@@ -1,6 +1,4 @@
 // import { ILayerConfig } from "../../src/layers/ILayerConfig";
-import { IImageConfig } from "../config/ImageConfig";
-
 export const a = undefined;
 /*
 const background: ILayerConfig<IImageConfig> = {

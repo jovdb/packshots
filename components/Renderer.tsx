@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CSSProperties, useEffect, useLayoutEffect, useRef } from "react";
+import { CSSProperties, useRef } from "react";
 import { checkBoardStyle } from "../src/checkboard";
 import { ILayerConfig, Renderers } from "../src/IPackshot";
 import { useLayersConfig, useRenderTrees } from "../src/packshot";
@@ -77,7 +77,7 @@ export function Renderer({
     const renderTrees = useRenderTrees();
     const layersConfig = useLayersConfig();
 
-    const { isFetching: isLoadingRenderer, data: renderId } = useQuery([renderTrees, layersConfig], () => {
+    useQuery([renderTrees, layersConfig], () => {
         return Promise
             .all(
                 renderTrees 

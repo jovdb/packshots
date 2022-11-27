@@ -3,7 +3,6 @@ import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import AddLayer from "../icons/add-layer.svg";
 import { usePackshotActions } from "../src/packshot";
 import { photobookLayers } from "./samples/photobook";
-import { ILayer } from "../src/IPackshot";
 
 export function ActionBar() {
     const [action, setAction] = useState("");

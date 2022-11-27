@@ -34,7 +34,7 @@ export function App() {
     const [isExportExpanded, setIsExportExpanded] = useState(false);
     const [packshotConfig, setPackshotConfig] = usePackshotConfig();
 
-    const { layersRenderers, isFetching } = useLoadedRenderers();
+     useLoadedRenderers();
 
     // Scale and center canvas
     const previewAreaRef = useRef<HTMLDivElement>(null);

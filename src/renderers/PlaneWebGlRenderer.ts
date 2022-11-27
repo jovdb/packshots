@@ -136,11 +136,11 @@ export class PlaneWebGlRenderer implements IRenderer {
         } else {
             m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
         }
-        this.uniforms.matrix = matrix;
+        uniforms.matrix = matrix;
 
         // Render
-        twgl.setUniforms(programInfo, this.uniforms);
-        twgl.drawBufferInfo(gl, this.bufferInfo);
+        twgl.setUniforms(programInfo, uniforms);
+        twgl.drawBufferInfo(gl, bufferInfo);
 
         // Draw WebGl canvas on destination canvas
         drawOnContext.drawImage(
@@ -304,7 +304,7 @@ function transformNormal(m: twgl.m4.Mat4, v: twgl.v3.Vec3, dst?: twgl.v3.Vec3) {
  * └─                         ─┘
  */
 
-function matrixToString(m: twgl.m4.Mat4 | null | undefined, name = "") {
+export function matrixToString(m: twgl.m4.Mat4 | null | undefined, name = "") {
 
     if (!m) return `${name ? `${name}: ` : ""}${m}`;
     const widths = [0, 1, 2, 3]

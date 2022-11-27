@@ -1,22 +1,10 @@
-import { CSSProperties, useCallback, useEffect, useMemo, useRef } from "react";
+import { CSSProperties, useCallback, useMemo, useRef } from "react";
 import { ControlPoint } from "../src/controlPoints/IControlPoints";
 import { useElementSize } from "../src/hooks/useElementSize";
-import { ILayer, ILayerConfig } from "../src/IPackshot";
+import { ILayerConfig } from "../src/IPackshot";
 import { useAllControlPoints, useLayersConfig, usePackshotActions, useRenderTrees } from "../src/packshot";
 import { flattenTree, replaceTreeNode } from "../src/Tree";
 import { DrawPoints, useLayersControlPointsDragging } from "./DrawPoints";
-
-
-function filteredControlPoints(allControlPoints: ControlPoint[][][], layersConfig: ILayerConfig[]) {
-    return allControlPoints
-        .map((layerControlPoints, layerIndex) => {
-            const layerConfig = layersConfig[layerIndex] || {};
-            return (layerConfig.isRenderConfigExpanded && !layerConfig.isDisabled)
-                ? layerControlPoints
-                : [[]]
-        });
-}
-
 
 function layerControlPointsFilter(layerConfig: ILayerConfig) {
     return !!(layerConfig.isRenderConfigExpanded && !layerConfig.isDisabled);

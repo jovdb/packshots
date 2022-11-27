@@ -95,7 +95,7 @@ export class ConeGeometry implements IGeometry {
         const q = cameraPosition.clone().addScalar(t).multiply(rayDirection);
         const y = q.z;
 
-        const side = 1;
+        // const side = 1;
 
         // Only needed for double-sided debugging, comment out otherwise.
         /*

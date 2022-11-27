@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import create from "zustand";
 import shallow from "zustand/shallow";
-import { IControlPointsConfig, IControlPointsController } from "./controlPoints/IControlPoints";
+import { IControlPointsConfig } from "./controlPoints/IControlPoints";
 import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree, Renderers } from "./IPackshot";
 import { createRenderer } from "./renderers/factory";
 import { flattenTree, walkTree } from "./Tree";

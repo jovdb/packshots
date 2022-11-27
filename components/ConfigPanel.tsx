@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useRef, useState } from "react";
+import { PropsWithChildren } from "react";
 import ArrowLeft from "../icons/dbl-arrow-left.svg";
 import ArrowRight from "../icons/dbl-arrow-right.svg";
 
