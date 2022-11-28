@@ -13,6 +13,7 @@ export const usePackshotStore = create<
       setPackshot(packshot: IPackshot): void;
       updatePackshotName(name: string): void;
       updatePackshotConfig(config: IPackshotConfig): void;
+      addLayer(layer: ILayer, layerIndex?: number): void;
       deleteLayer(layerIndex: number): void;
       updateLayerConfig(layerIndex: number, config: Partial<ILayerConfig>): void;
       updateLayerRenderTree(layerIndex: number, renderTree: IRenderTree): void;
@@ -49,6 +50,17 @@ export const usePackshotStore = create<
 
     updatePackshotConfig(config) {
       set({ config });
+    },
+
+    addLayer(layer, insertIndex?: number) {
+      set((state) => {
+        const newLayers = state.layers.slice();
+        if (insertIndex === undefined) insertIndex = state.layers.length;
+        newLayers.splice(insertIndex, 1, layer);
+        return {
+          layers: newLayers,
+        };
+      });
     },
 
     deleteLayer(layerIndex) {

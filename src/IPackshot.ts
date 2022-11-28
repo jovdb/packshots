@@ -69,6 +69,11 @@ export interface IMaskRenderer extends IRenderTree {
   children: IRenderTree[];
 }
 
+export interface IConeRenderer extends IRenderTree {
+  type: "cone";
+  // config: IConeRendererConfig;
+}
+
 export interface ILayerConfig {
   /** Disable Layer */
   isDisabled?: boolean;

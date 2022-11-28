@@ -5,6 +5,7 @@ import CylinderIcon from "../icons/cylinder.svg";
 import MugIcon from "../icons/mug.svg";
 import PlaneIcon from "../icons/plane.svg";
 import VaseIcon from "../icons/vase.svg";
+import { IConeRenderer, ILayer, IPlaneRenderer } from "../src/IPackshot";
 import { usePackshotActions } from "../src/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { photobookLayers } from "./samples/photobook";
@@ -32,9 +33,30 @@ export function ActionBar() {
             <div
               style={style}
               onClick={() => {
-                alert("TODO");
-                // addLayer(layer, 0); // Add at bottom
-                // setAction(""); // close panel
+                const planeRenderNode: IPlaneRenderer = {
+                  type: "plane",
+                  config: {
+                    image: {
+                      name: "Sample1.jpg",
+                      url: "./samples/Sample1.jpg",
+                    },
+                    controlPoints: [
+                      [-0.8, -0.8],
+                      [0.8, -0.8],
+                      [0.8, 0.8],
+                      [-0.8, 0.8],
+                    ],
+                  },
+                };
+                const newLayer: ILayer = {
+                  name: "Plane",
+                  renderTree: planeRenderNode,
+                  config: {
+                    isRenderConfigExpanded: true,
+                  },
+                };
+                addLayer(newLayer);
+                setAction(""); // close panel
               }}
             >
               <a href="#">
@@ -44,9 +66,32 @@ export function ActionBar() {
             <div
               style={style}
               onClick={() => {
-                alert("TODO");
-                // addLayer(layer, 0); // Add at bottom
-                // setAction(""); // close panel
+                const coneRenderNode: IConeRenderer = {
+                  type: "cone",
+                  config: {
+                    image: {
+                      name: "Sample1.jpg",
+                      url: "./samples/Sample1.jpg",
+                    },
+                    controlPoints: [
+                      [-0.6, -0.6],
+                      [0, -0.55],
+                      [0.6, -0.6],
+                      [0.6, 0.6],
+                      [0, 0.65],
+                      [-0.6, 0.6],
+                    ],
+                  },
+                };
+                const newLayer: ILayer = {
+                  name: "Cylinder",
+                  renderTree: coneRenderNode,
+                  config: {
+                    isRenderConfigExpanded: true,
+                  },
+                };
+                addLayer(newLayer);
+                setAction(""); // close panel
               }}
             >
               <a href="#">
@@ -101,7 +146,7 @@ export function ActionBar() {
                 />Vase
               </a>
             </div>
-            <br/>
+            <br />
           </AccordionPanel>
         </>
       )}

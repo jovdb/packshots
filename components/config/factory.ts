@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { ConeRendererConfig } from "./ConeRendererConfig";
 import { ImageRendererConfig } from "./ImageRendererConfig";
 import { MaskRendererConfig } from "./MaskRendererConfig";
 import { PlaneRendererConfig } from "./PlaneRendererConfig";
@@ -18,7 +19,7 @@ export function getConfigComponent(
     case "plane":
       return PlaneRendererConfig;
     case "cone":
-      throw new Error("Not supported", { cause: "SS" });
+      return ConeRendererConfig;
     case "mask":
       return MaskRendererConfig;
     default:

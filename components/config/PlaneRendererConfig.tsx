@@ -17,7 +17,7 @@ export const PlaneRendererConfig: ConfigComponent<IPlaneRendererConfig> = ({
   return (
     <>
       <fieldset>
-        <legend>Spread</legend>
+        <legend>Image</legend>
         <ImageConfig
           config={image}
           onChange={(newConfig) => {
