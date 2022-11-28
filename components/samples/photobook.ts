@@ -35,8 +35,8 @@ export const photobookLayers: IPackshot = {
             type: "plane",
             config: {
               image: {
-                name: "Spread.jpg",
-                url: "./products/Book/Spread.jpg",
+                name: "Spread3.jpg",
+                url: "./products/Book/Spread3.jpg",
               },
               controlPoints: [
                 [-0.414, -0.499],
@@ -68,8 +68,8 @@ export const photobookLayers: IPackshot = {
               type: "plane",
               config: {
                 image: {
-                  name: "Spread.jpg",
-                  url: "./products/Book/Spread.jpg",
+                  name: "Spread2.jpg",
+                  url: "./products/Book/Spread2.jpg",
                 },
                 controlPoints: [
                   [-0.414, -0.499],
@@ -100,8 +100,8 @@ export const photobookLayers: IPackshot = {
             type: "plane",
             config: {
               image: {
-                name: "Spread.jpg",
-                url: "./products/Book/Spread.jpg",
+                name: "Spread1.jpg",
+                url: "./products/Book/Spread1.jpg",
               },
               controlPoints: [
                 [-1.4, -0.499],

@@ -1,19 +1,15 @@
 Configuration
 - Show resolution and size with image thumb in configuration
-- Add supporte to get a spread from pvc, des
+- Add support to get a spread from pvc, des
 - Show warnings for background images that don't match the aspect ratio of the packshot
 - Show warnings for background that are less that the packshot resolution
 - Show warning is pachshot size can be higher = all fullscreen images (mask, background) have a higher resolution
-- Config for control points values? what is the unit to make it easy to change: scale 10000?
 - Make layer name editable (contenteditable attribute?) (edit button on hover?)
-- Support to configure with local images
 - Snapping of control points horizontal/vertical with shift key
 - Spread Config needs a spread index?
 
 Renderer
-- Masking + icon in layer background
 - Opacity during drag
-- Normalize projection matrix
 - Cone Renderer
 
 Storage
