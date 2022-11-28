@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { CSSProperties, useRef } from "react";
 import { checkBoardStyle } from "../src/checkboard";
-import { ILayerConfig, Renderers } from "../src/IPackshot";
+import { ILayerConfig, IRenderTree } from "../src/IPackshot";
 import { useLayersConfig, useRenderTrees } from "../src/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
 import { ControlPoints } from "./ControlPoints";
 
 function render(
   targetContext: CanvasRenderingContext2D | null | undefined,
-  renderTrees: Renderers[],
+  renderTrees: IRenderTree[],
   layersConfig: ILayerConfig[],
 ) {
   if (!targetContext) return;

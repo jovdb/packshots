@@ -3,9 +3,9 @@ import { useMemo } from "react";
 import create from "zustand";
 import shallow from "zustand/shallow";
 import { IControlPointsConfig } from "./controlPoints/IControlPoints";
-import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree, Renderers } from "./IPackshot";
+import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree } from "./IPackshot";
 import { createRenderer } from "./renderers/factory";
-import { flattenTree, walkTree } from "./Tree";
+import { flattenTree, replaceTreeNode, walkTree } from "./Tree";
 
 export const usePackshotStore = create<
   IPackshot & {
@@ -16,6 +16,7 @@ export const usePackshotStore = create<
       deleteLayer(layerIndex: number): void;
       updateLayerConfig(layerIndex: number, config: Partial<ILayerConfig>): void;
       updateLayerRenderTree(layerIndex: number, renderTree: IRenderTree): void;
+      updateLayerRenderNodeConfig(layerIndex: number, renderNode: IRenderTree, config: {}): void;
     };
   }
 >((set) => ({
@@ -41,16 +42,19 @@ export const usePackshotStore = create<
         return { ...packshot };
       });
     },
+
     updatePackshotName(name) {
       set({ name });
     },
+
     updatePackshotConfig(config) {
       set({ config });
     },
-    deleteLayer(index) {
+
+    deleteLayer(layerIndex) {
       set((state) => ({
         layers: state.layers.filter((layer, i) => {
-          if (i !== index) {
+          if (i !== layerIndex) {
             return true;
           } else {
             // Dispose renderers before removing layer
@@ -60,37 +64,61 @@ export const usePackshotStore = create<
         }),
       }));
     },
-    updateLayerConfig(index, config) {
+
+    updateLayerConfig(layerIndex, config) {
       set((state) => {
-        const oldLayer = state.layers[index];
+        const oldLayer = state.layers[layerIndex];
         const oldConfig = oldLayer?.config || {};
         const newLayer = {
           ...oldLayer,
           config: { ...oldConfig, ...config },
         };
         const newLayers = state.layers.slice();
-        newLayers.splice(index, 1, newLayer);
+        newLayers.splice(layerIndex, 1, newLayer);
 
         return {
           layers: newLayers,
         };
       });
     },
-    updateLayerRenderTree(index, renderTree: Renderers) {
+
+    updateLayerRenderTree(layerIndex, renderTree) {
       set((state) => {
-        const oldLayer = state.layers[index];
+        const oldLayer = state.layers[layerIndex];
         const newLayer: ILayer = {
           ...oldLayer,
           renderTree,
         };
         const newLayers = state.layers.slice();
-        newLayers.splice(index, 1, newLayer);
+        newLayers.splice(layerIndex, 1, newLayer);
 
         // Update renderers
         walkTree(oldLayer.renderTree, renderNode => renderNode.renderer?.dispose?.());
         walkTree(newLayer.renderTree, renderNode => {
           renderNode.renderer = createRenderer(renderNode.type);
         });
+
+        return {
+          layers: newLayers,
+        };
+      });
+    },
+
+    updateLayerRenderNodeConfig(layerIndex, renderNode, config): void {
+      set((state) => {
+        const oldLayer = state.layers[layerIndex];
+
+        const newRenderNode: IRenderTree = {
+          ...renderNode,
+          config,
+        };
+        const newRenderTree = replaceTreeNode(oldLayer.renderTree, renderNode, newRenderNode);
+        const newLayer: ILayer = {
+          ...oldLayer,
+          renderTree: newRenderTree,
+        };
+        const newLayers = state.layers.slice();
+        newLayers.splice(layerIndex, 1, newLayer);
 
         return {
           layers: newLayers,

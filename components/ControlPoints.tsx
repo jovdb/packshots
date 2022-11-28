@@ -3,7 +3,7 @@ import { ControlPoint } from "../src/controlPoints/IControlPoints";
 import { useElementSize } from "../src/hooks/useElementSize";
 import { ILayerConfig } from "../src/IPackshot";
 import { useAllControlPoints, useLayersConfig, usePackshotActions, useRenderTrees } from "../src/packshot";
-import { flattenTree, replaceTreeNode } from "../src/Tree";
+import { flattenTree } from "../src/Tree";
 import { DrawPoints, useLayersControlPointsDragging } from "./DrawPoints";
 
 function layerControlPointsFilter(layerConfig: ILayerConfig) {
@@ -14,7 +14,7 @@ function useControlPointsInScreenCoordinates(size: { width: number; height: numb
   const allControlPoints = useAllControlPoints();
   const layersConfig = useLayersConfig();
   const renderTrees = useRenderTrees();
-  const { updateLayerRenderTree } = usePackshotActions();
+  const { updateLayerRenderNodeConfig } = usePackshotActions();
 
   // Convert controlPoints to screen coordinates
   const controlPointsInScreenCoordinates = useMemo(
@@ -60,21 +60,13 @@ function useControlPointsInScreenCoordinates(size: { width: number; height: numb
           y / size.height * 2 - 1,
         ]) as ControlPoint[];
 
-      const newRenderNode = {
-        ...renderNode,
-        config: {
-          ...renderNode.config,
-          controlPoints: normalizedControlPoints,
-        },
-      };
-
-      // Update renderTree
-      const newRenderTree = replaceTreeNode(renderTree, renderNode, newRenderNode);
-
       // Update renderNode Config
-      updateLayerRenderTree(layerIndex, newRenderTree);
+      updateLayerRenderNodeConfig(layerIndex, renderNode, {
+        ...renderNode.config,
+        controlPoints: normalizedControlPoints,
+      });
     },
-    [renderTrees, size.height, size.width, updateLayerRenderTree],
+    [renderTrees, size.height, size.width, updateLayerRenderNodeConfig],
   );
 
   return [

@@ -19,14 +19,15 @@ export const photobookLayers: IPackshot = {
         },
       },
     },
+
     {
-      name: "Spread",
+      name: "Page 3",
       renderTree: {
         type: "mask",
         config: {
           image: {
-            name: "Mask.,png",
-            url: "./products/Book/Mask.png",
+            name: "Mask-Page3.png",
+            url: "./products/Book/Mask-Page3.png",
           },
         },
         children: [
@@ -39,9 +40,74 @@ export const photobookLayers: IPackshot = {
               },
               controlPoints: [
                 [-0.414, -0.499],
-                [0.612, -0.37],
-                [0.614, 0.68],
+                [0.71, -0.425],
+                [0.71, 0.56],
                 [-0.414, 0.412],
+
+              ],
+            },
+          },
+        ],
+      },
+      config: {
+        composition: "multiply",
+      },
+    },
+    {
+        name: "Page 2",
+        renderTree: {
+          type: "mask",
+          config: {
+            image: {
+              name: "Mask-Page2.png",
+              url: "./products/Book/Mask-Page2.png",
+            },
+          },
+          children: [
+            {
+              type: "plane",
+              config: {
+                image: {
+                  name: "Spread.jpg",
+                  url: "./products/Book/Spread.jpg",
+                },
+                controlPoints: [
+                  [-0.414, -0.499],
+                  [0.612, -0.37],
+                  [0.614, 0.68],
+                  [-0.414, 0.412],
+                ],
+              },
+            },
+          ],
+        },
+        config: {
+          composition: "multiply",
+        },
+      },
+    {
+      name: "Page 1",
+      renderTree: {
+        type: "mask",
+        config: {
+          image: {
+            name: "Mask-Page1.png",
+            url: "./products/Book/Mask-Page1.png",
+          },
+        },
+        children: [
+          {
+            type: "plane",
+            config: {
+              image: {
+                name: "Spread.jpg",
+                url: "./products/Book/Spread.jpg",
+              },
+              controlPoints: [
+                [-1.4, -0.499],
+                [-0.414, -0.499],
+                [-0.414, 0.412],
+                [-1.4, 0.412],
               ],
             },
           },

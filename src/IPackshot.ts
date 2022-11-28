@@ -48,7 +48,9 @@ export interface IRenderTree {
   /** That code that will do the rendering, added by store */
   renderer?: IRenderer;
   /** A tree of render information (example a mask with as child an image) */
-  children?: Renderers[];
+  children?: IRenderTree[];
+  /** Render Node Configuration */
+  config: {};
 }
 
 export interface IImageRenderer extends IRenderTree {
@@ -64,10 +66,8 @@ export interface IPlaneRenderer extends IRenderTree {
 export interface IMaskRenderer extends IRenderTree {
   type: "mask";
   config: IMaskRenderingConfig;
-  children: Renderers[];
+  children: IRenderTree[];
 }
-
-export type Renderers = IImageRenderer | IMaskRenderer | IPlaneRenderer;
 
 export interface ILayerConfig {
   /** Disable Layer */
@@ -86,7 +86,7 @@ export interface ILayerConfig {
 export interface ILayer {
   name?: string;
   config?: ILayerConfig;
-  renderTree: Renderers;
+  renderTree: IRenderTree;
 }
 
 export interface IPackshotConfig {

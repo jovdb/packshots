@@ -4,7 +4,7 @@ import { MaskRenderer } from "./MaskRendering";
 import { PlaneWebGlRenderer } from "./PlaneWebGlRenderer";
 
 export function createRenderer(
-  type: "image" | "plane" | "cone" | "mask",
+  type: string,
 ): IRenderer {
   switch (type) {
     case "image":
