@@ -15,8 +15,18 @@ export class ConeWebGlRenderer implements IRenderer {
   private readonly bufferInfo: twgl.BufferInfo;
   private readonly uniforms: {
     texture: WebGLTexture | undefined;
-    textureMatrix: twgl.m4.Mat4 | undefined;
-    matrix: twgl.m4.Mat4 | undefined;
+
+    /** position of camera */
+    eyePos: twgl.v3.Vec3 | undefined;
+
+    /** how to convert fragment (x,y,0) canvas points to camera ray directions */
+    eyeMat: twgl.m4.Mat4 | undefined;
+
+    /** Shape properties */
+    shapeDim: [topRadius: number, bottomRadius: number, height: number, heightInv: number];
+
+    /** Texture properties */
+    imgProj: [x: number, y: number, scale: number, isDragging: 0 | 1];
   };
 
   constructor() {
@@ -29,33 +39,35 @@ export class ConeWebGlRenderer implements IRenderer {
     this.bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
 
     const vertexShader = `
-            attribute vec4 position;   
-            
-            uniform mat4 matrix;
-            uniform mat4 textureMatrix;
-            
-            varying vec2 texcoord;
-            
-            void main () {
-                gl_Position = matrix * position;
-                texcoord = (textureMatrix * position).xy;
-            }
-        `;
+      attribute vec4 position;
+
+      uniform vec3 eyePos; 
+      uniform mat3 eyeMat; 
+      uniform vec4 shapeDim;
+      uniform vec4 imgProj; 
+
+      varying vec2 texcoord;
+
+      void main () {
+        gl_Position = position;
+        texcoord = position.xy;
+      }
+    `;
 
     const fragmentShader = `
-            precision highp float;
+      precision highp float;
 
-            varying vec2 texcoord;
-            uniform sampler2D texture;
+      varying vec2 texcoord;
+      uniform sampler2D texture;
 
-            void main() {
-                if (texcoord.x < 0.0 || texcoord.x > 1.0 ||
-                   texcoord.y < 0.0 || texcoord.y > 1.0) {
-                   discard;
-                }
-                gl_FragColor = texture2D(texture, texcoord);
-            }
-        `;
+      void main() {
+        if (texcoord.x < 0.0 || texcoord.x > 1.0 ||
+          texcoord.y < 0.0 || texcoord.y > 1.0) {
+          discard;
+        }
+        gl_FragColor = texture2D(texture, texcoord);
+      }
+    `;
 
     this.programInfo = twgl.createProgramInfo(gl, [vertexShader, fragmentShader], (err) => {
       throw new Error(`Error loading WebGL program. ${err}`); // TODO: Error handling
@@ -63,8 +75,10 @@ export class ConeWebGlRenderer implements IRenderer {
 
     this.uniforms = {
       texture: undefined,
-      textureMatrix: twgl.m4.identity(),
-      matrix: undefined,
+      eyePos: [],
+      eyeMat: twgl.m4.identity(),
+      shapeDim: [1, 1, 2, 0.5],
+      imgProj: [0, 0, 1, 0],
     };
 
     gl.useProgram(this.programInfo.program);
@@ -112,7 +126,7 @@ export class ConeWebGlRenderer implements IRenderer {
     if (!uniforms.texture || !image || !programInfo) {
       throw new Error("Only call render after a succesful loadAsync");
     }
-    const { m4 } = twgl;
+    const { m4, v3 } = twgl;
     const webGlCanvas = gl.canvas as HTMLCanvasElement;
     const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
 
@@ -136,7 +150,36 @@ export class ConeWebGlRenderer implements IRenderer {
     } else {
       m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
     }
-    uniforms.matrix = matrix;
+
+    // Hard coded
+    uniforms.eyePos = [
+      2.1767287,
+      44.258453,
+      -3.7757607,
+    ];
+    uniforms.eyeMat = [
+      -0.0006771306,
+      -2.6165872E-06,
+      1.5891758E-06,
+      -2.8283775E-06,
+      -0.00011274649,
+      -0.0006889075,
+      1.5320655,
+      6.382169,
+      1,
+    ];
+    uniforms.shapeDim = [
+      4.6,
+      3.155,
+      10,
+      0.1,
+    ];
+    uniforms.imgProj = [
+      -460.15533,
+      -126.43283,
+      160.50748,
+      0,
+    ];
 
     // Render
     twgl.setUniforms(programInfo, uniforms);
@@ -211,23 +254,12 @@ export class ConeWebGlRenderer implements IRenderer {
       const q4 = p2;
 
       // Remark: WebGL matrices have horizontal columns!
+      // dprint-ignore
       const mat = [
-        q1[0],
-        q2[0],
-        q3[0],
-        0,
-        q1[1],
-        q2[1],
-        q3[1],
-        0,
-        1,
-        1,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
+        q1[0], q2[0], q3[0], 0,
+        q1[1], q2[1], q3[1], 0,
+        1,     1,     1,     0,
+        0,     0,     0,     1,
       ];
 
       const inv = twgl.m4.inverse(mat);
@@ -235,23 +267,12 @@ export class ConeWebGlRenderer implements IRenderer {
 
       const [s1, s2, s3] = transformNormal(inv, normalVector); // Remark: TWGL does invert for use
 
+      // dprint-ignore
       return [
-        q1[0] * s1,
-        q1[1] * s1,
-        0,
-        s1,
-        q2[0] * s2,
-        q2[1] * s2,
-        0,
-        s2,
-        0,
-        0,
-        1,
-        0,
-        q3[0] * s3,
-        q3[1] * s3,
-        0,
-        s3,
+        q1[0] * s1, q1[1] * s1, 0, s1,
+        q2[0] * s2, q2[1] * s2, 0, s2,
+        0,          0,          1, 0,
+        q3[0] * s3, q3[1] * s3, 0, s3,
       ];
     }
 

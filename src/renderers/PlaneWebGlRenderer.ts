@@ -28,33 +28,33 @@ export class PlaneWebGlRenderer implements IRenderer {
     this.bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
 
     const vertexShader = `
-            attribute vec4 position;   
-            
-            uniform mat4 matrix;
-            uniform mat4 textureMatrix;
-            
-            varying vec2 texcoord;
-            
-            void main () {
-                gl_Position = matrix * position;
-                texcoord = (textureMatrix * position).xy;
-            }
-        `;
+      attribute vec4 position;
+
+      uniform mat4 matrix;
+      uniform mat4 textureMatrix;
+
+      varying vec2 texcoord;
+
+      void main () {
+        gl_Position = matrix * position;
+        texcoord = (textureMatrix * position).xy;
+      }
+      `;
 
     const fragmentShader = `
-            precision highp float;
+      precision highp float;
 
-            varying vec2 texcoord;
-            uniform sampler2D texture;
+      varying vec2 texcoord;
+      uniform sampler2D texture;
 
-            void main() {
-                if (texcoord.x < 0.0 || texcoord.x > 1.0 ||
-                   texcoord.y < 0.0 || texcoord.y > 1.0) {
-                   discard;
-                }
-                gl_FragColor = texture2D(texture, texcoord);
-            }
-        `;
+      void main() {
+        if (texcoord.x < 0.0 || texcoord.x > 1.0 ||
+          texcoord.y < 0.0 || texcoord.y > 1.0) {
+          discard;
+        }
+        gl_FragColor = texture2D(texture, texcoord);
+      }
+    `;
 
     this.programInfo = twgl.createProgramInfo(gl, [vertexShader, fragmentShader], (err) => {
       throw new Error(`Error loading WebGL program. ${err}`); // TODO: Error handling
@@ -210,23 +210,12 @@ export class PlaneWebGlRenderer implements IRenderer {
       const q4 = p2;
 
       // Remark: WebGL matrices have horizontal columns!
+      // dprint-ignore
       const mat = [
-        q1[0],
-        q2[0],
-        q3[0],
-        0,
-        q1[1],
-        q2[1],
-        q3[1],
-        0,
-        1,
-        1,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
+        q1[0], q2[0], q3[0], 0,
+        q1[1], q2[1], q3[1], 0,
+        1,     1,     1,     0,
+        0,     0,     0,     1,
       ];
 
       const inv = twgl.m4.inverse(mat);
@@ -234,23 +223,12 @@ export class PlaneWebGlRenderer implements IRenderer {
 
       const [s1, s2, s3] = transformNormal(inv, normalVector); // Remark: TWGL does invert for use
 
+      // dprint-ignore
       return [
-        q1[0] * s1,
-        q1[1] * s1,
-        0,
-        s1,
-        q2[0] * s2,
-        q2[1] * s2,
-        0,
-        s2,
-        0,
-        0,
-        1,
-        0,
-        q3[0] * s3,
-        q3[1] * s3,
-        0,
-        s3,
+        q1[0] * s1, q1[1] * s1, 0, s1,
+        q2[0] * s2, q2[1] * s2, 0, s2,
+        0,          0,          1, 0,
+        q3[0] * s3, q3[1] * s3, 0, s3,
       ];
     }
 
