@@ -8,8 +8,9 @@ import VaseIcon from "../icons/vase.svg";
 import { IConeRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
 import { useLayers, usePackshotActions } from "../src/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
-import { flowerPotPackshot } from "./samples/flowerpot";
 import { photobookPackshot } from "./samples/photobook";
+import { mugPackshot } from "./samples/mug";
+import { flowerPotPackshot } from "./samples/flowerpot";
 
 function getSampleImageConfig(layerCount: number) {
   return {
@@ -140,8 +141,8 @@ export function ActionBar() {
             <div
               style={style}
               onClick={() => {
-                // setPackshot(flowerPotPackshot);
-                // setAction(""); // close panel
+                setPackshot(mugPackshot);
+                setAction(""); // close panel
               }}
             >
               <a href="#">
@@ -154,7 +155,6 @@ export function ActionBar() {
             <div
               style={style}
               onClick={() => {
-                debugger;
                 setPackshot(flowerPotPackshot);
                 setAction(""); // close panel
               }}
