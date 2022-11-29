@@ -10,7 +10,9 @@ Configuration
 
 Renderer
 - Opacity during drag
-- Cone Renderer
+- Cone Renderer (exp/pv/BAC-3614)
+- jpg mask (black/white copression)
+- Allow mask with R G B channels
 
 Storage
 - Use the File System Access API?
@@ -20,6 +22,7 @@ Storage
     - do we want to store inline images in json? = large json
     - Export as folder (ZIP in browser): creates an output folder with all images + config file with relative links
   - Provide a image path prefix? "http://folder-with-images/" and relative images "./Mask.png"
+  - Export optimized mask (RGB channels)
 
 General
 - undo/redo

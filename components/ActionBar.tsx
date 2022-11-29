@@ -5,14 +5,22 @@ import CylinderIcon from "../icons/cylinder.svg";
 import MugIcon from "../icons/mug.svg";
 import PlaneIcon from "../icons/plane.svg";
 import VaseIcon from "../icons/vase.svg";
-import { IConeRenderer, ILayer, IPlaneRenderer } from "../src/IPackshot";
-import { usePackshotActions } from "../src/packshot";
+import { IConeRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
+import { useLayers, usePackshotActions } from "../src/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
-import { photobookLayers } from "./samples/photobook";
+import { flowerPotPackshot } from "./samples/flowerpot";
+import { photobookPackshot } from "./samples/photobook";
 
+function getSampleImageConfig(layerCount: number) {
+  return {
+    name: `Sample${layerCount % 4 + 1}.jpg`,
+    url: `./samples/Sample${layerCount % 4 + 1}.jpg`,
+  };
+}
 export function ActionBar() {
   const [action, setAction] = useState("");
   const { setPackshot, addLayer } = usePackshotActions();
+  const layers = useLayers();
 
   const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
 
@@ -35,11 +43,9 @@ export function ActionBar() {
               onClick={() => {
                 const planeRenderNode: IPlaneRenderer = {
                   type: "plane",
+                  name: "Plane",
                   config: {
-                    image: {
-                      name: "Sample1.jpg",
-                      url: "./samples/Sample1.jpg",
-                    },
+                    image: getSampleImageConfig(layers.length),
                     controlPoints: [
                       [-0.8, -0.8],
                       [0.8, -0.8],
@@ -48,9 +54,22 @@ export function ActionBar() {
                     ],
                   },
                 };
+
+                const maskRenderNode: IMaskRenderer = {
+                  type: "mask",
+                  name: "Mask",
+                  config: {
+                    isDisabled: true,
+                    image: {
+                      name: "",
+                      url: "",
+                    },
+                  },
+                  children: [planeRenderNode],
+                };
                 const newLayer: ILayer = {
                   name: "Plane",
-                  renderTree: planeRenderNode,
+                  renderTree: maskRenderNode,
                   config: {
                     isRenderConfigExpanded: true,
                   },
@@ -69,10 +88,7 @@ export function ActionBar() {
                 const coneRenderNode: IConeRenderer = {
                   type: "cone",
                   config: {
-                    image: {
-                      name: "Sample1.jpg",
-                      url: "./samples/Sample1.jpg",
-                    },
+                    image: getSampleImageConfig(layers.length),
                     controlPoints: [
                       [-0.6, -0.6],
                       [0, -0.55],
@@ -81,6 +97,9 @@ export function ActionBar() {
                       [0, 0.65],
                       [-0.6, 0.6],
                     ],
+                    diameterTop: 9.2,
+                    diameterBottom: 6.3,
+                    height: 10,
                   },
                 };
                 const newLayer: ILayer = {
@@ -107,7 +126,7 @@ export function ActionBar() {
             <div
               style={style}
               onClick={() => {
-                setPackshot(photobookLayers); // close panel
+                setPackshot(photobookPackshot);
                 setAction(""); // close panel
               }}
             >
@@ -121,7 +140,7 @@ export function ActionBar() {
             <div
               style={style}
               onClick={() => {
-                // setPackshot(photobookLayers); // close panel
+                // setPackshot(flowerPotPackshot);
                 // setAction(""); // close panel
               }}
             >
@@ -135,8 +154,9 @@ export function ActionBar() {
             <div
               style={style}
               onClick={() => {
-                // setPackshot(photobookLayers); // close panel
-                // setAction(""); // close panel
+                debugger;
+                setPackshot(flowerPotPackshot);
+                setAction(""); // close panel
               }}
             >
               <a href="#">

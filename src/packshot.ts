@@ -34,7 +34,7 @@ export const usePackshotStore = create<
           walkTree(layer.renderTree, renderNode => renderNode.renderer?.dispose?.());
         });
         // Create new renderers
-        packshot.layers.forEach(layer => {
+        packshot?.layers?.forEach(layer => {
           walkTree(layer.renderTree, renderNode => {
             renderNode.renderer = createRenderer(renderNode.type);
           });
