@@ -16,6 +16,7 @@ export class PlaneWebGlRenderer implements IRenderer {
     texture: WebGLTexture | undefined;
     textureMatrix: twgl.m4.Mat4 | undefined;
     matrix: twgl.m4.Mat4 | undefined;
+    drawCheckboard: number;
   };
 
   constructor() {
@@ -33,26 +34,35 @@ export class PlaneWebGlRenderer implements IRenderer {
       uniform mat4 matrix;
       uniform mat4 textureMatrix;
 
-      varying vec2 texcoord;
+      varying vec2 fragCoord;
 
       void main () {
         gl_Position = matrix * position;
-        texcoord = (textureMatrix * position).xy;
+        fragCoord = (textureMatrix * position).xy;
       }
       `;
 
     const fragmentShader = `
       precision highp float;
 
-      varying vec2 texcoord;
+      varying vec2 fragCoord;
       uniform sampler2D texture;
+      uniform float drawCheckboard;
 
-      void main() {
-        if (texcoord.x < 0.0 || texcoord.x > 1.0 ||
-          texcoord.y < 0.0 || texcoord.y > 1.0) {
-          discard;
+      void main() { 
+        if (drawCheckboard > 0.0) {
+          // Draw checkerboard
+          vec2 pos = floor(fragCoord * 25.0);
+          float patternMask = mod(pos.x + mod(pos.y, 2.0), 2.0) > 0.5 ? 0.9 : 0.5;
+          gl_FragColor = vec4(patternMask, patternMask, patternMask, 1.0);
+        } else {
+          // Draw Texture
+          if (fragCoord.x < 0.0 || fragCoord.x > 1.0 ||
+            fragCoord.y < 0.0 || fragCoord.y > 1.0) {
+            discard;
+          }
+          gl_FragColor = texture2D(texture, fragCoord);
         }
-        gl_FragColor = texture2D(texture, texcoord);
       }
     `;
 
@@ -64,6 +74,7 @@ export class PlaneWebGlRenderer implements IRenderer {
       texture: undefined,
       textureMatrix: twgl.m4.identity(),
       matrix: undefined,
+      drawCheckboard: 1,
     };
 
     gl.useProgram(this.programInfo.program);
@@ -77,7 +88,10 @@ export class PlaneWebGlRenderer implements IRenderer {
     config: IPlaneRendererConfig,
   ) {
     if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
-    if (!config.image.url) return;
+    if (!config.image.url) {
+      this.uniforms.drawCheckboard = 1;
+      return;
+    }
 
     return new Promise<void>((resolve, reject) => {
       const { gl } = this;
@@ -93,10 +107,12 @@ export class PlaneWebGlRenderer implements IRenderer {
           this.image = undefined;
           if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
           this.uniforms.texture = undefined;
+          this.uniforms.drawCheckboard = 1;
           reject(err);
         } else {
           this.image = img as HTMLImageElement;
           this.uniforms.texture = tex;
+          this.uniforms.drawCheckboard = 0;
           resolve();
         }
       });
@@ -107,9 +123,9 @@ export class PlaneWebGlRenderer implements IRenderer {
     drawOnContext: CanvasRenderingContext2D,
     config: IPlaneRendererConfig,
   ): IRenderResult | undefined | void {
-    const { gl, uniforms, image, bufferInfo, programInfo } = this;
-    if (!uniforms.texture || !image || !programInfo) {
-      throw new Error("Only call render after a succesful loadAsync");
+    const { gl, uniforms, bufferInfo, programInfo } = this;
+    if (!programInfo) {
+      throw new Error("Only call render when programInfo is available");
     }
     const { m4 } = twgl;
     const webGlCanvas = gl.canvas as HTMLCanvasElement;
