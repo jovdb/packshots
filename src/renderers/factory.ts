@@ -2,7 +2,7 @@ import { ImageRenderer } from "./ImageRenderer";
 import { IRenderer } from "./IRenderer";
 import { MaskRenderer } from "./MaskRendering";
 import { PlaneWebGlRenderer } from "./PlaneWebGlRenderer/PlaneWebGlRenderer";
-import { ConeWebGlRenderer } from "./ConeWebGlRenderer";
+import { ConeWebGlRenderer } from "./ConeWebglRenderer/ConeWebGlRenderer";
 
 export function createRenderer(
   type: string,

@@ -151,7 +151,7 @@ half4 main(vec2 screenPos) {
     int2 ixy = floor(uv / 5);
     int mx = ixy.x % 10 >= 5 ? 1 : 0;
     int my = ixy.y % 10 >= 5 ? 1 : 0;
-    float m = (mx ^ my) * 0.25 + 0.5;
+    float m = mx + my == 1 ? 0.75 : 0.5; // (mx ^ my) * 0.25 + 0.5;
     
     vec4 spreadColor = sample(spread, uv);
     vec4 patternColor = vec4(m, m, m, imgProj.w);

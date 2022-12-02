@@ -1,7 +1,10 @@
 import * as twgl from "twgl.js/dist/5.x/twgl-full";
-import { IConeRendererConfig } from "../../components/config/ConeRendererConfig";
-import { ControlPoint } from "../controlPoints/IControlPoints";
-import type { IRenderer, IRenderResult } from "./IRenderer";
+import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
+import { ControlPoint } from "../../controlPoints/IControlPoints";
+import type { IRenderer, IRenderResult } from "../IRenderer";
+
+import vertexShader from "./vertex.glsl?raw";
+import fragmentShader from "./fragment.glsl?raw";
 
 // TWGL: https://twgljs.org/
 // https://twgljs.org/docs/module-twgl.html
@@ -38,37 +41,6 @@ export class ConeWebGlRenderer implements IRenderer {
 
     this.bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
 
-    const vertexShader = `
-      attribute vec4 position;
-
-      uniform vec3 eyePos; 
-      uniform mat3 eyeMat; 
-      uniform vec4 shapeDim;
-      uniform vec4 imgProj; 
-
-      varying vec2 texcoord;
-
-      void main () {
-        gl_Position = position;
-        texcoord = position.xy;
-      }
-    `;
-
-    const fragmentShader = `
-      precision highp float;
-
-      varying vec2 texcoord;
-      uniform sampler2D texture;
-
-      void main() {
-        if (texcoord.x < 0.0 || texcoord.x > 1.0 ||
-          texcoord.y < 0.0 || texcoord.y > 1.0) {
-          discard;
-        }
-        gl_FragColor = texture2D(texture, texcoord);
-      }
-    `;
-
     this.programInfo = twgl.createProgramInfo(gl, [vertexShader, fragmentShader], (err) => {
       throw new Error(`Error loading WebGL program. ${err}`); // TODO: Error handling
     });
@@ -102,6 +74,7 @@ export class ConeWebGlRenderer implements IRenderer {
         src: config.image.url,
         // src: "https://farm6.staticflickr.com/5695/21506311038_9557089086_m_d.jpg",
         crossOrigin: "", // not needed if image is on same origin
+        mag: gl.NEAREST,
       }, (err, tex, img) => {
         // wait for the image to load because we need to know it's size
         if (err) {
