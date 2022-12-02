@@ -8,6 +8,11 @@ const nextConfig = {
       use: ["@svgr/webpack"],
     });
 
+    config.module.rules.push({
+      test: /\.glsl$/i,
+      use: "raw-loader",
+    });
+
     return config;
   },
 };

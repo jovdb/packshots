@@ -1,7 +1,10 @@
 import * as twgl from "twgl.js/dist/5.x/twgl-full";
-import { IPlaneRendererConfig } from "../../components/config/PlaneRendererConfig";
-import { ControlPoint } from "../controlPoints/IControlPoints";
-import type { IRenderer, IRenderResult } from "./IRenderer";
+import { IPlaneRendererConfig } from "../../../components/config/PlaneRendererConfig";
+import { ControlPoint } from "../../controlPoints/IControlPoints";
+import type { IRenderer, IRenderResult } from "../IRenderer";
+
+import vertexShader from "./vertex.glsl?raw";
+import fragmentShader from "./fragment.glsl?raw";
 
 // TWGL: https://twgljs.org/
 // https://twgljs.org/docs/module-twgl.html
@@ -16,7 +19,8 @@ export class PlaneWebGlRenderer implements IRenderer {
     texture: WebGLTexture | undefined;
     textureMatrix: twgl.m4.Mat4 | undefined;
     matrix: twgl.m4.Mat4 | undefined;
-    drawCheckboard: number;
+    /** 0: Texture (default), 1: Checkboard, 2: None */
+    textureStyle: 0 | 1 | 2;
   };
 
   constructor() {
@@ -28,44 +32,6 @@ export class PlaneWebGlRenderer implements IRenderer {
 
     this.bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
 
-    const vertexShader = `
-      attribute vec4 position;
-
-      uniform mat4 matrix;
-      uniform mat4 textureMatrix;
-
-      varying vec2 fragCoord;
-
-      void main () {
-        gl_Position = matrix * position;
-        fragCoord = (textureMatrix * position).xy;
-      }
-      `;
-
-    const fragmentShader = `
-      precision highp float;
-
-      varying vec2 fragCoord;
-      uniform sampler2D texture;
-      uniform float drawCheckboard;
-
-      void main() { 
-        if (drawCheckboard > 0.0) {
-          // Draw checkerboard
-          vec2 pos = floor(fragCoord * 25.0);
-          float patternMask = mod(pos.x + mod(pos.y, 2.0), 2.0) > 0.5 ? 0.9 : 0.5;
-          gl_FragColor = vec4(patternMask, patternMask, patternMask, 1.0);
-        } else {
-          // Draw Texture
-          if (fragCoord.x < 0.0 || fragCoord.x > 1.0 ||
-            fragCoord.y < 0.0 || fragCoord.y > 1.0) {
-            discard;
-          }
-          gl_FragColor = texture2D(texture, fragCoord);
-        }
-      }
-    `;
-
     this.programInfo = twgl.createProgramInfo(gl, [vertexShader, fragmentShader], (err) => {
       throw new Error(`Error loading WebGL program. ${err}`); // TODO: Error handling
     });
@@ -74,7 +40,7 @@ export class PlaneWebGlRenderer implements IRenderer {
       texture: undefined,
       textureMatrix: twgl.m4.identity(),
       matrix: undefined,
-      drawCheckboard: 1,
+      textureStyle: 1,
     };
 
     gl.useProgram(this.programInfo.program);
@@ -89,7 +55,7 @@ export class PlaneWebGlRenderer implements IRenderer {
   ) {
     if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
     if (!config.image.url) {
-      this.uniforms.drawCheckboard = 1;
+      this.uniforms.textureStyle = 1;
       return;
     }
 
@@ -107,12 +73,12 @@ export class PlaneWebGlRenderer implements IRenderer {
           this.image = undefined;
           if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
           this.uniforms.texture = undefined;
-          this.uniforms.drawCheckboard = 1;
+          this.uniforms.textureStyle = 1;
           reject(err);
         } else {
           this.image = img as HTMLImageElement;
           this.uniforms.texture = tex;
-          this.uniforms.drawCheckboard = 0;
+          this.uniforms.textureStyle = 0;
           resolve();
         }
       });

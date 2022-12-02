@@ -1,7 +1,7 @@
 import { ImageRenderer } from "./ImageRenderer";
 import { IRenderer } from "./IRenderer";
 import { MaskRenderer } from "./MaskRendering";
-import { PlaneWebGlRenderer } from "./PlaneWebGlRenderer";
+import { PlaneWebGlRenderer } from "./PlaneWebGlRenderer/PlaneWebGlRenderer";
 import { ConeWebGlRenderer } from "./ConeWebGlRenderer";
 
 export function createRenderer(
