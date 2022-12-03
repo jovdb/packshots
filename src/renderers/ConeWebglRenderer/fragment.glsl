@@ -5,6 +5,10 @@ uniform sampler2D texture;
 uniform vec3 eyePos; 
 uniform mat3 eyeMat;
 uniform vec4 shapeDim;
+/**
+ * Texture properties
+ * imgProj: [x: number, y: number, scale: number, isDragging: 0 | 1];
+ */
 uniform vec4 imgProj; 
 
 const float M_PI = 3.1415926535897932384626433832795;
@@ -16,11 +20,18 @@ float posArcLength(vec2 u) {
     vec2 a = abs(u);
 
     // To workaround numerical imprecision (ugly seem when sampling)
-    // we need to pick either acos or asin (these have high precision for small
-    // numbers)
-    float r = a.x < a.y ? acos(a.x) : asin(a.y);
+    // we need to pick either acos or asin (these have high precision for small numbers)
+    float r = a.x < a.y
+        ? acos(a.x) 
+        : asin(a.y);
 
-    return u.x < 0.0 ? u.y < 0.0 ? M_PI + r : M_PI - r : u.y < 0.0 ? 2.0 * M_PI - r : r;
+    return u.x < 0.0
+        ? u.y < 0.0
+            ? M_PI + r
+            : M_PI - r
+        : u.y < 0.0
+            ? 2.0 * M_PI - r
+            : r;
 }
 
 
@@ -86,7 +97,6 @@ vec3 coneIntersect(in vec3 ro, in vec3 rd, vec4 dim) {
     c = rox*rox + roy*roy - B*B
     */
 
-
     float dRiH = dR * invH;
     float A = dRiH * rd.z;
     float B = dRiH * ro.z + 0.5 * dR + R1;
@@ -134,29 +144,38 @@ vec3 coneIntersect(in vec3 ro, in vec3 rd, vec4 dim) {
 
 void main() {
 
-    vec3 rayDir = vec3(texcoord.xy, 1.0);
-    vec3 hit = coneIntersect(eyePos, rayDir, shapeDim);
+    int debug = 2;
 
-    // Overlay checkerboard pattern to help placement of transparent texture area
-    vec2 uv = hit.xy * imgProj.z + imgProj.xy;
-    vec2 ixy = floor(uv / 5.0);
-    int mx = mod(ixy.x, 10.0) >= 5.0 ? 1 : 0;
-    int my = mod(ixy.y, 10.0) >= 5.0 ? 1 : 0;
-    float m = mx + my == 1 ? 0.75 : 0.5; // (mx ^ my) * 0.25 + 0.5; XOR not suppored on numbers
+    if (debug == 1) {
+        // Show image over screen
+        vec4 spreadColor = texture2D(texture, texcoord.xy);
+        gl_FragColor = spreadColor;
 
-    vec4 spreadColor = texture2D(texture, uv);
-    vec4 patternColor = vec4(m, m, m, imgProj.w);
-    vec4 combinedColor = mix(patternColor, spreadColor, spreadColor.a);
+    } else if (debug == 2) {
+        // Output red when ray hits cone
+        vec3 rayDir = vec3(texcoord.xy, 1.0) * eyeMat;
+        vec3 hit = coneIntersect(eyePos, rayDir, shapeDim);
+        vec4 redColor = vec4(1.0, 0.0, 0.0, 1.0);
+        gl_FragColor = hit.z * redColor;
 
-    // z is 1 for intersection, 0 otherwise.
-    gl_FragColor = hit.z * combinedColor;
-    gl_FragColor = spreadColor;
-    // gl_FragColor = vec4(1, 0, 0, 1);  // draw red
+    } else {
 
-    /*
-    if (texcoord.x < 0.0 || texcoord.x > 1.0 || texcoord.y < 0.0 || texcoord.y > 1.0) {
-        discard;
+        vec3 rayDir = vec3(texcoord.xy, 1.0) * eyeMat;
+        vec3 hit = coneIntersect(eyePos, rayDir, shapeDim);
+
+        // Overlay checkerboard pattern to help placement of transparent texture area
+        vec2 uv = hit.xy * imgProj.z + imgProj.xy;
+        vec2 ixy = floor(uv / 5.0);
+        int mx = mod(ixy.x, 10.0) >= 5.0 ? 1 : 0;
+        int my = mod(ixy.y, 10.0) >= 5.0 ? 1 : 0;
+        float m = mx + my == 1 ? 0.75 : 0.5; // (mx ^ my) * 0.25 + 0.5; XOR not suppored on numbers
+
+        vec4 spreadColor = texture2D(texture, uv);
+        vec4 patternColor = vec4(m, m, m, imgProj.w);
+        vec4 combinedColor = mix(patternColor, spreadColor, spreadColor.a);
+
+        // z is 1 for intersection, 0 otherwise.
+        gl_FragColor = hit.z * combinedColor;
+        
     }
-    // gl_FragColor = texture2D(texture, texcoord);
-    */
 }
