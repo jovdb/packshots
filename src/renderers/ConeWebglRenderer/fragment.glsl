@@ -35,111 +35,131 @@ float posArcLength(vec2 u) {
 }
 
 
-// Cone at world origin with radi R1, R2 and height H
-// dim = (R1, R2, H, 1/H)
-// ray defined q = ro + t * rd
+// Cone with following dimentions
+// shapeDimentions = vec4(topRadius, bottomRadius, coneHeight, 1/coneHeight)
 //
-// outputs 3 floats:
-// uv texture coordinates
-// front-hit: 1, no-hit: 0
-vec3 coneIntersect(in vec3 ro, in vec3 rd, vec4 dim) {
-    float R1 = dim.x;
-    float R2 = dim.y;
-    float H = dim.z;
-    float invH = dim.w;
-    float dR = R2 - R1;
+// output:
+// vec3(
+//   u: texture coordinates x
+//   v: texture coordinates y
+//   hit: 0.0 (no-hit) or 1.0 (hit)
+// )
+vec3 coneIntersect(in vec3 rayOrigin, in vec3 rayDirection, vec4 shapeDimentions) {
+    float topRadius = shapeDimentions.x;
+    float bottomRadius = shapeDimentions.y;
+    float coneHeight = shapeDimentions.z;
+    float invConeHeight = shapeDimentions.w;
+    float dRadius = bottomRadius - topRadius; // Positive if bottom radius is larger
 
     /*
-    Point q on ray is defined as
-    q = ro + t * rd
+    A point on the ray can be defined as:
+    pointOnRay = rayOrigin + rayDirection * rayDistance
 
-    Point q is on cone if
+    Point pointOnRay is on cone if
 
-    |q.xy| = (q.z * invH + 0.5) * dR + R1
-    and
-    |q.z| <= hH
+    Side view:           | z
+                     ____|____
+                     \   |   / Cone
+    [cam]<------------\--|--/ ------ x (ray)
+                       \_|_/
+                         |
 
-    Let (rox,roy,roz) = ro
-    (rdx,rdy,rdz) = rd
+    Top view:
+                       __|__ 
+                      /  |  \
+    [cam]<-----------|---°---|---- x (ray)
+                      \__|_ /
+                         |
+                         | y
 
-    Then
-    |q.xy| = sqrt(qx^2 + qy^2) = sqrt((rox+t*rdx)^2 + (roy+t*rdy)^2)
+    To intersect:
+    -------------
+    * The height must be between -coneHeight/2 and coneHeight/2 (center of cone is on origin)
+    |pointOnRay.z| <= coneHeight / 2
 
-    must be equal to
+    * The intersection of the ray must be on a circle around the origin:
+    rayDistanceFormOrigin = sqrt(pointOnRay.x ^ 2 + pointOnRay.y ^2)
+    rayDistanceFormOrigin = sqrt((rayOrigin.x + rayDirection.x * rayDistance)^2 + (rayOrigin.y + rayDirection.y * rayDistance)^2)
 
-    ((roz+t*rdz) * invH + 0.5) * dR + R1
+    * The ray must be at the distance of the radius at that height (we can interpolate from top to bottom radius)
+    radiusAtZ = (pointOnRay.z / coneHeight + 0.5) * deltaRadius + topRadius 
+   
+    When we replace pointOnRay with ray formula:
+    > radiusAzZ = ((rayOrigin.z + rayDirection.z * rayDistance) / coneHeight + 0.5) * deltaRadius + topRadius
+    > radiusAzZ = (rayOrigin.z / coneHeight + rayDirection.z * rayDistance / coneHeight + 0.5) * deltaRadius + topRadius
+    > radiusAzZ = rayOrigin.z * deltaRadius / coneHeight + rayDirection.z * rayDistance * deltaRadius / coneHeight + 0.5 * deltaRadius + topRadius
 
-    Expanding this gives
+    Groep parts to A en B
 
-    dR*invH*rdz * t + dR*invH*roz + 0.5*dR + R1
+    > radiusAzZ = (
+        rayOrigin.z * deltaRadius / coneHeight +                    > B
+        rayDirection.z * rayDistance * deltaRadius / coneHeight +   > A - rayDistance
+        0.5 * deltaRadius +                                         > B
+        topRadius                                                   > B
+    )
 
-    Let A = dR*invH*rdz
-    B = dR*invH*roz + 0.5*dR + R1
+    A = rayDirection.z * deltaRadius / coneHeight
+    B = rayOrigin.z * deltaRadius / coneHeight + 0.5 * deltaRadius + topRadius
+    radiusAzZ = A*t + B
 
-    We now have to solve for t
-
-    sqrt((rox+t*rdx)^2 + (roy+t*rdy)^2) = A*t + B
+    We now have to solve for rayDistance
+    rayDistanceFormOrigin = radiusAzZ
+    sqrt((rayOrigin.x + rayDirection.x * rayDistance)^2 + (rayOrigin.y + rayDirection.y * rayDistance)^2) = A * rayDistance + B
 
     Squaring both sides gives
-
-    (rox+t*rdx)^2 + (roy+t*rdy)^2 = (A*t + B)^2
+    (rayOrigin.x + rayDirection.x * rayDistance)^2 + (rayOrigin.y + rayDirection.y * rayDistance)^2 = (A * rayDistance + B)^2
 
     This becomes a simple quadratic equation:
+    (rayOrigin.x + rayDirection.x * rayDistance)^2 + (rayOrigin.y + rayDirection.y * rayDistance)^2 - (A * rayDistance + B)^2 = 0
 
-    (rox+t*rdx)^2 + (roy+t*rdy)^2 - (A*t + B)^2 = 0
-
-    a*t^2 + b*t + c = 0
-
+    (a * rayDistance)^2 + b * rayDistance + c = 0
     with
-
-    a = rdx*rdx + rdy*rdy - A*A
-    b = 2*(rdx*rox + rdy*roy - A*B)
-    c = rox*rox + roy*roy - B*B
+        a = rayDirection.x ^2 + rayDirection.y ^2 - A ^2
+        b = 2 * (rayDirection.x * rayOrigin.x + rayDirection.y * rayOrigin.y - A * B)
+        c = rayOrigin.x ^2 + rayOrigin.y ^2 - B^2
     */
 
-    float dRiH = dR * invH;
-    float A = dRiH * rd.z;
-    float B = dRiH * ro.z + 0.5 * dR + R1;
+    float A = rayDirection.z * dRadius * invConeHeight;
+    float B = rayOrigin.z * dRadius * invConeHeight + 0.5 * dRadius + topRadius;
 
-    float a = dot(vec3(rd.xy, -A), vec3(rd.xy, A));
-    float b = dot(vec3(rd.xy, A), vec3(ro.xy, -B)) * 2.0;
-    float c = dot(vec3(ro.xy, B), vec3(ro.xy, -B));
+    float a = dot(vec3(rayDirection.xy, -A), vec3(rayDirection.xy, A));
+    float b = dot(vec3(rayDirection.xy, A), vec3(rayOrigin.xy, -B)) * 2.0;
+    float c = dot(vec3(rayOrigin.xy, B), vec3(rayOrigin.xy, -B));
 
     // Solution of quadratic equation is (-b ± sqrt(b*b - 4*a*c))/(2*a)
     float d = b * b - 4.0 * a * c;
-    if (d < 0.0) return vec3(0, 0, 0);
-
-    float hh = H * 0.5;
+    if (d < 0.0) return vec3(0, 0, 0); // prevent the SQRT of a negative number
 
     // we have two solutions, -sqrt(d) and +sqrt(d)
     // we take the one closest to the camera (pointing in the negative Y
     // direction)
-    float t = (-b + sqrt(d)) / (2.0 * a);
-    vec3 q = ro + t * rd;
-    float y = q.z;
+    float hitDistance = (-b + sqrt(d)) / (2.0 * a);
+    vec3 rayConeIntersection = rayOrigin + hitDistance * rayDirection;
+    float y = rayConeIntersection.z;
 
     float side = 1.0;
+    float halfConeHeight = coneHeight * 0.5;
 
     // Only needed for double-sided debugging, comment out otherwise.
     /*
-    if (abs(y) > hh) {
-    t = (-b - sqrt(d))/(2.0*a);
-    q = ro + t * rd;
-    // y = dot(q - co, cd);
-    y = q.z;
-    side = -1.0;
+    if (abs(y) > halfConeHeight) {
+        hitDistance = (-b - sqrt(d))/(2.0*a);
+        rayConeIntersection = rayOrigin + rayDirection * hitDistance;
+        // y = dot(rayConeIntersection - co, cd);
+        y = rayConeIntersection.z;
+        side = -1.0;
     }
     */
 
-    if (abs(y) > hh)
+    if (abs(y) > halfConeHeight)
         return vec3(0, 0, 0);
 
-    float R = mix(R1, R2, y * invH + 0.5);
+    float R = mix(topRadius, bottomRadius, y * invConeHeight + 0.5);
 
     // compute local normalized coordinates on base.
-    float rad = posArcLength(q.xy / vec2(-R, R));
+    float rad = posArcLength(rayConeIntersection.xy / vec2(-R, R));
     // float rad = 4.0;
-    return vec3(rad * R1, y + hh, side);
+    return vec3(rad * topRadius, y + halfConeHeight, side);
 }
 
 void main() {
