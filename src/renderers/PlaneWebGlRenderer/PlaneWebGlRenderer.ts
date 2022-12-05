@@ -266,7 +266,7 @@ export class PlaneWebGlRenderer implements IRenderer {
  * @return {module:twgl/v3.Vec3} The transformed normal.
  */
 function transformNormal(m: twgl.m4.Mat4, v: twgl.v3.Vec3) {
-  // Remark: TWGL.transformNormal implementation didn't work, I seems to do an invert for use?
+  // Remark: TWGL.transformNormal implementation didn't work, I seems to do an invert for us?
   // Used implementation from Skia and transposed matrix
   // TWGL version: https://github.com/greggman/twgl.js/blob/master/src/m4.js#L1260
   // CS version: https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Vector3.cs,b1c5f8d8b60c6ccc
