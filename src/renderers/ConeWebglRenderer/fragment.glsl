@@ -44,7 +44,7 @@ float posArcLength(vec2 u) {
 //   v: texture coordinates y
 //   hit: 0.0 (no-hit) or 1.0 (hit)
 // )
-vec3 coneIntersect(in vec3 rayOrigin, in vec3 rayDirection, vec4 shapeDimentions) {
+vec3 coneIntersect(in vec3 rayOri, in vec3 rayDir, vec4 shapeDimentions) {
     float topRadius = shapeDimentions.x;
     float bottomRadius = shapeDimentions.y;
     float coneHeight = shapeDimentions.z;
@@ -118,10 +118,16 @@ vec3 coneIntersect(in vec3 rayOrigin, in vec3 rayDirection, vec4 shapeDimentions
         b = 2 * (rayDirection.x * rayOrigin.x + rayDirection.y * rayOrigin.y - A * B)
         c = rayOrigin.x ^2 + rayOrigin.y ^2 - B^2
     */
+ 
+    vec3 rayOrigin = vec3(-rayOri.z, -rayOri.x, rayOri.y);
+    vec3 rayDirection = vec3(-rayDir.z, -rayDir.x, rayDir.y);
+    // vec3 rayOrigin = rayOri;
+    // vec3 rayDirection = rayDir;
 
     float A = rayDirection.z * dRadius * invConeHeight;
     float B = rayOrigin.z * dRadius * invConeHeight + 0.5 * dRadius + topRadius;
 
+    // dot => v0.x * v1.x + v0.y * v1.y + v0.z
     float a = dot(vec3(rayDirection.xy, -A), vec3(rayDirection.xy, A));
     float b = dot(vec3(rayDirection.xy, A), vec3(rayOrigin.xy, -B)) * 2.0;
     float c = dot(vec3(rayOrigin.xy, B), vec3(rayOrigin.xy, -B));
@@ -151,6 +157,8 @@ vec3 coneIntersect(in vec3 rayOrigin, in vec3 rayDirection, vec4 shapeDimentions
     }
     */
 
+// CURRENTLY THE RETURN IS HERE!--------------------------------------------------------------------
+    // y must be between +coneHeight / 2 and coneHeight / 2
     if (abs(y) > halfConeHeight)
         return vec3(0, 0, 0);
 

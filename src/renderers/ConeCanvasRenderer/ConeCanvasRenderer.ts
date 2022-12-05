@@ -1,200 +1,35 @@
-import * as twgl from "twgl.js/dist/5.x/twgl-full";
 import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
 import { ControlPoint } from "../../controlPoints/IControlPoints";
+import { ImageCache } from "../../ImageCache";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 
-import vertexShader from "./vertex.glsl?raw";
-import fragmentShader from "./fragment.glsl?raw";
-
-// TWGL: https://twgljs.org/
-// https://twgljs.org/docs/module-twgl.html
-// https://stackoverflow.com/questions/37927359/how-to-draw-2d-image-with-twgl-webgl-helper-library
-
-export class ConeWebGlRenderer implements IRenderer {
-  private image: HTMLImageElement | undefined;
-  private readonly programInfo: twgl.ProgramInfo | undefined;
-  private readonly gl: WebGLRenderingContext;
-  /** a unit quad */
-  private readonly bufferInfo: twgl.BufferInfo;
-  private readonly uniforms: {
-    texture: WebGLTexture | undefined;
-
-    /** position of camera */
-    eyePos: twgl.v3.Vec3 | undefined;
-
-    /** how to convert fragment (x,y,0) canvas points to camera ray directions */
-    eyeMat: twgl.m4.Mat4 | undefined;
-
-    /** Shape properties */
-    shapeDim: [topRadius: number, bottomRadius: number, height: number, heightInv: number];
-
-    /** Texture properties */
-    imgProj: [x: number, y: number, scale: number, isDragging: 0 | 1];
-  };
+export class ConeCanvasRenderer implements IRenderer {
+  private imageCache: ImageCache;
 
   constructor() {
-    // try to create a WebGL canvas (will fail if WebGL isn't supported)
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl") || undefined;
-    if (!gl) throw new Error("WebGL not supported");
-    this.gl = gl;
-
-    this.bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
-
-    this.programInfo = twgl.createProgramInfo(gl, [vertexShader, fragmentShader], (err) => {
-      throw new Error(`Error loading WebGL program. ${err}`); // TODO: Error handling
-    });
-
-    this.uniforms = {
-      texture: undefined,
-      eyePos: [],
-      eyeMat: twgl.m4.identity(),
-      shapeDim: [1, 1, 2, 0.5],
-      imgProj: [0, 0, 1, 0],
-    };
-
-    gl.useProgram(this.programInfo.program);
-    twgl.setBuffersAndAttributes(gl, this.programInfo, this.bufferInfo);
+    this.imageCache = new ImageCache();
   }
 
-  /**
-   * Load the image and set the texture and image member variable
-   */
-  loadAsync(
-    config: IConeRendererConfig,
-  ) {
-    if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
-    if (!config.image.url) return;
-
-    return new Promise<void>((resolve, reject) => {
-      const { gl } = this;
-      this.image = undefined;
-      if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
-      this.uniforms.texture = twgl.createTexture(gl, {
-        src: config.image.url,
-        // src: "https://farm6.staticflickr.com/5695/21506311038_9557089086_m_d.jpg",
-        crossOrigin: "", // not needed if image is on same origin
-        mag: gl.NEAREST,
-      }, (err, tex, img) => {
-        // wait for the image to load because we need to know it's size
-        if (err) {
-          this.image = undefined;
-          if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
-          this.uniforms.texture = undefined;
-          reject(err);
-        } else {
-          this.image = img as HTMLImageElement;
-          this.uniforms.texture = tex;
-          resolve();
-        }
-      });
-    });
+  async loadAsync(config: IConeRendererConfig) {
+    const url = config?.image.url ?? "";
+    await this.imageCache.loadImage(url);
   }
 
   render(
     drawOnContext: CanvasRenderingContext2D,
     config: IConeRendererConfig,
   ): IRenderResult | undefined | void {
-    const { gl, uniforms, image, bufferInfo, programInfo } = this;
-    if (!uniforms.texture || !image || !programInfo) {
-      throw new Error("Only call render after a succesful loadAsync");
-    }
-    const { m4, v3 } = twgl;
-    const webGlCanvas = gl.canvas as HTMLCanvasElement;
     const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
 
-    // Set size
-    webGlCanvas.width = targetWidth;
-    webGlCanvas.height = targetHeight;
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    drawOnContext.rect(20, 20, 100, 100);
 
-    // Set/Clear background
-    // gl.clearColor(1.0, 1.0, 1.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    // Calculate matrix
-    const matrix = m4.ortho(0, targetWidth, targetHeight, 0, -1, 1); // Convert from pixels to clip space
-
-    // Get perspective matrix
-    const projectionMatrix = this.getProjectionMatrixFromControlPoints(config.controlPoints);
-    if (projectionMatrix) {
-      m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
-      m4.multiply(matrix, projectionMatrix, matrix);
-    } else {
-      m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
-    }
-
-    // Hard coded
-    uniforms.eyePos = [
-      2.1767287,
-      44.258453,
-      -3.7757607,
-    ];
-    uniforms.eyeMat = [
-      -0.0006771306,
-      -2.6165872E-06,
-      1.5891758E-06,
-      -2.8283775E-06,
-      -0.00011274649,
-      -0.0006889075,
-      1.5320655,
-      6.382169,
-      1,
-    ];
-    uniforms.shapeDim = [
-      4.6,
-      3.155,
-      10,
-      0.1,
-    ];
-    uniforms.imgProj = [
-      -460.15533,
-      -126.43283,
-      160.50748,
-      0,
-    ];
-
-    // Render
-    twgl.setUniforms(programInfo, uniforms);
-    twgl.drawBufferInfo(gl, bufferInfo);
-
-    // TEMP
-    const rayOrigin = {
-      x: uniforms.eyePos[0],
-      y: uniforms.eyePos[1],
-      z: uniforms.eyePos[2],
-    }
-  
-    const rayDirection = {
-      x: 0,
-      y: 0,
-      z: 1,
-    }
-
-    const topRadius = uniforms.shapeDim[0];
-    const bottomRadius = uniforms.shapeDim[1];
-    const coneHeight = uniforms.shapeDim[2];
-    const invConeHeight = uniforms.shapeDim[3];
-    const dRadius = bottomRadius - topRadius; // Positive if bottom radius is larger
-
-    const A = rayDirection.z * dRadius * invConeHeight;
-    const B = rayOrigin.z * dRadius * invConeHeight + 0.5 * dRadius + topRadius;
-    const vec3 = (a: {x: number, y: number}, z: number) => ({...a, z});
-    const dot = (a: {x: number, y: number, z: number}, b: {x: number, y: number, z: number}) => a.x * b.x + a.y * b.y + a.z * b.z;
-    const a = dot(vec3(rayDirection, -A), vec3(rayDirection, A));
-    const b = dot(vec3(rayDirection, A), vec3(rayOrigin, -B)) * 2.0;
-    const c = dot(vec3(rayOrigin, B), vec3(rayOrigin, -B));
-    const d = b * b - 4.0 * a * c;
-  
-    console.log({a, b, c, d });
-  
     // Draw WebGl canvas on destination canvas
     drawOnContext.drawImage(
-      webGlCanvas,
+      this.ctx.canvas,
       0,
       0,
-      webGlCanvas.width,
-      webGlCanvas.height,
+      this.ctx.canvas.width,
+      this.ctx.canvas.height,
       0,
       0,
       targetWidth,
