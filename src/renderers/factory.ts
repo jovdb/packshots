@@ -3,6 +3,7 @@ import { IRenderer } from "./IRenderer";
 import { MaskRenderer } from "./MaskRendering";
 import { PlaneWebGlRenderer } from "./PlaneWebGlRenderer/PlaneWebGlRenderer";
 import { ConeWebGlRenderer } from "./ConeWebglRenderer/ConeWebGlRenderer";
+import { ConeCanvasRenderer } from "./ConeCanvasRenderer/ConeCanvasRenderer";
 
 export function createRenderer(
   type: string,
@@ -15,7 +16,7 @@ export function createRenderer(
     case "plane":
       return new PlaneWebGlRenderer();
     case "cone":
-      return new ConeWebGlRenderer();
+      return new ConeCanvasRenderer();
     default:
       throw new Error(`Unknown render type: ${type}`);
   }

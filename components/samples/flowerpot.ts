@@ -3,8 +3,8 @@ import { IPackshot } from "../../src/IPackshot";
 export const flowerPotPackshot: IPackshot = {
   name: "Flowerpot",
   config: {
-    width: 900,
-    height: 900,
+    width: 3600,
+    height: 3600,
   },
   layers: [
     {

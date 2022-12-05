@@ -6,11 +6,12 @@ export interface ITreeNode<T> {
 export function walkTree<T extends ITreeNode<unknown>>(
   treeNode: T,
   /** Called before children are visited, the returned function will be called after children are visited */
-  enter: (value: T) => (() => void) | undefined | void,
+  enter: (value: T, depth: number) => ((depth: number) => void) | undefined | void,
+  depth = 0,
 ) {
-  const leave = enter?.(treeNode);
-  treeNode.children?.forEach(child => walkTree(child as T, enter));
-  leave?.();
+  const leave = enter?.(treeNode, depth);
+  treeNode.children?.forEach(child => walkTree(child as T, enter, depth + 1));
+  leave?.(depth);
 }
 
 /** Faltten tree to an array */

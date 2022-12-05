@@ -29,12 +29,15 @@ function render(
         currentDrawContext.globalCompositeOperation = composition as GlobalCompositeOperation;
       }
 
+      console.log("Rendering started");
       walkTree(
         renderTree,
         (renderNode) => {
           const { config, renderer } = renderNode;
           if (!renderer) return;
 
+//           console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
+    
           // Render
           const renderResult = renderer.render(currentDrawContext, config, false);
 
@@ -52,6 +55,7 @@ function render(
       );
     } finally {
       currentDrawContext.restore();
+      console.log("Rendering ended");
     }
   });
 }

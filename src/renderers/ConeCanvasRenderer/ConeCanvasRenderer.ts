@@ -1,225 +1,85 @@
+import { Matrix3, Matrix4, Vector3 } from "three";
 import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
-import { ControlPoint } from "../../controlPoints/IControlPoints";
-import { ImageCache } from "../../ImageCache";
+import { getImageDataAsync } from "../../../utils/image";
+import { ConeGeometry } from "../geometries/ConeGeometry";
 import type { IRenderer, IRenderResult } from "../IRenderer";
+import { PointTextureSampler } from "../samplers/PointTextureSampler";
+import { rayTracer } from "./RayTracer";
 
 export class ConeCanvasRenderer implements IRenderer {
-  private imageCache: ImageCache;
-
-  constructor() {
-    this.imageCache = new ImageCache();
-  }
+  private imageUrl: string | undefined;
+  private imageData: ImageData | undefined;
 
   async loadAsync(config: IConeRendererConfig) {
     const url = config?.image.url ?? "";
-    await this.imageCache.loadImage(url);
+    this.imageUrl = url;
+    try {
+      this.imageData = await getImageDataAsync(url);
+    } catch (err) {
+      this.imageData = undefined;
+      throw err;
+    }
   }
 
   render(
     drawOnContext: CanvasRenderingContext2D,
     config: IConeRendererConfig,
   ): IRenderResult | undefined | void {
+    const renderImageData = this.imageData;
+    if (!renderImageData) return undefined;
     const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
 
-    drawOnContext.rect(20, 20, 100, 100);
-
-    // Draw WebGl canvas on destination canvas
-    drawOnContext.drawImage(
-      this.ctx.canvas,
-      0,
-      0,
-      this.ctx.canvas.width,
-      this.ctx.canvas.height,
-      0,
-      0,
-      targetWidth,
-      targetHeight,
+    const cameraPosition = new Vector3(
+      1.4183631,
+      57.543503,
+      -6.3503857,
     );
-  }
 
-  /**
-   * Get matrix to convert controlPoints (range: -1 to 1) to a matrix (range: 0 to canvas size)
-   * TODO:  I would like to use control points in (0-1 range) to normalized matrix (range: 0 to 1)
-   * At this way the default is a identity matrix and independent of the LOD used for the image
-   */
-  public getProjectionMatrixFromControlPoints(
-    controlPoints: ControlPoint[] | undefined,
-  ) {
-    if (!controlPoints) return twgl.m4.identity();
+    // dprint-ignore
+    const cameraToProjectionMatrix = new Matrix4().fromArray([
+      -0.0010906963,  0.00010193007,  -1.9692556E-05, 0,
+      4.993524E-06,   -0.00020674475, -0.0010858503,  0,
+      2.2639997,      13.13533,       1,              0,
+      0,              0,              0,              1, 
+    ]);
 
-    /** Convert control point (range [-1,1]) to image range (0-1) */
-    function getCanvasControlPoint(x: number, y: number) {
-      return [
-        0.5 + x * 0.5,
-        0.5 + y * 0.5,
-      ] as ControlPoint;
+    // dprint-ignore
+    const uvMatrix = new Matrix3().fromArray([
+      80.7, 0,    0,
+      0,    80.7, 0,
+      0,    0,    1,
+    ]);
+
+    const renderedContext = rayTracer({
+      targetSize: { width: drawOnContext.canvas.width, height: drawOnContext.canvas.height },
+      geometry: new ConeGeometry({
+        topDiameter: 9.2,
+        bottomDiameter: 6.3,
+        height: 10,
+      }),
+      spreadSampler: new PointTextureSampler(renderImageData),
+      cameraPosition,
+      cameraToProjectionMatrix,
+      uvMatrix,
+    });
+
+    if (renderedContext) {
+      drawOnContext.drawImage(
+        renderedContext.canvas,
+        0,
+        0,
+        renderedContext.canvas.width,
+        renderedContext.canvas.height,
+        0,
+        0,
+        targetWidth,
+        targetHeight,
+      );
     }
-
-    /** Returns the 3x3 matrix that maps an image to the projected points */
-    function getMapping(
-      p0: ControlPoint,
-      p1: ControlPoint,
-      p2: ControlPoint,
-      p3: ControlPoint,
-    ): number[] | undefined {
-      /*
-            p0       p1
-            +-------+
-            |       |
-            |       |
-            +-------+
-            p3       p2
-
-            https://math.stackexchange.com/questions/296794/finding-the-transform-matrix-from-4-projected-points-with-javascript/339033#339033
-
-            See also
-            https://math.stackexchange.com/questions/62936/transforming-2d-outline-into-3d-plane/63100#63100
-            https://math.stackexchange.com/questions/185708/problem-in-deducing-perspective-projection-matrix/186254#186254
-            https://en.wikipedia.org/wiki/Homography#Mathematical_definition
-
-            q3       q1
-            +-------+
-            |       |
-            |       |
-            +-------+
-            q2       q4
-           */
-
-      // q: reordered points
-      const q1 = p1;
-      const q2 = p3;
-      const q3 = p0;
-      const q4 = p2;
-
-      // Remark: WebGL matrices have horizontal columns!
-      // dprint-ignore
-      const mat = [
-        q1[0], q2[0], q3[0], 0,
-        q1[1], q2[1], q3[1], 0,
-        1,     1,     1,     0,
-        0,     0,     0,     1,
-      ];
-
-      const inv = twgl.m4.inverse(mat);
-      const normalVector = twgl.v3.create(q4[0], q4[1], 1);
-
-      const [s1, s2, s3] = transformNormal(inv, normalVector); // Remark: TWGL does invert for use
-
-      // dprint-ignore
-      return [
-        q1[0] * s1, q1[1] * s1, 0, s1,
-        q2[0] * s2, q2[1] * s2, 0, s2,
-        0,          0,          1, 0,
-        q3[0] * s3, q3[1] * s3, 0, s3,
-      ];
-    }
-
-    const src0 = [0, 0] as ControlPoint;
-    const src1 = [1, 0] as ControlPoint;
-    const src2 = [1, 1] as ControlPoint;
-    const src3 = [0, 1] as ControlPoint;
-
-    const dst0 = getCanvasControlPoint(...controlPoints[0]);
-    const dst1 = getCanvasControlPoint(...controlPoints[1]);
-    const dst2 = getCanvasControlPoint(...controlPoints[2]);
-    const dst3 = getCanvasControlPoint(...controlPoints[3]);
-
-    const matrixA = getMapping(src0, src1, src2, src3);
-    const matrixB = getMapping(dst0, dst1, dst2, dst3);
-    if (!matrixA || !matrixB) return null;
-
-    // const invA = twgl.m4.inverse(matrixA);
-    // const matrixC = twgl.m4.multiply(invA, matrixB);
-
-    const matrixC = twgl.m4.multiply(matrixB, matrixA);
-
-    return matrixC;
   }
 
   dispose(): void {
-    if (this.uniforms.texture) {
-      this.gl.deleteTexture(this.uniforms.texture);
-    }
-    /*
-        if (this.bufferInfo) {
-            this.gl.deleteBuffer(this.bufferInfo);
-        }
-
-        if (this.programInfo) {
-            this.gl.deleteProgram(this.programInfo);
-        }
-        */
+    this.imageUrl = undefined;
+    this.imageData = undefined;
   }
-}
-
-/**
- * Takes a 4-by-4 matrix m and a vector v with 3 entries, interprets the vector
- * as a normal to a surface, and computes a vector which is normal upon
- * transforming that surface by the matrix. The effect of this function is the
- * same as transforming v (as a direction) by the inverse-transpose of m.  This
- * function assumes the transformation of 3-dimensional space represented by the
- * matrix is parallel-preserving, i.e. any combination of rotation, scaling and
- * translation, but not a perspective distortion.  Returns a vector with 3
- * entries.
- * @param {module:twgl/m4.Mat4} m The matrix.
- * @param {module:twgl/v3.Vec3} v The normal.
- * @return {module:twgl/v3.Vec3} The transformed normal.
- */
-function transformNormal(m: twgl.m4.Mat4, v: twgl.v3.Vec3) {
-  // Remark: TWGL.transformNormal implementation didn't work, I seems to do an invert for use?
-  // Used implementation from Skia and transposed matrix
-  // TWGL version: https://github.com/greggman/twgl.js/blob/master/src/m4.js#L1260
-  // CS version: https://referencesource.microsoft.com/#System.Numerics/System/Numerics/Vector3.cs,b1c5f8d8b60c6ccc
-  return [
-    v[0] * m[0] + v[1] * m[1] + v[2] * m[2],
-    v[0] * m[4] + v[1] * m[5] + v[2] * m[6],
-    v[0] * m[8] + v[1] * m[9] + v[2] * m[10],
-  ];
-}
-
-/**
- * The matrix as string in Math form instead of WebGL form (transposed)
- * Sample output:
- * ┌─                         ─┐
- * │  0.00, -0.00, -0.00, 0.00 │
- * │  0.00,  0.00, -0.00, 0.00 │
- * │ -0.57, -0.47,  2.04, 0.00 │
- * │  0.00,  0.00,  0.00, 1.00 │
- * └─                         ─┘
- */
-
-export function matrixToString(m: twgl.m4.Mat4 | null | undefined, name = "") {
-  if (!m) return `${name ? `${name}: ` : ""}${m}`;
-  const widths = [0, 1, 2, 3]
-    .map(row => (
-      Math.max(...[0, 1, 2, 3]
-        .map(col =>
-          m[row * 4 + col]
-            .toFixed(2)
-            .toString()
-            .length
-        ))
-    ));
-  const totalWidth = widths.reduce((p, c) => p + c + 2, 0);
-  const line = new Array(totalWidth - 1).join(" ");
-  const logRow = (row: number) =>
-    [0, 1, 2, 3]
-      .map(col => (
-        m[row + col * 4]
-          .toFixed(2)
-          .toString()
-          .padStart(widths[col])
-      ))
-      .join(", ");
-  const prefix = name
-    ? new Array(name.length + 2)
-      .fill(" ")
-      .join("")
-    : "";
-  return `${prefix}┌─${line}─┐
-${name ? `${name}: ` : ""}│ ${logRow(0)} │
-${prefix}│ ${logRow(1)} │
-${prefix}│ ${logRow(2)} │
-${prefix}│ ${logRow(3)} │
-${prefix}└─${line}─┘`;
 }

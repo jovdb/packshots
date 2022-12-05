@@ -33,6 +33,7 @@ export const usePackshotStore = create<
         state.layers.forEach(layer => {
           walkTree(layer.renderTree, renderNode => renderNode.renderer?.dispose?.());
         });
+
         // Create new renderers
         packshot?.layers?.forEach(layer => {
           walkTree(layer.renderTree, renderNode => {
@@ -206,15 +207,19 @@ export function useLoadedRenderers() {
   );
 
   function loadRenderers() {
-    return Promise.all(
+    console.log("Load renderers");
+    const loadedPromise = Promise.all(
       layersRenderers.flatMap((layerRenderers, layerIndex) => (
         layerRenderers.map((renderer, rendererIndex) => {
+          console.log(`- Load renderer: ${renderer.constructor.name}`);
           // TODO: find a better way, I think because react async behavior, this can become incorrect
           const { config } = flattenTree(usePackshotStore.getState().layers[layerIndex].renderTree)[rendererIndex];
           renderer.loadAsync?.(config);
         })
       )),
     );
+    console.log("Renderers loaded");
+    return loadedPromise;
   }
 
   const { isFetching } = useQuery([configs], loadRenderers);
