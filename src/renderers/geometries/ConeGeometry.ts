@@ -11,14 +11,14 @@ export class ConeGeometry implements IGeometry {
 
   constructor(
     options: {
-      topDiameter: number;
-      bottomDiameter: number;
+      diameterTop: number;
+      diameterBottom: number;
       height: number;
     },
   ) {
-    const { topDiameter, bottomDiameter, height } = options;
-    this.R1 = topDiameter / 2;
-    this.R2 = bottomDiameter / 2;
+    const { diameterTop, diameterBottom, height } = options;
+    this.R1 = diameterTop / 2;
+    this.R2 = diameterBottom / 2;
     this.dR = this.R2 - this.R1;
     this.H = height;
     this.invH = 1 / height;

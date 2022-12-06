@@ -26,7 +26,7 @@ export class ConeCanvasRenderer implements IRenderer {
     config: IConeRendererConfig,
   ): IRenderResult | undefined | void {
     const renderImageData = this.imageData;
-    if (!renderImageData) return undefined;
+    if (!renderImageData || !config) return undefined;
     const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
 
     const cameraPosition = new Vector3(
@@ -53,9 +53,9 @@ export class ConeCanvasRenderer implements IRenderer {
     const renderedContext = rayTracer({
       targetSize: { width: drawOnContext.canvas.width, height: drawOnContext.canvas.height },
       geometry: new ConeGeometry({
-        topDiameter: 9.2,
-        bottomDiameter: 6.3,
-        height: 10,
+        diameterTop: config.diameterTop,
+        diameterBottom: config.diameterBottom ?? config.diameterTop,
+        height: config.height,
       }),
       spreadSampler: new PointTextureSampler(renderImageData),
       cameraPosition,

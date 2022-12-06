@@ -1,4 +1,5 @@
-import { IPackshot } from "../../src/IPackshot";
+import { IPackshot, IRenderTree } from "../../src/IPackshot";
+import { IConeRendererConfig } from "../config/ConeRendererConfig";
 
 export const flowerPotPackshot: IPackshot = {
   name: "Flowerpot",
@@ -37,6 +38,9 @@ export const flowerPotPackshot: IPackshot = {
                 name: "Spread3.jpg",
                 url: "./products/Pot/Spread.jpg",
               },
+              diameterTop : 9.2,
+              diameterBottom: 6.3,
+              height: 10,
               controlPoints: [
                 [-0.53444445, -0.34111112],
                 [-0.007777778, -0.34],
@@ -45,7 +49,7 @@ export const flowerPotPackshot: IPackshot = {
                 [-0.0044444446, 0.8422222],
                 [0.35555556, 0.77111113],
               ],
-            },
+            } satisfies IConeRendererConfig,
           },
         ],
       },

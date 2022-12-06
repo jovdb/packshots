@@ -32,6 +32,7 @@
                                                  ╚═══════════════════╝
 */
 
+import { IConeRendererConfig } from "../components/config/ConeRendererConfig";
 import { IImageRendererConfig } from "../components/config/ImageRendererConfig";
 import { IMaskRenderingConfig } from "../components/config/MaskRendererConfig";
 import { IPlaneRendererConfig } from "../components/config/PlaneRendererConfig";
@@ -71,7 +72,7 @@ export interface IMaskRenderer extends IRenderTree {
 
 export interface IConeRenderer extends IRenderTree {
   type: "cone";
-  // config: IConeRendererConfig;
+  config: IConeRendererConfig;
 }
 
 export interface ILayerConfig {
