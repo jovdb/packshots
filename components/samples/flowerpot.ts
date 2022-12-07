@@ -1,5 +1,4 @@
-import { IPackshot, IRenderTree } from "../../src/IPackshot";
-import { IConeRendererConfig } from "../config/ConeRendererConfig";
+import { IPackshot } from "../../src/IPackshot";
 
 export const flowerPotPackshot: IPackshot = {
   name: "Flowerpot",
@@ -49,7 +48,7 @@ export const flowerPotPackshot: IPackshot = {
                 [-0.0044444446, 0.8422222],
                 [0.35555556, 0.77111113],
               ],
-            } satisfies IConeRendererConfig,
+            },
           },
         ],
       },

@@ -14,7 +14,7 @@ export function loadImageAsync(url: string) {
 }
 
 function createCanvas(width: number, height: number, dpr?: number) {
-  dpr = typeof window !== "undefined" ? window?.devicePixelRatio || 1 : 1;
+  if (!dpr) dpr = typeof window !== "undefined" ? window?.devicePixelRatio || 1 : 1;
   if (typeof document === "undefined") return { canvas: undefined, dpr };
   const canvas = document.createElement("canvas");
   canvas.width = width * dpr;
@@ -34,12 +34,17 @@ export function createContext2d(width: number, height: number, dpr?: number) {
 }
 
 export async function getImageDataAsync(src: string) {
-  const bitmap = await loadImageAsync(src);
-  const { width, height } = bitmap;
+  const image = await loadImageAsync(src);
+  const { width, height } = image;
 
   // an intermediate "buffer" 2D context is necessary
+
   const context = createContext2d(width, height, 1);
   if (!context) throw new Error("Error creating context");
-  context.drawImage(bitmap, 0, 0);
-  return context.getImageData(0, 0, width, height);
+  context.drawImage(image, 0, 0);
+  return {
+    image,
+    context,
+    imageData: context.getImageData(0, 0, width, height),
+  };
 }

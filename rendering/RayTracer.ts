@@ -1,5 +1,5 @@
-import { Matrix4, Vector2, Vector3 } from "three";
-import { createContext2d, loadImageAsync } from "../utils/image";
+import { Vector2, Vector3 } from "three";
+import { createContext2d } from "../utils/image";
 import { IGeometry } from "./geometries/IGeometry";
 import { ITextureSampler } from "./samplers/ITextureSampler";
 
