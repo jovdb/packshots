@@ -26,9 +26,10 @@ export const photobookPackshot: IPackshot = {
         type: "mask",
         config: {
           image: {
-            name: "Mask-Page3.png",
-            url: "./products/Book/Mask-Page3.png",
+            name: "Mask.jpg",
+            url: "./products/Book/Mask.jpg",
           },
+          colorChannel: 2,
         },
         children: [
           {
@@ -58,9 +59,10 @@ export const photobookPackshot: IPackshot = {
         type: "mask",
         config: {
           image: {
-            name: "Mask-Page2.png",
-            url: "./products/Book/Mask-Page2.png",
+            name: "Mask.jpg",
+            url: "./products/Book/Mask.jpg",
           },
+          colorChannel: 1,
         },
         children: [
           {
@@ -90,9 +92,10 @@ export const photobookPackshot: IPackshot = {
         type: "mask",
         config: {
           image: {
-            name: "Mask-Page1.png",
-            url: "./products/Book/Mask-Page1.png",
+            name: "Mask.jpg",
+            url: "./products/Book/Mask.jpg",
           },
+          colorChannel: 0,
         },
         children: [
           {

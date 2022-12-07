@@ -261,9 +261,11 @@ export function useRenderTrees(onlyDisabled = false) {
   );
 }
 
+
+const emptyObject = {};
 export function useLayersConfig() {
   return usePackshotStore(
-    s => s.layers.map(l => l.config || {}),
+    s => s.layers.map(l => l.config || emptyObject),
     shallow,
   );
 }

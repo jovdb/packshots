@@ -88,7 +88,6 @@ export function Renderer({
       )
       .catch((err) => {
         console.error("Error Loading renderers", err);
-        return Math.random();
       })
       .then(() => {
         render(targetContextRef.current, renderTrees, layersConfig);

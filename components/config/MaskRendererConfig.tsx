@@ -8,6 +8,7 @@ import { IImageConfig } from "./ImageConfig";
 
 export interface IMaskRenderingConfig extends IRendererConfig {
   image: IImageConfig;
+  colorChannel?: number,
   isDisabled?: boolean;
 }
 
@@ -32,11 +33,10 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
           style={{ transform: "translate(0, 2px)" }}
           onChange={(e) => {
             const isChecked = e.target.checked;
-            const newConfig: IMaskRenderingConfig = {
+            onChange({
               ...config,
               isDisabled: !isChecked,
-            };
-            onChange(newConfig);
+            });
           }}
         />
         <label htmlFor={`mask_${id}`} style={{ cursor: "pointer" }}>Mask</label>
@@ -55,12 +55,18 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                       setType(value);
                       switch (value) {
                         case "local": {
-                          onChange({ image: { url: "", name: "" } });
+                          onChange({
+                            ...config,
+                            image: { url: "", name: "" },
+                          });
                           break;
                         }
                         default: {
                           console.error("Unknown Background type:", value);
-                          onChange({ image: { url: "", name: "" } });
+                          onChange({
+                            ...config,
+                            image: { url: "", name: "" },
+                          });
                           break;
                         }
                       }
@@ -85,7 +91,10 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                         />
                         <ImageSelection
                           onSelect={(info) => {
-                            onChange({ image: { url: info.url, name: info.name } });
+                            onChange({
+                              ...config,
+                              image: { url: info.url, name: info.name },
+                            });
                           }}
                         />
                       </div>
@@ -109,7 +118,10 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                           const { value } = e.target;
                           const lastSlashIndex = value.lastIndexOf("/");
                           const name = lastSlashIndex < 0 ? value : value.substring(lastSlashIndex + 1);
-                          onChange({ image: { url: value, name } });
+                          onChange({
+                            ...config,
+                            image: { url: value, name },
+                          });
                         }}
                       />
                     </td>
@@ -132,6 +144,28 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                       }}
                     />
                   )}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Mask Color:
+                </td>
+                <td>
+                  <select
+                    value={(config.colorChannel ?? 0).toString()}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      onChange({
+                        ...config,
+                        colorChannel: parseInt(value) || 0,
+                      });
+                    }}
+                  >
+                    <option value="0">Red</option>
+                    <option value="1">Green</option>
+                    <option value="2">Blue</option>
+                    <option value="3">Alpha</option>
+                  </select>
                 </td>
               </tr>
               <tr>
