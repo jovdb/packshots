@@ -5,6 +5,7 @@ export const photobookPackshot: IPackshot = {
   config: {
     width: 900,
     height: 900,
+    root: "./products/Book/",
   },
   layers: [
     {
@@ -14,7 +15,7 @@ export const photobookPackshot: IPackshot = {
         config: {
           image: {
             name: "Background.png",
-            url: "./products/Book/Background.png",
+            url: "Background.png",
           },
         },
       },
@@ -27,7 +28,7 @@ export const photobookPackshot: IPackshot = {
         config: {
           image: {
             name: "Mask.jpg",
-            url: "./products/Book/Mask.jpg",
+            url: "Mask.jpg",
           },
           colorChannel: 2,
         },
@@ -37,7 +38,7 @@ export const photobookPackshot: IPackshot = {
             config: {
               image: {
                 name: "Spread3.jpg",
-                url: "./products/Book/Spread3.jpg",
+                url: "Spread3.jpg",
               },
               controlPoints: [
                 [-0.414, -0.499],
@@ -60,7 +61,7 @@ export const photobookPackshot: IPackshot = {
         config: {
           image: {
             name: "Mask.jpg",
-            url: "./products/Book/Mask.jpg",
+            url: "Mask.jpg",
           },
           colorChannel: 1,
         },
@@ -70,7 +71,7 @@ export const photobookPackshot: IPackshot = {
             config: {
               image: {
                 name: "Spread2.jpg",
-                url: "./products/Book/Spread2.jpg",
+                url: "Spread2.jpg",
               },
               controlPoints: [
                 [-0.414, -0.499],
@@ -93,7 +94,7 @@ export const photobookPackshot: IPackshot = {
         config: {
           image: {
             name: "Mask.jpg",
-            url: "./products/Book/Mask.jpg",
+            url: "Mask.jpg",
           },
           colorChannel: 0,
         },
@@ -103,7 +104,7 @@ export const photobookPackshot: IPackshot = {
             config: {
               image: {
                 name: "Spread1.jpg",
-                url: "./products/Book/Spread1.jpg",
+                url: "Spread1.jpg",
               },
               controlPoints: [
                 [-1.4, -0.499],

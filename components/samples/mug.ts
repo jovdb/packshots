@@ -5,6 +5,7 @@ export const mugPackshot: IPackshot = {
   config: {
     width: 900,
     height: 900,
+    root: "./products/Mug/",
   },
   layers: [
     {
@@ -14,7 +15,7 @@ export const mugPackshot: IPackshot = {
         config: {
           image: {
             name: "Mug.png",
-            url: "./products/Mug/Background.png",
+            url: "Background.png",
           },
         },
       },
@@ -26,7 +27,7 @@ export const mugPackshot: IPackshot = {
         config: {
           image: {
             name: "Mask.png",
-            url: "./products/Mug/Mask.png",
+            url: "Mask.png",
           },
         },
         children: [
@@ -35,7 +36,7 @@ export const mugPackshot: IPackshot = {
             config: {
               image: {
                 name: "Spread3.jpg",
-                url: "./products/Mug/Spread.jpg",
+                url: "Spread.jpg",
               },
               controlPoints: [
                 [-0.6683706155600259, -0.6204472745950229],

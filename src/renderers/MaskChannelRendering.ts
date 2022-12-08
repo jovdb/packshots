@@ -1,5 +1,7 @@
 import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
 import { createContext2d, getImageDataAsync } from "../../utils/image";
+import { IPackshotConfig } from "../IPackshot";
+import { getImageUrl } from "../packshot";
 import { IRenderer, IRenderResult } from "./IRenderer";
 
 export class MaskChannelRenderer implements IRenderer {
@@ -18,8 +20,8 @@ export class MaskChannelRenderer implements IRenderer {
     this.context = context;
   }
 
-  async loadAsync(config: IMaskRenderingConfig) {
-    const url = config?.image.url ?? "";
+  async loadAsync(config: IMaskRenderingConfig, packshotConfig: IPackshotConfig) {
+    const url = getImageUrl(packshotConfig, config.image);
     const colorChannelIndex = config.colorChannel || 0;
     const imageDataCacheKey = `${colorChannelIndex}-${url};`;
     // Already loaded/loading

@@ -5,6 +5,7 @@ export const flowerPotPackshot: IPackshot = {
   config: {
     width: 3600,
     height: 3600,
+    root: "./products/Book/",
   },
   layers: [
     {
@@ -14,7 +15,7 @@ export const flowerPotPackshot: IPackshot = {
         config: {
           image: {
             name: "Background.png",
-            url: "./products/Pot/Background.png",
+            url: "Background.png",
           },
         },
       },
@@ -26,7 +27,7 @@ export const flowerPotPackshot: IPackshot = {
         config: {
           image: {
             name: "Mask.png",
-            url: "./products/Pot/Mask.png",
+            url: "Mask.png",
           },
         },
         children: [
@@ -35,7 +36,7 @@ export const flowerPotPackshot: IPackshot = {
             config: {
               image: {
                 name: "Spread3.jpg",
-                url: "./products/Pot/Spread.jpg",
+                url: "Spread.jpg",
               },
               diameterTop : 9.2,
               diameterBottom: 6.3,

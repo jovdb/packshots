@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import create from "zustand";
 import shallow from "zustand/shallow";
+import { IImageConfig } from "../components/config/ImageConfig";
+import { PackshotConfig } from "../components/config/PackshotConfig";
 import { IControlPointsConfig } from "./controlPoints/IControlPoints";
 import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree } from "./IPackshot";
 import { createRenderer } from "./renderers/factory";
@@ -198,6 +200,7 @@ export function useRenderers() {
 
 export function useLoadedRenderers() {
   const layersRenderers = useRenderers();
+  const [packshotConfig] = usePackshotConfig();
 
   // Detect some config changes
   // TODO: can we quickly detect which config is changed and only load that renderer?
@@ -214,7 +217,7 @@ export function useLoadedRenderers() {
           console.log(`- Load renderer: ${renderer.constructor.name}`);
           // TODO: find a better way, I think because react async behavior, this can become incorrect
           const { config } = flattenTree(usePackshotStore.getState().layers[layerIndex].renderTree)[rendererIndex];
-          renderer.loadAsync?.(config);
+          renderer.loadAsync?.(config, packshotConfig);
         })
       )),
     );
@@ -278,4 +281,10 @@ export function useAllControlPoints() {
     flattenTree(layerRenderTree)
       .map(renderNode => (renderNode.config as IControlPointsConfig).controlPoints)
   ));
+}
+
+export function getImageUrl(packshotConfig: IPackshotConfig, imageConfig: IImageConfig | undefined) {
+  if (!packshotConfig?.root) throw new Error("No packshot root configurated");
+  if (!imageConfig?.url) throw new Error("No image configuration available");
+  return `${packshotConfig.root}${packshotConfig.root.substring(-1) === "/" ? "" : "/"}${imageConfig.url}`;
 }

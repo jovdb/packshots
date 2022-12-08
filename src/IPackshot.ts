@@ -98,6 +98,7 @@ export interface ILayer {
 export interface IPackshotConfig {
   width: number;
   height: number;
+  root: string;
 }
 
 export interface IPackshot {

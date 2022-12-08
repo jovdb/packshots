@@ -5,6 +5,8 @@ import type { IRenderer, IRenderResult } from "../IRenderer";
 
 import vertexShader from "./vertex.glsl?raw";
 import fragmentShader from "./fragment.glsl?raw";
+import { getImageUrl } from "../../packshot";
+import { IPackshotConfig } from "../../IPackshot";
 
 // TWGL: https://twgljs.org/
 // https://twgljs.org/docs/module-twgl.html
@@ -62,16 +64,18 @@ export class ConeWebGlRenderer implements IRenderer {
    */
   loadAsync(
     config: IConeRendererConfig,
+    packshotConfig: IPackshotConfig,
   ) {
     if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
     if (!config.image.url) return;
-
+    const url = getImageUrl(packshotConfig, config.image);
+    
     return new Promise<void>((resolve, reject) => {
       const { gl } = this;
       this.image = undefined;
       if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
       this.uniforms.texture = twgl.createTexture(gl, {
-        src: config.image.url,
+        src: url,
         // src: "https://farm6.staticflickr.com/5695/21506311038_9557089086_m_d.jpg",
         crossOrigin: "", // not needed if image is on same origin
         mag: gl.NEAREST,

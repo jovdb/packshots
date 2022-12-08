@@ -1,5 +1,7 @@
 import { IImageRendererConfig } from "../../components/config/ImageRendererConfig";
 import { ImageCache } from "../ImageCache";
+import { IPackshotConfig } from "../IPackshot";
+import { getImageUrl } from "../packshot";
 import type { IRenderer, IRenderResult } from "./IRenderer";
 
 export class ImageRenderer implements IRenderer {
@@ -9,16 +11,20 @@ export class ImageRenderer implements IRenderer {
     this.imageCache = new ImageCache();
   }
 
-  async loadAsync(config: IImageRendererConfig) {
-    const url = config?.image.url ?? "";
+  async loadAsync(
+    config: IImageRendererConfig,
+    packshotConfig: IPackshotConfig,
+  ) {
+    const url = getImageUrl(packshotConfig, config?.image);
     await this.imageCache.loadImage(url);
   }
 
   public render(
     targetContext: CanvasRenderingContext2D,
     config: IImageRendererConfig,
+    packshotConfig: IPackshotConfig,
   ): IRenderResult | undefined | void {
-    const url = config?.image.url ?? "";
+    const url = getImageUrl(packshotConfig, config?.image);
     const image = this.imageCache.getImage(url, true);
 
     // Stretch image to full canvas size

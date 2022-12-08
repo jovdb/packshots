@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { CSSProperties, useRef } from "react";
 import { checkBoardStyle } from "../src/checkboard";
-import { ILayerConfig, IRenderTree } from "../src/IPackshot";
-import { useLayersConfig, useRenderTrees } from "../src/packshot";
+import { ILayerConfig, IPackshotConfig, IRenderTree } from "../src/IPackshot";
+import { useLayersConfig, usePackshotConfig, useRenderTrees } from "../src/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
 import { ControlPoints } from "./ControlPoints";
 
@@ -10,6 +10,7 @@ function render(
   targetContext: CanvasRenderingContext2D | null | undefined,
   renderTrees: IRenderTree[],
   layersConfig: ILayerConfig[],
+  packshotConfig: IPackshotConfig,
 ) {
   if (!targetContext) return;
 
@@ -39,7 +40,7 @@ function render(
 //           console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
     
           // Render
-          const renderResult = renderer.render(currentDrawContext, config, false);
+          const renderResult = renderer.render(currentDrawContext, config, packshotConfig, false);
 
           // Set next drawing Context
           const restoreContext = currentDrawContext;
@@ -76,6 +77,7 @@ export function Renderer({
 
   const renderTrees = useRenderTrees();
   const layersConfig = useLayersConfig();
+  const [packshotConfig] = usePackshotConfig();
 
   useQuery([renderTrees, layersConfig], () => (
     Promise
@@ -83,14 +85,14 @@ export function Renderer({
         renderTrees
           .flatMap(renderTree =>
             flattenTree(renderTree)
-              .map(renderNode => renderNode.renderer?.loadAsync?.(renderNode.config))
+              .map(renderNode => renderNode.renderer?.loadAsync?.(renderNode.config, packshotConfig))
           ),
       )
       .catch((err) => {
         console.error("Error Loading renderers", err);
       })
       .then(() => {
-        render(targetContextRef.current, renderTrees, layersConfig);
+        render(targetContextRef.current, renderTrees, layersConfig, packshotConfig);
         return Math.random(); // Return a unique result that can be used in a dependency array
       })
       .catch((err) => {

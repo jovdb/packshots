@@ -11,8 +11,6 @@ Configuration
 Renderer
 - Opacity during drag
 - Cone Renderer (exp/pv/BAC-3614)
-- jpg mask (black/white copression)
-- Allow mask with R G B channels
 
 Storage
 - Use the File System Access API?

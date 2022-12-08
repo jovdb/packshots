@@ -1,3 +1,5 @@
+import { IPackshotConfig } from "../IPackshot";
+
 export interface IRenderResult {
   /**
    * The context on which the childs nodes should draw
@@ -16,12 +18,13 @@ export interface IRenderer {
   render(
     drawOnContext: CanvasRenderingContext2D,
     config: {},
+    packshotConfig: IPackshotConfig,
     isDragging: boolean,
   ): IRenderResult | undefined | void;
 
   // Prepare this renderer with the specified data
   // If missing or returns undefined, no async data is needed are already available.
-  loadAsync?(config: {}): void | Promise<void>;
+  loadAsync?(config: {}, packshotConfig: IPackshotConfig): void | Promise<void>;
 
   dispose?(): void;
 }
