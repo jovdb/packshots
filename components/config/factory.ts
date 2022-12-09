@@ -4,10 +4,10 @@ import { ImageRendererConfig } from "./ImageRendererConfig";
 import { MaskRendererConfig } from "./MaskRendererConfig";
 import { PlaneRendererConfig } from "./PlaneRendererConfig";
 
-export type ConfigComponent<T extends {}> = FC<{
+export type ConfigComponent<T extends {}, TExtraProps extends {} = {}> = FC<{
   config: T;
   onChange: (config: T) => void;
-}>;
+} & TExtraProps>;
 
 export function getConfigComponent(
   type: string,

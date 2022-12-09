@@ -1,6 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
+import { url } from "inspector";
 import { useState } from "react";
 import { checkBoardStyle } from "../../src/checkboard";
+import { IPackshotConfig } from "../../src/IPackshot";
+import { getImageUrl, usePackshotConfig } from "../../src/packshot";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
@@ -23,6 +26,12 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
     if (config.url?.startsWith("blob://")) return "local";
     return "url";
   });
+
+  const [packshotConfig] = usePackshotConfig();
+
+  const url = type === "url"
+    ? getImageUrl(packshotConfig, config)
+    : config?.url;
 
   return (
     <>
@@ -107,10 +116,10 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
           )}
           <tr>
             <td colSpan={2} style={{ textAlign: "center" }}>
-              {config?.url && (
+              {url && (
                 <img
                   alt="preview"
-                  src={config.url}
+                  src={url}
                   style={{
                     width: "100%",
                     height: "auto",

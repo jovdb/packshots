@@ -35,7 +35,7 @@ export const ConeRendererConfig: ConfigComponent<IConeRendererConfig> = ({
                     onChange({
                       ...config,
                       diameterTop: value,
-                    })
+                    });
                   }}
                 />
               </td>
@@ -52,7 +52,7 @@ export const ConeRendererConfig: ConfigComponent<IConeRendererConfig> = ({
                     onChange({
                       ...config,
                       diameterBottom: value,
-                    })
+                    });
                   }}
                 />
               </td>
@@ -69,7 +69,7 @@ export const ConeRendererConfig: ConfigComponent<IConeRendererConfig> = ({
                     onChange({
                       ...config,
                       height: value,
-                    })
+                    });
                   }}
                 />
               </td>
