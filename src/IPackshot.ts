@@ -103,9 +103,7 @@ export interface IPackshotConfig {
    * This adds flexibility to:
    * - Switch from a url root to a file system folder without changing all relative path
    * - Makes it possible to add a layer in between for LOD (thumbs,quality medium)
-   * 
-  */
-
+   */
   root: string;
 }
 

@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useIsFileSystemSupported, useFileSystemActions } from "../../src/fileSystem";
 import { IPackshotConfig } from "../../src/IPackshot";
 import { ConfigComponent } from "./factory";
 
@@ -11,13 +13,38 @@ export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({
     root = "",
   } = config || {};
 
+  const [rootType, setRootType] = useState("url");
+  const isFileSystemSupported = useIsFileSystemSupported();
+  const { loadRootFolderAsync, getFilesAsync } = useFileSystemActions();
+
+  useEffect(() => {
+    console.warn("FileSystem access not supported");
+  }, [isFileSystemSupported]);
+
   return (
     <fieldset>
       <legend>Export dimentions</legend>
       <table style={{ width: "100%" }}>
         <tbody>
+          {isFileSystemSupported && (
+            <tr>
+              <td style={{ minWidth: 60 }}>Type:</td>
+              <td>
+                <select
+                  value={rootType}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setRootType(value);
+                  }}
+                >
+                  <option value="url">URL</option>
+                  <option value="folder">Folder</option>
+                </select>
+              </td>
+            </tr>
+          )}
           <tr>
-            <td>Root:</td>
+            <td>{rootType === "folder" ? "Base folder:" : "Base url"}</td>
             <td>
               <input
                 value={root}
@@ -29,6 +56,22 @@ export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({
                   });
                 }}
               />
+              {rootType === "folder" && (
+                <button
+                  style={{ marginLeft: 5 }}
+                  onClick={async () => {
+                    const name = await loadRootFolderAsync();
+                    onChange({
+                      ...config,
+                      root: name,
+                    })
+                    const files = await getFilesAsync();
+                    console.log(files.map(f => f.name))
+                  }}
+                >
+                  Select
+                </button>
+              )}
             </td>
           </tr>
           <tr>
