@@ -5,6 +5,7 @@ import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
 export interface IImageConfig {
+  /** Name is added because user can upload file blob that has no name */
   name?: string;
   url: string;
 }

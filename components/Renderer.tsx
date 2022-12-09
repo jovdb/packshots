@@ -79,7 +79,7 @@ export function Renderer({
   const layersConfig = useLayersConfig();
   const [packshotConfig] = usePackshotConfig();
 
-  useQuery([renderTrees, layersConfig], () => (
+  useQuery([renderTrees, layersConfig, packshotConfig], () => (
     Promise
       .all(
         renderTrees

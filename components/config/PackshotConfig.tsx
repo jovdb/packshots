@@ -8,6 +8,7 @@ export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({
   const {
     width = 700,
     height = 700,
+    root = "",
   } = config || {};
 
   return (
@@ -15,6 +16,21 @@ export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({
       <legend>Export dimentions</legend>
       <table style={{ width: "100%" }}>
         <tbody>
+          <tr>
+            <td>Root:</td>
+            <td>
+              <input
+                value={root}
+                onChange={(e) => {
+                  const newValue = e.target.value || "";
+                  onChange({
+                    ...config,
+                    root: newValue,
+                  });
+                }}
+              />
+            </td>
+          </tr>
           <tr>
             <td>Width:</td>
             <td>
