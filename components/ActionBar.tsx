@@ -11,6 +11,9 @@ import VaseIcon from "../icons/vase.svg";
 import WebIcon from "../icons/web.svg";
 import FileIcon from "../icons/file.svg";
 import ImageIcon from "../icons/image.svg";
+import ZipIcon from "../icons/zip.svg";
+import JsonIcon from "../icons/json.svg";
+
 import { IConeRenderer, IImageRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
 import { loadPackShotFromFolderAsync, savePackShotToFolderAsync, usePackshotRoot } from "../src/stores/app";
 import { useLayers, usePackshotActions, usePackshotStore } from "../src/stores/packshot";
@@ -224,7 +227,7 @@ export function ActionBar() {
               }}
             >
               <a href="#">
-                <FileIcon width="28" style={{ transform: "translateY(10px)", margin: "10px 12px 0px 12px" }} />Open blank
+                <FileIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Open blank
               </a>
             </div>
             <br />
@@ -318,6 +321,28 @@ export function ActionBar() {
               <a href="#">
                 <FolderIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Save to
                 {root ? " new" : ""} Folder
+              </a>
+            </div>
+            <div
+              style={style}
+              onClick={async () => {
+                alert("TODO");
+                setAction(""); // close panel
+              }}
+            >
+              <a href="#">
+                <ZipIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Save to ZIP (TODO?)
+              </a>
+            </div>
+            <div
+              style={style}
+              onClick={async () => {
+                alert("TODO");
+                setAction(""); // close panel
+              }}
+            >
+              <a href="#">
+                <JsonIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Save to JSON (TODO?)
               </a>
             </div>
             <br/>
