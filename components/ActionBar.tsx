@@ -10,7 +10,8 @@ import SaveIcon from "../icons/save.svg";
 import VaseIcon from "../icons/vase.svg";
 import WebIcon from "../icons/web.svg";
 import FileIcon from "../icons/file.svg";
-import { IConeRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
+import ImageIcon from "../icons/image.svg";
+import { IConeRenderer, IImageRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
 import { loadPackShotFromFolderAsync, savePackShotToFolderAsync, usePackshotRoot } from "../src/stores/app";
 import { useLayers, usePackshotActions, usePackshotStore } from "../src/stores/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
@@ -66,6 +67,31 @@ export function ActionBar() {
         <>
           <AccordionPanel>
             <strong>Add Layer:</strong>
+            <div
+              style={style}
+              onClick={() => {
+                const imageRenderNode: IImageRenderer = {
+                  type: "image",
+                  name: "Image",
+                  config: {
+                    image: getSampleImageConfig(layers.length),
+                  },
+                };
+                const newLayer: ILayer = {
+                  name: "Image",
+                  renderTree: imageRenderNode,
+                  config: {
+                    isRenderConfigExpanded: true,
+                  },
+                };
+                addLayer(newLayer);
+                setAction(""); // close panel
+              }}
+            >
+              <a href="#">
+                <ImageIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Image
+              </a>
+            </div>
             <div
               style={style}
               onClick={() => {
