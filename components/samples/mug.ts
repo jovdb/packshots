@@ -5,7 +5,6 @@ export const mugPackshot: IPackshot = {
   config: {
     width: 900,
     height: 900,
-    root: "./products/Mug/",
   },
   layers: [
     {

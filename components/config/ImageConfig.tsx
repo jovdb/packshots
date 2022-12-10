@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import { checkBoardStyle } from "../../src/checkboard";
-import { getImageUrl, usePackshotConfig } from "../../src/stores/packshot";
+import { useImageUrl } from "../../src/stores/app";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
@@ -25,11 +25,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
     return "url";
   });
 
-  const [packshotConfig] = usePackshotConfig();
-
-  const url = type === "url"
-    ? getImageUrl(packshotConfig, config)
-    : config?.url;
+  const { data: url } = useImageUrl(config);
 
   return (
     <>

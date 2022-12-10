@@ -1,4 +1,5 @@
 import { IPackshotConfig } from "../IPackshot";
+import { PackshotRoot } from "../stores/app";
 
 export interface IRenderResult {
   /**
@@ -24,7 +25,11 @@ export interface IRenderer {
 
   // Prepare this renderer with the specified data
   // If missing or returns undefined, no async data is needed are already available.
-  loadAsync?(config: {}, packshotConfig: IPackshotConfig): void | Promise<void>;
+  loadAsync?(
+    config: {},
+    root: PackshotRoot,
+    packshotConfig: IPackshotConfig,
+  ): void | Promise<void>;
 
   dispose?(): void;
 }

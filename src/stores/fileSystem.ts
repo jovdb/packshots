@@ -1,79 +1,50 @@
-import create from "zustand";
-
-/** A hook to have a handle to a folder */
-const useFileSystemStore = create<{
-  isSupported: boolean;
-  rootDirHandle: FileSystemDirectoryHandle | undefined;
-  actions: {
-    loadRootFolderAsync(): Promise<string>;
-    getFilesAsync(): Promise<FileSystemDirectoryEntry[]>;
-    saveFileAsync(fileName: string, content: string): Promise<boolean>;
-    openFileAsync(name: string): Promise<string | undefined>;
-  };
-}>((set, get) => ({
-  isSupported: typeof showDirectoryPicker !== "undefined",
-  rootDirHandle: undefined,
-  actions: {
-    async loadRootFolderAsync() {
-      try {
-        const rootDirHandle = await showDirectoryPicker({
-          id: "root",
-        }) as FileSystemDirectoryHandle;
-        set({ rootDirHandle });
-        return rootDirHandle.name;
-      } catch (err) {
-        console.warn("Folder dialog:", err);
-      }
-      return "";
-    },
-
-    async saveFileAsync(name: string, content: string): Promise<boolean> {
-      const rootDirHandle = get().rootDirHandle;
-      if (!rootDirHandle) return false;
-
-      try {
-        const fileHandle = await rootDirHandle.getFileHandle(name, { create: true });
-        const writableStream = await fileHandle.createWritable();
-        await writableStream.write(content);
-        await writableStream.close();
-      } catch (err) {
-        console.warn(`Error saving file: ${name}`, err);
-        return false;
-      }
-      return true;
-    },
-
-    async openFileAsync(name: string): Promise<string | undefined> {
-      const rootDirHandle = get().rootDirHandle;
-      if (!rootDirHandle) return undefined;
-
-      try {
-        const fileHandle = await rootDirHandle.getFileHandle(name);
-        const file = await fileHandle.getFile();
-        return await file.text();
-      } catch (err) {
-        console.warn(`Error reading file: ${name}`, err);
-        return undefined;
-      }
-    },
-
-    async getFilesAsync() {
-      const rootDirHandle = get().rootDirHandle;
-      if (!rootDirHandle) return [];
-
-      const files = [];
-      for await (const entry of rootDirHandle.values()) {
-        files.push(entry);
-      }
-      return files;
-    },
-  },
-}));
-
-export function useIsFileSystemSupported() {
-  return useFileSystemStore(s => s.isSupported);
+export function isSupported() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return typeof (window as any)["showDirectoryPicker"] !== "undefined";
 }
 
-export function useFileSystemActions() {
-  return useFileSystemStore(s => s.actions);
+export async function loadFolderAsync() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return await (window as any)["showDirectoryPicker"]({
+      id: "root",
+    }) as unknown as FileSystemDirectoryHandle;
+  } catch (err) {
+    console.warn("Error showing Folder dialog:", err);
+  }
+}
+
+export async function openTextFileAsync(directoryHandle: FileSystemDirectoryHandle, name: string): Promise<string | undefined> {
+  try {
+    const fileHandle = await directoryHandle.getFileHandle(name);
+    const file = await fileHandle.getFile();
+    return await file.text();
+  } catch (err) {
+    console.warn(`Error reading text file: ${name}`, err);
+    return undefined;
+  }
+}
+
+export async function saveTextFileAsync(directoryHandle: FileSystemDirectoryHandle, name: string, content: string): Promise<boolean> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fileHandle = await directoryHandle.getFileHandle(name, { create: true }) as any;
+    const writableStream = await fileHandle.createWritable();
+    await writableStream.write(content);
+    await writableStream.close();
+  } catch (err) {
+    console.warn(`Error saving text file: ${name}`, err);
+    return false;
+  }
+  return true;
+}
+
+export async function getFilesAsync(directoryHandle: FileSystemDirectoryHandle): Promise<string[]> {
+  const files = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for await (const entry of (directoryHandle as any).values()) {
+    if (entry.type !== "file") break;
+    files.push(entry);
+  }
+  return files;
 }

@@ -11,7 +11,8 @@ export class ImageCache {
 
     // Already loaded
     if (url === this.imageUrl) {
-      return this.image;
+      if (this.imagePromise) return this.imagePromise;
+      if (this.image) return this.image;
     }
 
     // Removed
@@ -29,6 +30,7 @@ export class ImageCache {
     this.imagePromise.then(
       img => {
         this.image = img;
+        this.imagePromise = undefined;
       },
       (e) => {
         this.image = undefined;
@@ -41,16 +43,18 @@ export class ImageCache {
   }
 
   /** Synchroniously get image */
-  public getImage(url: string | undefined, required?: boolean) {
-    url ||= undefined;
-    if (this.isLoaded(url)) return this.image;
+  public getImage(required?: boolean) {
+    if (this.isLoaded()) return this.image;
     if (required && !this.image) throw new Error("Loaded image expected.");
-    return undefined; // No or other image is loaded4
+    return undefined; // No or other image is loaded
   }
 
   /** Synchroniously get image */
-  public isLoaded(url: string | undefined) {
-    url ||= undefined;
-    return !!this.image && this.imageUrl === url;
+  public getImagePromise() {
+    return this.imagePromise || Promise.resolve(this.image);
+  }
+
+  public isLoaded() {
+    return this.image;
   }
 }

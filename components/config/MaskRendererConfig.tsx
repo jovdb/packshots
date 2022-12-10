@@ -2,7 +2,7 @@
 import { useId, useState } from "react";
 import { checkBoardStyle } from "../../src/checkboard";
 import { IRendererConfig } from "../../src/IPackshot";
-import { getImageUrl, usePackshotConfig } from "../../src/stores/packshot";
+import { useImageUrl } from "../../src/stores/app";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 import { IImageConfig } from "./ImageConfig";
@@ -21,12 +21,7 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
     if (config.image.url?.startsWith("blob://")) return "local";
     return "url";
   });
-
-  const [packshotConfig] = usePackshotConfig();
-
-  const url = type === "url"
-    ? getImageUrl(packshotConfig, config.image)
-    : config.image.url;
+  const { data: url } = useImageUrl(config.image);
 
   const isEnabled = !config.isDisabled;
   const id = useId();

@@ -5,7 +5,6 @@ export const photobookPackshot: IPackshot = {
   config: {
     width: 900,
     height: 900,
-    root: "./products/Book/",
   },
   layers: [
     {

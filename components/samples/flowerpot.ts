@@ -5,7 +5,6 @@ export const flowerPotPackshot: IPackshot = {
   config: {
     width: 3600,
     height: 3600,
-    root: "./products/Book/",
   },
   layers: [
     {

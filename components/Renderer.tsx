@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CSSProperties, useRef } from "react";
 import { checkBoardStyle } from "../src/checkboard";
 import { ILayerConfig, IPackshotConfig, IRenderTree } from "../src/IPackshot";
+import { useAppRoot } from "../src/stores/app";
 import { useLayersConfig, usePackshotConfig, useRenderTrees } from "../src/stores/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
 import { ControlPoints } from "./ControlPoints";
@@ -78,14 +79,15 @@ export function Renderer({
   const renderTrees = useRenderTrees();
   const layersConfig = useLayersConfig();
   const [packshotConfig] = usePackshotConfig();
+  const [root] = useAppRoot();
 
-  useQuery([renderTrees, layersConfig, packshotConfig], () => (
+  useQuery([renderTrees, layersConfig, packshotConfig, root], () => (
     Promise
       .all(
         renderTrees
           .flatMap(renderTree =>
             flattenTree(renderTree)
-              .map(renderNode => renderNode.renderer?.loadAsync?.(renderNode.config, packshotConfig))
+              .map(renderNode => renderNode.renderer?.loadAsync?.(renderNode.config, root, packshotConfig))
           ),
       )
       .catch((err) => {

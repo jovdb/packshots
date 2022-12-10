@@ -1,5 +1,7 @@
+import { IImageRendererConfig } from "../../components/config/ImageRendererConfig";
 import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
 import { ImageCache } from "../ImageCache";
+import { getImageUrl, PackshotRoot } from "../stores/app";
 import { IRenderer, IRenderResult } from "./IRenderer";
 
 export class MaskRenderer implements IRenderer {
@@ -14,14 +16,19 @@ export class MaskRenderer implements IRenderer {
     this.context = context;
   }
 
-  async loadAsync(config: IMaskRenderingConfig) {
-    const url = config?.image.url ?? "";
+  async loadAsync(
+    config: IImageRendererConfig,
+    root: PackshotRoot,
+  ) {
+    const url = await getImageUrl(root, config?.image);
     await this.imageCache.loadImage(url);
   }
 
-  render(drawOnContext: CanvasRenderingContext2D, config: IMaskRenderingConfig): IRenderResult | undefined {
-    const url = config?.image.url ?? "";
-    const image = this.imageCache.getImage(url, true);
+  render(
+    drawOnContext: CanvasRenderingContext2D,
+    config: IMaskRenderingConfig
+  ): IRenderResult | undefined {
+    const image = this.imageCache.getImage(true);
     const { context } = this;
 
     // Stretch image to full canvas size

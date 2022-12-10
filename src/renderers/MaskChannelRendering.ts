@@ -1,7 +1,6 @@
 import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
 import { createContext2d, getImageDataAsync } from "../../utils/image";
-import { IPackshotConfig } from "../IPackshot";
-import { getImageUrl } from "../stores/packshot";
+import { getImageUrl, PackshotRoot } from "../stores/app";
 import { IRenderer, IRenderResult } from "./IRenderer";
 
 export class MaskChannelRenderer implements IRenderer {
@@ -20,10 +19,13 @@ export class MaskChannelRenderer implements IRenderer {
     this.context = context;
   }
 
-  async loadAsync(config: IMaskRenderingConfig, packshotConfig: IPackshotConfig) {
-    const url = getImageUrl(packshotConfig, config.image);
+  async loadAsync(
+    config: IMaskRenderingConfig,
+    root: PackshotRoot,
+  ) {
+    const url = await getImageUrl(root, config.image);
     const colorChannelIndex = config.colorChannel || 0;
-    const imageDataCacheKey = `${colorChannelIndex}-${url};`;
+    const imageDataCacheKey = `${colorChannelIndex}-${config.image.name};`;
     // Already loaded/loading
     if (this.cacheKey === imageDataCacheKey) {
       if (!this.contextPromise) return; // Already Loaded

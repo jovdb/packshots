@@ -2,11 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import create from "zustand";
 import shallow from "zustand/shallow";
-import { IImageConfig } from "../../components/config/ImageConfig";
 import { IControlPointsConfig } from "../controlPoints/IControlPoints";
 import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree } from "../IPackshot";
 import { createRenderer } from "../renderers/factory";
 import { flattenTree, replaceTreeNode, walkTree } from "../Tree";
+import { useAppRoot } from "./app";
 
 interface IPackshotActions {
   setPackshot(packshot: IPackshot): void;
@@ -17,13 +17,11 @@ interface IPackshotActions {
   updateLayerConfig(layerIndex: number, config: Partial<ILayerConfig>): void;
   updateLayerRenderTree(layerIndex: number, renderTree: IRenderTree): void;
   updateLayerRenderNodeConfig(layerIndex: number, renderNode: IRenderTree, config: {}): void;
-  serialize(): string;
-  deserialize(data: string): void;
 }
 
 type IPackShotStore = IPackshot & {
   actions: IPackshotActions;
-}
+};
 
 export const usePackshotStore = create<IPackShotStore>((set, get) => {
   function setPackshot(packshot: IPackshot) {
@@ -48,7 +46,6 @@ export const usePackshotStore = create<IPackShotStore>((set, get) => {
     config: {
       width: 1000,
       height: 1000,
-      root: "",
     },
     layers: [],
     actions: {
@@ -147,26 +144,6 @@ export const usePackshotStore = create<IPackShotStore>((set, get) => {
           };
         });
       },
-
-      serialize() {
-        return JSON.stringify(get(), (key, value) => {
-          // Keys to skip
-          if (key === "renderer") return;
-          if (key === "actions") return;
-          return value;
-        }, "  ");
-      },
-
-      deserialize(data: string) {
-        const packshot = JSON.parse(data) as IPackshot;
-
-        // TODO: Validate
-        if (typeof packshot !== "object") throw new Error("Invalid packshot");
-        if (typeof packshot.config !== "object") throw new Error("Invalid packshot (config)");
-        if (!Array.isArray(packshot.layers)) throw new Error("Invalid packshot (layers)");
-
-        setPackshot(packshot);
-      },
     },
   };
 
@@ -231,6 +208,7 @@ export function useRenderers() {
 export function useLoadedRenderers() {
   const layersRenderers = useRenderers();
   const [packshotConfig] = usePackshotConfig();
+  const [root] = useAppRoot();
 
   // Detect some config changes
   // TODO: can we quickly detect which config is changed and only load that renderer?
@@ -247,7 +225,7 @@ export function useLoadedRenderers() {
           console.log(`- Load renderer: ${renderer.constructor.name}`);
           // TODO: find a better way, I think because react async behavior, this can become incorrect
           const { config } = flattenTree(usePackshotStore.getState().layers[layerIndex].renderTree)[rendererIndex];
-          renderer.loadAsync?.(config, packshotConfig);
+          renderer.loadAsync?.(config, root, packshotConfig);
         })
       )),
     );
@@ -255,7 +233,7 @@ export function useLoadedRenderers() {
     return loadedPromise;
   }
 
-  const { isFetching } = useQuery([configs], loadRenderers);
+  const { isFetching } = useQuery([configs, root], loadRenderers);
 
   return {
     layersRenderers,
@@ -312,9 +290,22 @@ export function useAllControlPoints() {
   ));
 }
 
+export function serialize(packshot: IPackshot) {
+  return JSON.stringify(packshot, (key, value) => {
+    // Keys to skip
+    if (key === "renderer") return;
+    if (key === "actions") return;
+    return value;
+  }, "  ");
+}
 
-export function getImageUrl(packshotConfig: IPackshotConfig, imageConfig: IImageConfig | undefined) {
-  if (!packshotConfig?.root) throw new Error("No packshot root configurated");
-  if (!imageConfig?.url) throw new Error("No image configuration available");
-  return `${packshotConfig.root}${packshotConfig.root.substring(-1) === "/" ? "" : "/"}${imageConfig.url}`;
+export function deserialize(data: string) {
+  const packshot = JSON.parse(data) as IPackshot;
+
+  // TODO: Validate
+  if (typeof packshot !== "object") throw new Error("Invalid packshot");
+  if (typeof packshot.config !== "object") throw new Error("Invalid packshot (config)");
+  if (!Array.isArray(packshot.layers)) throw new Error("Invalid packshot (layers)");
+
+  return packshot;
 }

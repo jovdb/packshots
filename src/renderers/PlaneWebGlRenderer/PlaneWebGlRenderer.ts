@@ -5,8 +5,7 @@ import type { IRenderer, IRenderResult } from "../IRenderer";
 
 import vertexShader from "./vertex.glsl?raw";
 import fragmentShader from "./fragment.glsl?raw";
-import { IPackshotConfig } from "../../IPackshot";
-import { getImageUrl } from "../../stores/packshot";
+import { getImageUrl, PackshotRoot } from "../../stores/app";
 
 // TWGL: https://twgljs.org/
 // https://twgljs.org/docs/module-twgl.html
@@ -52,9 +51,9 @@ export class PlaneWebGlRenderer implements IRenderer {
   /**
    * Load the image and set the texture and image member variable
    */
-  loadAsync(
+  async loadAsync(
     config: IPlaneRendererConfig,
-    packshotConfig: IPackshotConfig,
+    root: PackshotRoot,
   ) {
     if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
     if (!config.image.url) {
@@ -62,10 +61,11 @@ export class PlaneWebGlRenderer implements IRenderer {
       return;
     }
 
+    const url = await getImageUrl(root, config.image);
+
     return new Promise<void>((resolve, reject) => {
       const { gl } = this;
       this.image = undefined;
-      const url = getImageUrl(packshotConfig, config.image);
       if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
       this.uniforms.texture = twgl.createTexture(gl, {
         src: url,

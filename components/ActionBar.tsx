@@ -7,13 +7,13 @@ import OpenIcon from "../icons/open.svg";
 import PlaneIcon from "../icons/plane.svg";
 import SaveIcon from "../icons/save.svg";
 import VaseIcon from "../icons/vase.svg";
-import { useFileSystemActions } from "../src/stores/fileSystem";
 import { IConeRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
-import { useLayers, usePackshotActions } from "../src/stores/packshot";
+import { useLayers, usePackshotActions, usePackshotStore } from "../src/stores/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { flowerPotPackshot } from "./samples/flowerpot";
 import { mugPackshot } from "./samples/mug";
 import { photobookPackshot } from "./samples/photobook";
+import { loadPackShotFromFolderAsync, savePackShotToFolderAsync, useAppRoot } from "../src/stores/app";
 
 function getSampleImageConfig(layerCount: number) {
   return {
@@ -23,10 +23,11 @@ function getSampleImageConfig(layerCount: number) {
 }
 export function ActionBar() {
   const [action, setAction] = useState("");
-  const { setPackshot, addLayer, serialize, deserialize } = usePackshotActions();
+  const { setPackshot, addLayer } = usePackshotActions();
   const layers = useLayers();
-  const { loadRootFolderAsync, saveFileAsync, openFileAsync } = useFileSystemActions();
   const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
+
+  const [root, setRoot] = useAppRoot();
 
   return (
     <Accordion
@@ -37,10 +38,11 @@ export function ActionBar() {
           <AccordionButton
             title="Open Packshot folder"
             onClick={async () => {
-              await loadRootFolderAsync();
-              const data = await openFileAsync("packshot.json");
-              if (!data) return;
-              deserialize(data);
+              const result = await loadPackShotFromFolderAsync();
+              if (!result) return;
+              const { packShot, directoryHandle } = result;
+              setRoot(directoryHandle);
+              setPackshot(packShot);
             }}
           >
             <OpenIcon width="22" style={{ transform: "translateY(-2px)" }} />
@@ -48,10 +50,20 @@ export function ActionBar() {
           <AccordionButton
             title="Save Packshot folder"
             onClick={async () => {
-              const data = serialize();
-              await loadRootFolderAsync();
-              await saveFileAsync("packshot.json", data);
-              alert("Saved");
+
+              // TODO: Ask to use current folder or new
+              if (!root || typeof root === "string") {
+                console.error("Not folder opened");
+                return;
+              }
+
+              const packshot = usePackshotStore.getState();
+              const result = await savePackShotToFolderAsync(packshot, root);
+              if (result) {
+                alert("Saved");
+              } else {
+                alert("Error Saving");
+              }
             }}
           >
             <SaveIcon width="18" />

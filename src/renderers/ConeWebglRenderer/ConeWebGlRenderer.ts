@@ -5,8 +5,7 @@ import type { IRenderer, IRenderResult } from "../IRenderer";
 
 import vertexShader from "./vertex.glsl?raw";
 import fragmentShader from "./fragment.glsl?raw";
-import { getImageUrl } from "../../stores/packshot";
-import { IPackshotConfig } from "../../IPackshot";
+import { getImageUrl, PackshotRoot } from "../../stores/app";
 
 // TWGL: https://twgljs.org/
 // https://twgljs.org/docs/module-twgl.html
@@ -62,13 +61,13 @@ export class ConeWebGlRenderer implements IRenderer {
   /**
    * Load the image and set the texture and image member variable
    */
-  loadAsync(
+  async loadAsync(
     config: IConeRendererConfig,
-    packshotConfig: IPackshotConfig,
+    root: PackshotRoot,
   ) {
     if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
     if (!config.image.url) return;
-    const url = getImageUrl(packshotConfig, config.image);
+    const url = await getImageUrl(root, config.image);
     
     return new Promise<void>((resolve, reject) => {
       const { gl } = this;

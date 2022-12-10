@@ -2,8 +2,7 @@ import { Matrix3, Matrix4, Vector2, Vector3 } from "three";
 import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
 import { getImageDataAsync } from "../../../utils/image";
 import { ControlPoint } from "../../controlPoints/IControlPoints";
-import { IPackshotConfig } from "../../IPackshot";
-import { getImageUrl } from "../../stores/packshot";
+import { getImageUrl, PackshotRoot } from "../../stores/app";
 import { ConeGeometry } from "../geometries/ConeGeometry";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 import { PointTextureSampler } from "../samplers/PointTextureSampler";
@@ -27,9 +26,9 @@ export class ConeCanvasRenderer implements IRenderer {
 
   async loadAsync(
     config: IConeRendererConfig,
-    packshotConfig: IPackshotConfig,
+    root: PackshotRoot,
   ) {
-    const url = getImageUrl(packshotConfig, config.image);
+    const url = await getImageUrl(root, config.image);
     this.imageUrl = url;
     try {
       this.imageData = await getImageDataAsync(url);
