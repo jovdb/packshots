@@ -3,14 +3,17 @@ import AddLayer from "../icons/add-layer.svg";
 import BookIcon from "../icons/book.svg";
 import CylinderIcon from "../icons/cylinder.svg";
 import MugIcon from "../icons/mug.svg";
+import OpenIcon from "../icons/open.svg";
 import PlaneIcon from "../icons/plane.svg";
+import SaveIcon from "../icons/save.svg";
 import VaseIcon from "../icons/vase.svg";
+import { useFileSystemActions } from "../src/fileSystem";
 import { IConeRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
 import { useLayers, usePackshotActions } from "../src/packshot";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
-import { photobookPackshot } from "./samples/photobook";
-import { mugPackshot } from "./samples/mug";
 import { flowerPotPackshot } from "./samples/flowerpot";
+import { mugPackshot } from "./samples/mug";
+import { photobookPackshot } from "./samples/photobook";
 
 function getSampleImageConfig(layerCount: number) {
   return {
@@ -20,15 +23,32 @@ function getSampleImageConfig(layerCount: number) {
 }
 export function ActionBar() {
   const [action, setAction] = useState("");
-  const { setPackshot, addLayer } = usePackshotActions();
+  const { setPackshot, addLayer, serialize } = usePackshotActions();
   const layers = useLayers();
-
+  const { loadRootFolderAsync, saveFileAsync } = useFileSystemActions();
   const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
 
   return (
     <Accordion
       isExpanded={!!action}
       title=""
+      left={
+        <>
+          <AccordionButton title="Open Packshot folder">
+            <OpenIcon width="22" style={{ transform: "translateY(-2px)" }} />
+          </AccordionButton>
+          <AccordionButton title="Save Packshot folder"
+            onClick={async () => {
+              const data = serialize();
+              await loadRootFolderAsync();
+              await saveFileAsync("packshot.json", data);
+              alert("Saved");
+            }}
+          >
+            <SaveIcon width="18" />
+          </AccordionButton>
+        </>
+      }
       right={
         <AccordionButton onClick={() => setAction(action === "add" ? "" : "add")} title="Add layer">
           <AddLayer width={20} style={{ marginRight: 5 }} />

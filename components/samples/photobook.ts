@@ -27,8 +27,8 @@ export const photobookPackshot: IPackshot = {
         type: "mask",
         config: {
           image: {
-            name: "Mask.jpg",
-            url: "Mask.jpg",
+            name: "Mask.png",
+            url: "Mask.png",
           },
           colorChannel: 2,
         },
@@ -60,8 +60,8 @@ export const photobookPackshot: IPackshot = {
         type: "mask",
         config: {
           image: {
-            name: "Mask.jpg",
-            url: "Mask.jpg",
+            name: "Mask.png",
+            url: "Mask.png",
           },
           colorChannel: 1,
         },
@@ -93,8 +93,8 @@ export const photobookPackshot: IPackshot = {
         type: "mask",
         config: {
           image: {
-            name: "Mask.jpg",
-            url: "Mask.jpg",
+            name: "Mask.png",
+            url: "Mask.png",
           },
           colorChannel: 0,
         },

@@ -6,17 +6,33 @@ const useFileSystemStore = create<{
   actions: {
     loadRootFolderAsync(): Promise<string>;
     getFilesAsync(): Promise<FileSystemDirectoryEntry[]>;
+    saveFileAsync(fileName: string, content: string): Promise<void>;
   };
 }>((set, get) => ({
   isSupported: typeof showDirectoryPicker !== "undefined",
   rootDirHandle: undefined,
   actions: {
     async loadRootFolderAsync() {
-      const rootDirHandle = await showDirectoryPicker({
-        id: "root",
-      }) as FileSystemDirectoryHandle;
-      set({ rootDirHandle });
-      return rootDirHandle.name;
+      try {
+        const rootDirHandle = await showDirectoryPicker({
+          id: "root",
+        }) as FileSystemDirectoryHandle;
+        set({ rootDirHandle });
+        return rootDirHandle.name;
+      } catch (err) {
+        console.warn("Folder dialog:", err);
+      }
+      return "";
+    },
+
+    async saveFileAsync(name: string, content: string) {
+      const rootDirHandle = get().rootDirHandle;
+      if (!rootDirHandle) return undefined;
+
+      const fileHandle = await rootDirHandle.getFileHandle(name, { create: true });
+      const writableStream = await fileHandle.createWritable();
+      await writableStream.write(content);
+      await writableStream.close();
     },
 
     async getFilesAsync() {

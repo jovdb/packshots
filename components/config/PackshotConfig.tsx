@@ -133,11 +133,6 @@ export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({
                         </tr>
                     */
           }
-          <tr>
-            <td colSpan={2} style={{ textAlign: "right" }}>
-              <button onClick={() => alert("todo")}>Export as PNG</button>
-            </td>
-          </tr>
         </tbody>
       </table>
     </fieldset>

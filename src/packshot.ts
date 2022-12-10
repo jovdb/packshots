@@ -3,145 +3,175 @@ import { useMemo } from "react";
 import create from "zustand";
 import shallow from "zustand/shallow";
 import { IImageConfig } from "../components/config/ImageConfig";
-import { PackshotConfig } from "../components/config/PackshotConfig";
 import { IControlPointsConfig } from "./controlPoints/IControlPoints";
 import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree } from "./IPackshot";
 import { createRenderer } from "./renderers/factory";
 import { flattenTree, replaceTreeNode, walkTree } from "./Tree";
 
-export const usePackshotStore = create<
-  IPackshot & {
-    actions: {
-      setPackshot(packshot: IPackshot): void;
-      updatePackshotName(name: string): void;
-      updatePackshotConfig(config: IPackshotConfig): void;
-      addLayer(layer: ILayer, layerIndex?: number): void;
-      deleteLayer(layerIndex: number): void;
-      updateLayerConfig(layerIndex: number, config: Partial<ILayerConfig>): void;
-      updateLayerRenderTree(layerIndex: number, renderTree: IRenderTree): void;
-      updateLayerRenderNodeConfig(layerIndex: number, renderNode: IRenderTree, config: {}): void;
-    };
-  }
->((set) => ({
-  config: {
-    width: 1000,
-    height: 1000,
-  },
-  layers: [],
-  actions: {
-    setPackshot(packshot) {
-      set((state) => {
-        // Dispose previous renderers
-        state.layers.forEach(layer => {
-          walkTree(layer.renderTree, renderNode => renderNode.renderer?.dispose?.());
-        });
+interface IPackshotActions {
+  setPackshot(packshot: IPackshot): void;
+  updatePackshotName(name: string): void;
+  updatePackshotConfig(config: IPackshotConfig): void;
+  addLayer(layer: ILayer, layerIndex?: number): void;
+  deleteLayer(layerIndex: number): void;
+  updateLayerConfig(layerIndex: number, config: Partial<ILayerConfig>): void;
+  updateLayerRenderTree(layerIndex: number, renderTree: IRenderTree): void;
+  updateLayerRenderNodeConfig(layerIndex: number, renderNode: IRenderTree, config: {}): void;
+  serialize(): string;
+  deserialize(data: string): void;
+}
 
-        // Create new renderers
-        packshot?.layers?.forEach(layer => {
-          walkTree(layer.renderTree, renderNode => {
-            renderNode.renderer = createRenderer(renderNode.type);
-          });
-        });
+type IPackShotStore = IPackshot & {
+  actions: IPackshotActions;
+}
 
-        return { ...packshot };
+export const usePackshotStore = create<IPackShotStore>((set, get) => {
+  function setPackshot(packshot: IPackshot) {
+    set((state) => {
+      // Dispose previous renderers
+      state.layers.forEach(layer => {
+        walkTree(layer.renderTree, renderNode => renderNode.renderer?.dispose?.());
       });
-    },
 
-    updatePackshotName(name) {
-      set({ name });
-    },
-
-    updatePackshotConfig(config) {
-      set({ config });
-    },
-
-    addLayer(layer, insertIndex?: number) {
-      set((state) => {
-        const newLayers = state.layers.slice();
-        if (insertIndex === undefined) insertIndex = state.layers.length;
-        newLayers.splice(insertIndex, 1, layer);
-        return {
-          layers: newLayers,
-        };
-      });
-    },
-
-    deleteLayer(layerIndex) {
-      set((state) => ({
-        layers: state.layers.filter((layer, i) => {
-          if (i !== layerIndex) {
-            return true;
-          } else {
-            // Dispose renderers before removing layer
-            walkTree(layer.renderTree, renderNode => renderNode.renderer?.dispose?.());
-            return false;
-          }
-        }),
-      }));
-    },
-
-    updateLayerConfig(layerIndex, config) {
-      set((state) => {
-        const oldLayer = state.layers[layerIndex];
-        const oldConfig = oldLayer?.config || {};
-        const newLayer = {
-          ...oldLayer,
-          config: { ...oldConfig, ...config },
-        };
-        const newLayers = state.layers.slice();
-        newLayers.splice(layerIndex, 1, newLayer);
-
-        return {
-          layers: newLayers,
-        };
-      });
-    },
-
-    updateLayerRenderTree(layerIndex, renderTree) {
-      set((state) => {
-        const oldLayer = state.layers[layerIndex];
-        const newLayer: ILayer = {
-          ...oldLayer,
-          renderTree,
-        };
-        const newLayers = state.layers.slice();
-        newLayers.splice(layerIndex, 1, newLayer);
-
-        // Update renderers
-        walkTree(oldLayer.renderTree, renderNode => renderNode.renderer?.dispose?.());
-        walkTree(newLayer.renderTree, renderNode => {
+      // Create new renderers
+      packshot?.layers?.forEach(layer => {
+        walkTree(layer.renderTree, renderNode => {
           renderNode.renderer = createRenderer(renderNode.type);
         });
-
-        return {
-          layers: newLayers,
-        };
       });
+
+      return { ...packshot };
+    });
+  }
+
+  const state: IPackShotStore = {
+    config: {
+      width: 1000,
+      height: 1000,
+      root: "",
     },
+    layers: [],
+    actions: {
+      setPackshot,
 
-    updateLayerRenderNodeConfig(layerIndex, renderNode, config): void {
-      set((state) => {
-        const oldLayer = state.layers[layerIndex];
+      updatePackshotName(name) {
+        set({ name });
+      },
 
-        const newRenderNode: IRenderTree = {
-          ...renderNode,
-          config,
-        };
-        const newRenderTree = replaceTreeNode(oldLayer.renderTree, renderNode, newRenderNode);
-        const newLayer: ILayer = {
-          ...oldLayer,
-          renderTree: newRenderTree,
-        };
-        const newLayers = state.layers.slice();
-        newLayers.splice(layerIndex, 1, newLayer);
+      updatePackshotConfig(config) {
+        set({ config });
+      },
 
-        return {
-          layers: newLayers,
-        };
-      });
+      addLayer(layer, insertIndex?: number) {
+        set((state) => {
+          const newLayers = state.layers.slice();
+          if (insertIndex === undefined) insertIndex = state.layers.length;
+          newLayers.splice(insertIndex, 1, layer);
+          return {
+            layers: newLayers,
+          };
+        });
+      },
+
+      deleteLayer(layerIndex) {
+        set((state) => ({
+          layers: state.layers.filter((layer, i) => {
+            if (i !== layerIndex) {
+              return true;
+            } else {
+              // Dispose renderers before removing layer
+              walkTree(layer.renderTree, renderNode => renderNode.renderer?.dispose?.());
+              return false;
+            }
+          }),
+        }));
+      },
+
+      updateLayerConfig(layerIndex, config) {
+        set((state) => {
+          const oldLayer = state.layers[layerIndex];
+          const oldConfig = oldLayer?.config || {};
+          const newLayer = {
+            ...oldLayer,
+            config: { ...oldConfig, ...config },
+          };
+          const newLayers = state.layers.slice();
+          newLayers.splice(layerIndex, 1, newLayer);
+
+          return {
+            layers: newLayers,
+          };
+        });
+      },
+
+      updateLayerRenderTree(layerIndex, renderTree) {
+        set((state) => {
+          const oldLayer = state.layers[layerIndex];
+          const newLayer: ILayer = {
+            ...oldLayer,
+            renderTree,
+          };
+          const newLayers = state.layers.slice();
+          newLayers.splice(layerIndex, 1, newLayer);
+
+          // Update renderers
+          walkTree(oldLayer.renderTree, renderNode => renderNode.renderer?.dispose?.());
+          walkTree(newLayer.renderTree, renderNode => {
+            renderNode.renderer = createRenderer(renderNode.type);
+          });
+
+          return {
+            layers: newLayers,
+          };
+        });
+      },
+
+      updateLayerRenderNodeConfig(layerIndex, renderNode, config): void {
+        set((state) => {
+          const oldLayer = state.layers[layerIndex];
+
+          const newRenderNode: IRenderTree = {
+            ...renderNode,
+            config,
+          };
+          const newRenderTree = replaceTreeNode(oldLayer.renderTree, renderNode, newRenderNode);
+          const newLayer: ILayer = {
+            ...oldLayer,
+            renderTree: newRenderTree,
+          };
+          const newLayers = state.layers.slice();
+          newLayers.splice(layerIndex, 1, newLayer);
+
+          return {
+            layers: newLayers,
+          };
+        });
+      },
+
+      serialize() {
+        return JSON.stringify(get(), (key, value) => {
+          // Keys to skip
+          if (key === "renderer") return;
+          if (key === "actions") return;
+          return value;
+        }, "  ");
+      },
+
+      deserialize(data: string) {
+        const packshot = JSON.parse(data) as IPackshot;
+
+        // TODO: Validate
+        if (typeof packshot !== "object") throw new Error("Invalid packshot");
+        if (typeof packshot.config !== "object") throw new Error("Invalid packshot (config)");
+        if (Array.isArray(packshot.layers)) throw new Error("Invalid packshot (layers)");
+
+        setPackshot(packshot);
+      },
     },
-  },
-}));
+  };
+
+  return state;
+});
 
 export function usePackshotActions() {
   return usePackshotStore(s => s.actions);
@@ -263,7 +293,6 @@ export function useRenderTrees(onlyDisabled = false) {
     [layers, onlyDisabled],
   );
 }
-
 
 const emptyObject = {};
 export function useLayersConfig() {
