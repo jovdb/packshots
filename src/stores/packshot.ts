@@ -2,11 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import create from "zustand";
 import shallow from "zustand/shallow";
-import { IImageConfig } from "../components/config/ImageConfig";
-import { IControlPointsConfig } from "./controlPoints/IControlPoints";
-import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree } from "./IPackshot";
-import { createRenderer } from "./renderers/factory";
-import { flattenTree, replaceTreeNode, walkTree } from "./Tree";
+import { IImageConfig } from "../../components/config/ImageConfig";
+import { IControlPointsConfig } from "../controlPoints/IControlPoints";
+import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree } from "../IPackshot";
+import { createRenderer } from "../renderers/factory";
+import { flattenTree, replaceTreeNode, walkTree } from "../Tree";
 
 interface IPackshotActions {
   setPackshot(packshot: IPackshot): void;
@@ -311,6 +311,7 @@ export function useAllControlPoints() {
       .map(renderNode => (renderNode.config as IControlPointsConfig).controlPoints)
   ));
 }
+
 
 export function getImageUrl(packshotConfig: IPackshotConfig, imageConfig: IImageConfig | undefined) {
   if (!packshotConfig?.root) throw new Error("No packshot root configurated");

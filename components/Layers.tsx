@@ -1,4 +1,4 @@
-import { useLayers } from "../src/packshot";
+import { useLayers } from "../src/stores/packshot";
 import { Layer } from "./Layer";
 
 export function Layers() {

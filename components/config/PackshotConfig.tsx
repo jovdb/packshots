@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useIsFileSystemSupported, useFileSystemActions } from "../../src/fileSystem";
+import { useIsFileSystemSupported, useFileSystemActions } from "../../src/stores/fileSystem";
 import { IPackshotConfig } from "../../src/IPackshot";
 import { ConfigComponent } from "./factory";
 

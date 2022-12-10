@@ -2,7 +2,7 @@ import { CSSProperties, useCallback, useMemo, useRef } from "react";
 import { ControlPoint } from "../src/controlPoints/IControlPoints";
 import { useElementSize } from "../src/hooks/useElementSize";
 import { ILayerConfig } from "../src/IPackshot";
-import { useAllControlPoints, useLayersConfig, usePackshotActions, useRenderTrees } from "../src/packshot";
+import { useAllControlPoints, useLayersConfig, usePackshotActions, useRenderTrees } from "../src/stores/packshot";
 import { flattenTree } from "../src/Tree";
 import { DrawPoints, useLayersControlPointsDragging } from "./DrawPoints";
 

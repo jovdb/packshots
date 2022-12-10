@@ -2,7 +2,7 @@
 import { useId, useState } from "react";
 import { checkBoardStyle } from "../../src/checkboard";
 import { IRendererConfig } from "../../src/IPackshot";
-import { getImageUrl, usePackshotConfig } from "../../src/packshot";
+import { getImageUrl, usePackshotConfig } from "../../src/stores/packshot";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 import { IImageConfig } from "./ImageConfig";

@@ -1,5 +1,5 @@
 import { ILayer } from "../src/IPackshot";
-import { usePackshotActions } from "../src/packshot";
+import { usePackshotActions } from "../src/stores/packshot";
 import { flattenTree, replaceTreeNode } from "../src/Tree";
 import { ConfigComponent, getConfigComponent } from "./config/factory";
 

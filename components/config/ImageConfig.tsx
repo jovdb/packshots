@@ -1,9 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import { url } from "inspector";
 import { useState } from "react";
 import { checkBoardStyle } from "../../src/checkboard";
-import { IPackshotConfig } from "../../src/IPackshot";
-import { getImageUrl, usePackshotConfig } from "../../src/packshot";
+import { getImageUrl, usePackshotConfig } from "../../src/stores/packshot";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 

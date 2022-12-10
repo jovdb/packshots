@@ -6,7 +6,7 @@ import type { IRenderer, IRenderResult } from "../IRenderer";
 import vertexShader from "./vertex.glsl?raw";
 import fragmentShader from "./fragment.glsl?raw";
 import { IPackshotConfig } from "../../IPackshot";
-import { getImageUrl } from "../../packshot";
+import { getImageUrl } from "../../stores/packshot";
 
 // TWGL: https://twgljs.org/
 // https://twgljs.org/docs/module-twgl.html

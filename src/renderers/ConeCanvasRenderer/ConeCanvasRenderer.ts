@@ -3,7 +3,7 @@ import { IConeRendererConfig } from "../../../components/config/ConeRendererConf
 import { getImageDataAsync } from "../../../utils/image";
 import { ControlPoint } from "../../controlPoints/IControlPoints";
 import { IPackshotConfig } from "../../IPackshot";
-import { getImageUrl } from "../../packshot";
+import { getImageUrl } from "../../stores/packshot";
 import { ConeGeometry } from "../geometries/ConeGeometry";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 import { PointTextureSampler } from "../samplers/PointTextureSampler";

@@ -1,7 +1,7 @@
 import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
 import { createContext2d, getImageDataAsync } from "../../utils/image";
 import { IPackshotConfig } from "../IPackshot";
-import { getImageUrl } from "../packshot";
+import { getImageUrl } from "../stores/packshot";
 import { IRenderer, IRenderResult } from "./IRenderer";
 
 export class MaskChannelRenderer implements IRenderer {

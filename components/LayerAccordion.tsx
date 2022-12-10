@@ -4,7 +4,7 @@ import EyeIcon from "../icons/eye.svg";
 import MaskIcon from "../icons/mask.svg";
 import MoreIcon from "../icons/more.svg";
 import { ILayer, IMaskRenderer } from "../src/IPackshot";
-import { usePackshotActions } from "../src/packshot";
+import { usePackshotActions } from "../src/stores/packshot";
 import { findTreeNode, replaceTreeNode } from "../src/Tree";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 

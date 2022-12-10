@@ -1,7 +1,7 @@
 import { IImageRendererConfig } from "../../components/config/ImageRendererConfig";
 import { ImageCache } from "../ImageCache";
 import { IPackshotConfig } from "../IPackshot";
-import { getImageUrl } from "../packshot";
+import { getImageUrl } from "../stores/packshot";
 import type { IRenderer, IRenderResult } from "./IRenderer";
 
 export class ImageRenderer implements IRenderer {

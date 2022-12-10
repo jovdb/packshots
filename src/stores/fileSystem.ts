@@ -1,5 +1,6 @@
 import create from "zustand";
 
+/** A hook to have a handle to a folder */
 const useFileSystemStore = create<{
   isSupported: boolean;
   rootDirHandle: FileSystemDirectoryHandle | undefined;
