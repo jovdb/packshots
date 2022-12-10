@@ -13,6 +13,26 @@ export function loadImageAsync(url: string) {
   });
 }
 
+export async function loadImageToBase64UrlAsync(url: string) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+
+  return new Promise<string>((resolve, reject) => {
+    // Read the Blob as DataURL using the FileReader API
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      resolve(reader.result);
+    };
+    reader.onabort = () => {
+      reject(new Error("Reader image aborted"));
+    };
+    reader.onerror = (err) => {
+      reject(new Error("Error reading image", { cause: err }));
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
 function createCanvas(width: number, height: number, dpr?: number) {
   if (!dpr) dpr = typeof window !== "undefined" ? window?.devicePixelRatio || 1 : 1;
   if (typeof document === "undefined") return { canvas: undefined, dpr };
@@ -46,5 +66,16 @@ export async function getImageDataAsync(src: string) {
     image,
     context,
     imageData: context.getImageData(0, 0, width, height),
+  };
+}
+
+export async function getSampleImageConfigAsync(sampleIndex: number) {
+  const samplesCount = 4;
+  const name = `Sample${sampleIndex % samplesCount + 1}.jpg`;
+  const url = `./samples/${name}`;
+  // const base64Url = await loadImageToBase64UrlAsync(url);
+  return {
+    name,
+    url,
   };
 }

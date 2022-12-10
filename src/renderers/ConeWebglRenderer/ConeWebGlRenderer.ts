@@ -66,7 +66,7 @@ export class ConeWebGlRenderer implements IRenderer {
     root: PackshotRoot,
   ) {
     if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
-    if (!config.image.url) return;
+    if (!config.image.base64Url) return;
     const url = await getImageUrl(root, config.image);
     
     return new Promise<void>((resolve, reject) => {

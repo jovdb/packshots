@@ -5,11 +5,11 @@ import { IRendererConfig } from "../../src/IPackshot";
 import { useImageUrl } from "../../src/stores/app";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
-import { IImageConfig } from "./ImageConfig";
+import { IImageConfig, ImageConfig } from "./ImageConfig";
 
 export interface IMaskRenderingConfig extends IRendererConfig {
   image: IImageConfig;
-  colorChannel?: number,
+  colorChannel?: number;
   isDisabled?: boolean;
 }
 
@@ -45,138 +45,48 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
       </legend>
       {isEnabled
         && (
-          <table style={{ width: "100%" }}>
-            <tbody>
-              <tr>
-                <td style={{ minWidth: 60 }}>Type:</td>
-                <td>
-                  <select
-                    value={type}
-                    onChange={(e) => {
-                      const { value } = e.target;
-                      setType(value);
-                      switch (value) {
-                        case "local": {
-                          onChange({
-                            ...config,
-                            image: { url: "", name: "" },
-                          });
-                          break;
-                        }
-                        default: {
-                          console.error("Unknown Background type:", value);
-                          onChange({
-                            ...config,
-                            image: { url: "", name: "" },
-                          });
-                          break;
-                        }
-                      }
-                    }}
-                  >
-                    <option value="local">Local file</option>
-                    <option value="url">URL</option>
-                  </select>
-                </td>
-              </tr>
-              {type === "local" && (
-                <>
-                  <tr>
-                    <td colSpan={2}>
-                      File name:
-                      <div style={{ display: "flex" }}>
-                        <input
-                          value={config?.image?.name || config?.image?.url || ""}
-                          style={{ width: "100%", marginRight: 5 }}
-                          readOnly
-                          disabled
-                        />
-                        <ImageSelection
-                          onSelect={(info) => {
-                            onChange({
-                              ...config,
-                              image: { url: info.url, name: info.name },
-                            });
-                          }}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                </>
-              )}
-              {type === "url" && (
-                <>
-                  <tr>
-                    <td colSpan={2}>
-                      Location:
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colSpan={2}>
-                      <input
-                        value={config?.image?.url || ""}
-                        style={{ width: "100%" }}
-                        onChange={(e) => {
-                          const { value } = e.target;
-                          const lastSlashIndex = value.lastIndexOf("/");
-                          const name = lastSlashIndex < 0 ? value : value.substring(lastSlashIndex + 1);
-                          onChange({
-                            ...config,
-                            image: { url: value, name },
-                          });
-                        }}
-                      />
-                    </td>
-                  </tr>
-                </>
-              )}
-              <tr>
-                <td colSpan={2} style={{ textAlign: "center" }}>
-                  {url && (
-                    <img
-                      alt="preview"
-                      src={url}
-                      style={{
-                        width: "100%",
-                        height: "auto",
-                        maxWidth: 200,
-                        maxHeight: 200,
-                        border: "1px solid #aaa",
-                        ...checkBoardStyle,
+          <>
+            <ImageConfig
+              config={config.image}
+              onChange={(newImageConfig) => {
+                onChange({
+                  ...config,
+                  image: newImageConfig,
+                });
+              }}
+            />
+            <table style={{ width: "100%" }}>
+              <tbody>
+                <tr>
+                  <td>
+                    Mask Color:
+                  </td>
+                  <td>
+                    <select
+                      value={(config.colorChannel ?? 0).toString()}
+                      onChange={(e) => {
+                        const { value } = e.target;
+                        onChange({
+                          ...config,
+                          colorChannel: parseInt(value) || 0,
+                        });
                       }}
-                    />
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Mask Color:
-                </td>
-                <td>
-                  <select
-                    value={(config.colorChannel ?? 0).toString()}
-                    onChange={(e) => {
-                      const { value } = e.target;
-                      onChange({
-                        ...config,
-                        colorChannel: parseInt(value) || 0,
-                      });
-                    }}
-                  >
-                    <option value="0">Red</option>
-                    <option value="1">Green</option>
-                    <option value="2">Blue</option>
-                    <option value="3">Alpha</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={2}>
-                  The mask image will be stretched over the entire output image.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    >
+                      <option value="0">Red</option>
+                      <option value="1">Green</option>
+                      <option value="2">Blue</option>
+                      <option value="3">Alpha</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={2}>
+                    The mask image will be stretched over the entire output image.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </>
         )}
     </fieldset>
   );

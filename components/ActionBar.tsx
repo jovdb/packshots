@@ -2,32 +2,27 @@ import { CSSProperties, useState } from "react";
 import AddLayer from "../icons/add-layer.svg";
 import BookIcon from "../icons/book.svg";
 import CylinderIcon from "../icons/cylinder.svg";
+import FileIcon from "../icons/file.svg";
 import FolderIcon from "../icons/folder.svg";
+import ImageIcon from "../icons/image.svg";
+import JsonIcon from "../icons/json.svg";
 import MugIcon from "../icons/mug.svg";
 import OpenIcon from "../icons/open.svg";
 import PlaneIcon from "../icons/plane.svg";
 import SaveIcon from "../icons/save.svg";
 import VaseIcon from "../icons/vase.svg";
 import WebIcon from "../icons/web.svg";
-import FileIcon from "../icons/file.svg";
-import ImageIcon from "../icons/image.svg";
 import ZipIcon from "../icons/zip.svg";
-import JsonIcon from "../icons/json.svg";
 
 import { IConeRenderer, IImageRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
 import { loadPackShotFromFolderAsync, savePackShotToFolderAsync, usePackshotRoot } from "../src/stores/app";
 import { useLayers, usePackshotActions, usePackshotStore } from "../src/stores/packshot";
+import { getSampleImageConfigAsync } from "../utils/image";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { flowerPotPackshot } from "./samples/flowerpot";
 import { mugPackshot } from "./samples/mug";
 import { photobookPackshot } from "./samples/photobook";
 
-function getSampleImageConfig(layerCount: number) {
-  return {
-    name: `Sample${layerCount % 4 + 1}.jpg`,
-    url: `./samples/Sample${layerCount % 4 + 1}.jpg`,
-  };
-}
 export function ActionBar() {
   const [action, setAction] = useState("");
   const { setPackshot, addLayer } = usePackshotActions();
@@ -72,12 +67,14 @@ export function ActionBar() {
             <strong>Add Layer:</strong>
             <div
               style={style}
-              onClick={() => {
+              onClick={async () => {
+                const imageConfig = await getSampleImageConfigAsync(layers.length);
+
                 const imageRenderNode: IImageRenderer = {
                   type: "image",
                   name: "Image",
                   config: {
-                    image: getSampleImageConfig(layers.length),
+                    image: imageConfig,
                   },
                 };
                 const newLayer: ILayer = {
@@ -97,12 +94,13 @@ export function ActionBar() {
             </div>
             <div
               style={style}
-              onClick={() => {
+              onClick={async () => {
+                const imageConfig = await getSampleImageConfigAsync(layers.length);
                 const planeRenderNode: IPlaneRenderer = {
                   type: "plane",
                   name: "Plane",
                   config: {
-                    image: getSampleImageConfig(layers.length),
+                    image: imageConfig,
                     controlPoints: [
                       [-0.8, -0.8],
                       [0.8, -0.8],
@@ -119,7 +117,7 @@ export function ActionBar() {
                     isDisabled: true,
                     image: {
                       name: "",
-                      url: "",
+                      base64Url: "",
                     },
                   },
                   children: [planeRenderNode],
@@ -141,11 +139,12 @@ export function ActionBar() {
             </div>
             <div
               style={style}
-              onClick={() => {
+              onClick={async () => {
+                const imageConfig = await getSampleImageConfigAsync(layers.length);
                 const coneRenderNode: IConeRenderer = {
                   type: "cone",
                   config: {
-                    image: getSampleImageConfig(layers.length),
+                    image: imageConfig,
                     controlPoints: [
                       [-0.6, -0.6],
                       [0, -0.55],
@@ -227,7 +226,8 @@ export function ActionBar() {
               }}
             >
               <a href="#">
-                <FileIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Open blank
+                <FileIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Open
+                blank
               </a>
             </div>
             <br />
@@ -310,7 +310,7 @@ export function ActionBar() {
                 const packshot = usePackshotStore.getState();
                 const folderHandle = await savePackShotToFolderAsync(packshot, undefined);
                 if (folderHandle) {
-                  setRoot(folderHandle)
+                  setRoot(folderHandle);
                   alert("Saved");
                 } else {
                   alert("Error Saving");
@@ -331,7 +331,8 @@ export function ActionBar() {
               }}
             >
               <a href="#">
-                <ZipIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Save to ZIP (TODO?)
+                <ZipIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Save to
+                ZIP (TODO?)
               </a>
             </div>
             <div
@@ -342,14 +343,17 @@ export function ActionBar() {
               }}
             >
               <a href="#">
-                <JsonIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Save to JSON (TODO?)
+                <JsonIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Save to
+                JSON (TODO?)
               </a>
             </div>
-            <br/>
+            <br />
             <div>
               <input type="checkbox"></input>
-              <label>TODO: Optimize masks<br/>(Combine masks into a single image)</label>
-              </div>
+              <label>
+                TODO: Optimize masks<br />(Combine masks into a single image)
+              </label>
+            </div>
             <br />
           </AccordionPanel>
         </>

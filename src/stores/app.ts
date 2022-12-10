@@ -32,7 +32,6 @@ const useAppStore = create<IAppState & { actions: IAppActions }>((set) => ({
   },
 }));
 
-
 // export const useApp = useAppStore as UseBoundStore<StoreApi<IAppState>>;
 
 export function usePackshotRoot() {
@@ -41,7 +40,6 @@ export function usePackshotRoot() {
     useAppStore(s => s.actions.setRoot),
   ] as const;
 }
-
 
 export async function loadPackShotFromFolderAsync(directoryHandle?: FileSystemDirectoryHandle | undefined) {
   if (!directoryHandle) directoryHandle = await loadFolderAsync();
@@ -72,10 +70,26 @@ export async function savePackShotToFolderAsync(
 }
 
 export async function getImageUrl(root: PackshotRoot, imageConfig: IImageConfig | undefined) {
-  if (!root) throw new Error("No package root configurated");
-  if (!imageConfig?.url) throw new Error("No image configuration available");
+  if (!imageConfig?.url) {
+    console.error("No image configuration available");
+    return "";
+  }
 
-  // Generate an url
+  // Base64 URL
+  if (imageConfig.url.startsWith("data:")) return imageConfig.url;
+
+  // Absolute URL
+  if (imageConfig.url.startsWith("http")) return imageConfig.url;
+
+  // for app public folder
+  if (imageConfig.url.startsWith("./")) return imageConfig.url;
+
+  if (!root) {
+    console.error("No root configurated");
+    return "";
+  }
+
+  // Relative URL
   if (typeof root === "string") {
     return `${root}${root.substring(-1) === "/" ? "" : "/"}${imageConfig.url}`;
   }

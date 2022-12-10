@@ -45,7 +45,7 @@ export class ImageCache {
   /** Synchroniously get image */
   public getImage(required?: boolean) {
     if (this.isLoaded()) return this.image;
-    if (required && !this.image) throw new Error("Loaded image expected.");
+    if (required && this.imageUrl && !this.image) throw new Error("Loaded image expected.");
     return undefined; // No or other image is loaded
   }
 

@@ -5,6 +5,8 @@ import { useImageUrl } from "../../src/stores/app";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
+import { getSampleImageConfigAsync, loadImageToBase64UrlAsync } from "../../utils/image";
+
 export interface IImageConfig {
   /** Name is added because user can upload file blob that has no name */
   name?: string;
@@ -21,6 +23,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
   onChange,
 }) => {
   const [type, setType] = useState(() => {
+    if (config.url?.startsWith("./samples")) return `sample${/\d+/.exec(config.url ?? config.name)?.[0] || "sample1"}`;
     if (config.url?.startsWith("blob://")) return "local";
     return "url";
   });
@@ -36,12 +39,32 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
             <td>
               <select
                 value={type}
-                onChange={(e) => {
+                onChange={async (e) => {
                   const { value } = e.target;
                   setType(value);
                   switch (value) {
                     case "local": {
                       onChange({ url: "", name: "" });
+                      break;
+                    }
+                    case "sample1": {
+                      const imageConfig = await getSampleImageConfigAsync(1);
+                      onChange(imageConfig);
+                      break;
+                    }
+                    case "sample2": {
+                      const imageConfig = await getSampleImageConfigAsync(2);
+                      onChange(imageConfig);
+                      break;
+                    }
+                    case "sample3": {
+                      const imageConfig = await getSampleImageConfigAsync(3);
+                      onChange(imageConfig);
+                      break;
+                    }
+                    case "sample4": {
+                      const imageConfig = await getSampleImageConfigAsync(4);
+                      onChange(imageConfig);
                       break;
                     }
                     default: {
@@ -54,6 +77,10 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
               >
                 <option value="local">Local file</option>
                 <option value="url">URL</option>
+                <option value="sample1">Sample 1</option>
+                <option value="sample2">Sample 2</option>
+                <option value="sample3">Sample 3</option>
+                <option value="sample4">Sample 4</option>
               </select>
             </td>
           </tr>
