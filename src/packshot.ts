@@ -163,7 +163,7 @@ export const usePackshotStore = create<IPackShotStore>((set, get) => {
         // TODO: Validate
         if (typeof packshot !== "object") throw new Error("Invalid packshot");
         if (typeof packshot.config !== "object") throw new Error("Invalid packshot (config)");
-        if (Array.isArray(packshot.layers)) throw new Error("Invalid packshot (layers)");
+        if (!Array.isArray(packshot.layers)) throw new Error("Invalid packshot (layers)");
 
         setPackshot(packshot);
       },

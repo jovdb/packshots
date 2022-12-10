@@ -23,9 +23,9 @@ function getSampleImageConfig(layerCount: number) {
 }
 export function ActionBar() {
   const [action, setAction] = useState("");
-  const { setPackshot, addLayer, serialize } = usePackshotActions();
+  const { setPackshot, addLayer, serialize, deserialize } = usePackshotActions();
   const layers = useLayers();
-  const { loadRootFolderAsync, saveFileAsync } = useFileSystemActions();
+  const { loadRootFolderAsync, saveFileAsync, openFileAsync } = useFileSystemActions();
   const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
 
   return (
@@ -34,10 +34,19 @@ export function ActionBar() {
       title=""
       left={
         <>
-          <AccordionButton title="Open Packshot folder">
+          <AccordionButton
+            title="Open Packshot folder"
+            onClick={async () => {
+              await loadRootFolderAsync();
+              const data = await openFileAsync("packshot.json");
+              if (!data) return;
+              deserialize(data);
+            }}
+          >
             <OpenIcon width="22" style={{ transform: "translateY(-2px)" }} />
           </AccordionButton>
-          <AccordionButton title="Save Packshot folder"
+          <AccordionButton
+            title="Save Packshot folder"
             onClick={async () => {
               const data = serialize();
               await loadRootFolderAsync();

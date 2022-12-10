@@ -6,7 +6,8 @@ const useFileSystemStore = create<{
   actions: {
     loadRootFolderAsync(): Promise<string>;
     getFilesAsync(): Promise<FileSystemDirectoryEntry[]>;
-    saveFileAsync(fileName: string, content: string): Promise<void>;
+    saveFileAsync(fileName: string, content: string): Promise<boolean>;
+    openFileAsync(name: string): Promise<string | undefined>;
   };
 }>((set, get) => ({
   isSupported: typeof showDirectoryPicker !== "undefined",
@@ -25,14 +26,34 @@ const useFileSystemStore = create<{
       return "";
     },
 
-    async saveFileAsync(name: string, content: string) {
+    async saveFileAsync(name: string, content: string): Promise<boolean> {
+      const rootDirHandle = get().rootDirHandle;
+      if (!rootDirHandle) return false;
+
+      try {
+        const fileHandle = await rootDirHandle.getFileHandle(name, { create: true });
+        const writableStream = await fileHandle.createWritable();
+        await writableStream.write(content);
+        await writableStream.close();
+      } catch (err) {
+        console.warn(`Error saving file: ${name}`, err);
+        return false;
+      }
+      return true;
+    },
+
+    async openFileAsync(name: string): Promise<string | undefined> {
       const rootDirHandle = get().rootDirHandle;
       if (!rootDirHandle) return undefined;
 
-      const fileHandle = await rootDirHandle.getFileHandle(name, { create: true });
-      const writableStream = await fileHandle.createWritable();
-      await writableStream.write(content);
-      await writableStream.close();
+      try {
+        const fileHandle = await rootDirHandle.getFileHandle(name);
+        const file = await fileHandle.getFile();
+        return await file.text();
+      } catch (err) {
+        console.warn(`Error reading file: ${name}`, err);
+        return undefined;
+      }
     },
 
     async getFilesAsync() {
