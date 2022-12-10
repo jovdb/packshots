@@ -6,7 +6,7 @@ import { IControlPointsConfig } from "../controlPoints/IControlPoints";
 import { ILayer, ILayerConfig, IPackshot, IPackshotConfig, IRenderTree } from "../IPackshot";
 import { createRenderer } from "../renderers/factory";
 import { flattenTree, replaceTreeNode, walkTree } from "../Tree";
-import { useAppRoot } from "./app";
+import { usePackshotRoot } from "./app";
 
 interface IPackshotActions {
   setPackshot(packshot: IPackshot): void;
@@ -23,7 +23,7 @@ type IPackShotStore = IPackshot & {
   actions: IPackshotActions;
 };
 
-export const usePackshotStore = create<IPackShotStore>((set, get) => {
+export const usePackshotStore = create<IPackShotStore>((set) => {
   function setPackshot(packshot: IPackshot) {
     set((state) => {
       // Dispose previous renderers
@@ -208,7 +208,7 @@ export function useRenderers() {
 export function useLoadedRenderers() {
   const layersRenderers = useRenderers();
   const [packshotConfig] = usePackshotConfig();
-  const [root] = useAppRoot();
+  const [root] = usePackshotRoot();
 
   // Detect some config changes
   // TODO: can we quickly detect which config is changed and only load that renderer?

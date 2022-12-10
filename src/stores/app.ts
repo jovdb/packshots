@@ -35,7 +35,7 @@ const useAppStore = create<IAppState & { actions: IAppActions }>((set) => ({
 
 // export const useApp = useAppStore as UseBoundStore<StoreApi<IAppState>>;
 
-export function useAppRoot() {
+export function usePackshotRoot() {
   return [
     useAppStore(s => s.root),
     useAppStore(s => s.actions.setRoot),
@@ -60,12 +60,15 @@ export async function loadPackShotFromFolderAsync(directoryHandle?: FileSystemDi
 export async function savePackShotToFolderAsync(
   packShot: IPackshot,
   directoryHandle?: FileSystemDirectoryHandle | undefined,
-): Promise<boolean> {
+): Promise<FileSystemDirectoryHandle | undefined> {
   if (!directoryHandle) directoryHandle = await loadFolderAsync();
-  if (!directoryHandle) return false;
+  if (!directoryHandle) return undefined;
 
   const content = serialize(packShot);
-  return await saveTextFileAsync(directoryHandle, "packshot.json", content);
+  const saved = await saveTextFileAsync(directoryHandle, "packshot.json", content);
+  return saved
+    ? directoryHandle
+    : undefined;
 }
 
 export async function getImageUrl(root: PackshotRoot, imageConfig: IImageConfig | undefined) {
@@ -84,6 +87,6 @@ export async function getImageUrl(root: PackshotRoot, imageConfig: IImageConfig 
 }
 
 export function useImageUrl(imageConfig: IImageConfig | undefined) {
-  const [root] = useAppRoot();
+  const [root] = usePackshotRoot();
   return useQuery([root, imageConfig], () => getImageUrl(root, imageConfig));
 }

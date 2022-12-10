@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { CSSProperties, useRef } from "react";
+import { CSSProperties, useEffect, useRef } from "react";
 import { checkBoardStyle } from "../src/checkboard";
 import { ILayerConfig, IPackshotConfig, IRenderTree } from "../src/IPackshot";
-import { useAppRoot } from "../src/stores/app";
+import { usePackshotRoot } from "../src/stores/app";
 import { useLayersConfig, usePackshotConfig, useRenderTrees } from "../src/stores/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
 import { ControlPoints } from "./ControlPoints";
@@ -18,6 +18,7 @@ function render(
   // Clear Canvas
   targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
 
+  console.log("Rendering started");
   let currentDrawContext = targetContext;
   renderTrees.forEach((renderTree, layerIndex) => {
     const layerConfig = layersConfig[layerIndex] || {};
@@ -31,15 +32,14 @@ function render(
         currentDrawContext.globalCompositeOperation = composition as GlobalCompositeOperation;
       }
 
-      console.log("Rendering started");
       walkTree(
         renderTree,
         (renderNode) => {
           const { config, renderer } = renderNode;
           if (!renderer) return;
 
-//           console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
-    
+          //           console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
+
           // Render
           const renderResult = renderer.render(currentDrawContext, config, packshotConfig, false);
 
@@ -57,8 +57,18 @@ function render(
       );
     } finally {
       currentDrawContext.restore();
-      console.log("Rendering ended");
     }
+  });
+  console.log("Rendering ended");
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function useDebugDeps(deps: any[]) {
+  deps.forEach((dep) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      console.log("dep changed", dep);
+    }, [dep])
   });
 }
 
@@ -79,10 +89,13 @@ export function Renderer({
   const renderTrees = useRenderTrees();
   const layersConfig = useLayersConfig();
   const [packshotConfig] = usePackshotConfig();
-  const [root] = useAppRoot();
+  const [root] = usePackshotRoot();
 
-  useQuery([renderTrees, layersConfig, packshotConfig, root], () => (
-    Promise
+  useDebugDeps([renderTrees, layersConfig, packshotConfig, root]);
+
+  useQuery([renderTrees, layersConfig, packshotConfig, root], () => {
+    console.log("useQuery rerun")
+    return Promise
       .all(
         renderTrees
           .flatMap(renderTree =>
@@ -101,12 +114,12 @@ export function Renderer({
         console.error("Error rendering", err);
         return Math.random();
       })
-  ));
+    });
   /*
-        useLayoutEffect(() => {
-            if(isLoadingRenderer) render(targetContextRef.current, renderTrees);
-        }, [isLoadingRenderer, renderId]);
-      */
+    useLayoutEffect(() => {
+        if(isLoadingRenderer) render(targetContextRef.current, renderTrees);
+    }, [isLoadingRenderer, renderId]);
+  */
   return (
     <>
       <canvas
