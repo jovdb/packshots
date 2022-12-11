@@ -17,8 +17,6 @@ function render(
 
   // Clear Canvas
   targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
-
-  console.log("Rendering started");
   let currentDrawContext = targetContext;
   renderTrees.forEach((renderTree, layerIndex) => {
     const layerConfig = layersConfig[layerIndex] || {};
@@ -59,7 +57,6 @@ function render(
       currentDrawContext.restore();
     }
   });
-  console.log("Rendering ended");
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

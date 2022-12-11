@@ -56,7 +56,7 @@ export class PlaneWebGlRenderer implements IRenderer {
     root: PackshotRoot,
   ) {
     if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
-    if (!config.image.base64Url) {
+    if (!config.image.url) {
       this.uniforms.textureStyle = 1;
       return;
     }
