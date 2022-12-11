@@ -5,7 +5,7 @@ import { isFolderHandles, useImageUrl, usePackshotRoot } from "../../src/stores/
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
-import { getFileNamesAsync } from "../../src/stores/fileSystem";
+import { getFileNamesAsync, loadFolderAsync } from "../../src/stores/fileSystem";
 import { getSampleImageConfigAsync } from "../../utils/image";
 import { useQuery } from "@tanstack/react-query";
 
@@ -24,14 +24,16 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
   config,
   onChange,
 }) => {
+  const [packshotRoot, setPackshotRoot] = usePackshotRoot();
+  
   const [type, setType] = useState(() => {
     if (config.url?.startsWith("./samples")) return `sample${/\d+/.exec(config.url ?? config.name)?.[0] || "sample1"}`;
     if (config.url?.startsWith("blob://")) return "local";
     if (config.url?.startsWith("http")) return "url";
+    if (packshotRoot && typeof packshotRoot === "string") return "sample";
     return "folder";
   });
 
-  const [packshotRoot] = usePackshotRoot();
   const { data: url } = useImageUrl(config);
 
   const {data: folderFiles} = useQuery([type, packshotRoot], async () => {
@@ -84,6 +86,9 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                       onChange(imageConfig);
                       break;
                     }
+                    case "sample": {
+                      break;
+                    }
                     default: {
                       console.error("Unknown Background type:", value);
                       onChange({ url: "", name: "" });
@@ -95,6 +100,9 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                 <option value="folder">From packshot folder{isFolderHandles(packshotRoot) ? `: ${packshotRoot.name}`: ""}</option>
                 <option value="local">Select image</option>
                 <option value="url">From URL</option>
+                {type === "sample" && (
+                  <option value="sample">Sample</option>
+                )}
                 <optgroup label="Samples:">
                   <option value="sample1">Sample 1</option>
                   <option value="sample2">Sample 2</option>
@@ -155,7 +163,23 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
               </tr>
             </>
           )}
-          {type === "folder" && (
+          {type === "folder" && !isFolderHandles(packshotRoot) && (
+            <tr>
+              <td>Select folder:</td>
+              <td>
+                <button
+                  onClick={async () => {
+                    const folderhandle = await loadFolderAsync();
+                    if (!folderhandle) return;
+                    setPackshotRoot(folderhandle);
+                  }}
+                >
+                  Select
+                </button>
+              </td>
+            </tr>
+          )}
+          {type === "folder" && isFolderHandles(packshotRoot) && (
             <tr>
               <td>Select file:</td>
               <td>

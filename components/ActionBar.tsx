@@ -204,7 +204,7 @@ export function ActionBar() {
               style={style}
               onClick={async () => {
                 alert("TODO");
-                setAction(""); // close panel
+                // setAction(""); // close panel
               }}
             >
               <a href="#">
@@ -327,7 +327,7 @@ export function ActionBar() {
               style={style}
               onClick={async () => {
                 alert("TODO");
-                setAction(""); // close panel
+                // setAction(""); // close panel
               }}
             >
               <a href="#">
@@ -339,7 +339,7 @@ export function ActionBar() {
               style={style}
               onClick={async () => {
                 alert("TODO");
-                setAction(""); // close panel
+                // setAction(""); // close panel
               }}
             >
               <a href="#">
