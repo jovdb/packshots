@@ -86,14 +86,12 @@ export function Renderer({
   const targetContextRef = useRef<CanvasRenderingContext2D | null>(null);
   if (!targetContextRef.current) targetContextRef.current = canvasRef.current?.getContext("2d") || null;
 
-  const renderTrees = useRenderTrees();
+  const [renderTrees, renderTreeId] = useRenderTrees();
   const layersConfig = useLayersConfig();
   const [packshotConfig] = usePackshotConfig();
   const [root] = usePackshotRoot();
 
-  useDebugDeps([renderTrees, layersConfig, packshotConfig, root]);
-
-  useQuery([renderTrees, layersConfig, packshotConfig, root], () => {
+  useQuery(["renderDeps", renderTreeId, layersConfig, packshotConfig, root], () => {
     console.log("useQuery rerun")
     return Promise
       .all(
@@ -114,6 +112,9 @@ export function Renderer({
         console.error("Error rendering", err);
         return Math.random();
       })
+    }, {
+      retry: false,
+      
     });
   /*
     useLayoutEffect(() => {

@@ -242,8 +242,8 @@ export function useLoadedRenderers() {
 }
 
 /**
- * Returns the renderTree
- * Updates if something in the tree changes, (a renderer config, name, ...)
+ * Returns the renderTree (disabled items are excluded)
+ * Updates if something in the tree changes, (a renderer config, ...)
  */
 export function useRenderTrees(onlyDisabled = false) {
   // Layers, but only triggers rerender if renderTree changes
@@ -255,6 +255,7 @@ export function useRenderTrees(onlyDisabled = false) {
 
       const disabledA = layerA.map(a => a.config?.isDisabled);
       const disabledB = layerB.map(a => a.config?.isDisabled);
+
       return (
         shallow(renderTreeA, renderTreeB) // we can do a shallow compare because renderTree is replaced on update (immutable)
         && shallow(disabledA, disabledB)
@@ -264,10 +265,15 @@ export function useRenderTrees(onlyDisabled = false) {
 
   // Return the same array when no renderTree changes
   return useMemo(
-    () =>
-      layers
-        .filter(l => !onlyDisabled || !l.config?.isDisabled)
-        .map(l => l.renderTree),
+    () => [
+        layers
+          .filter(l => !onlyDisabled || !l.config?.isDisabled)
+          .map(l => l.renderTree),
+        
+          // Returned also a unique number
+          // reason: When renderTree was used in the dependency key of useQuery, it caused an infinite loop
+        Math.random(),
+      ] as const,
     [layers, onlyDisabled],
   );
 }
@@ -281,7 +287,7 @@ export function useLayersConfig() {
 }
 
 export function useAllControlPoints() {
-  const renderTrees = useRenderTrees();
+  const [renderTrees] = useRenderTrees();
 
   // TODO: Optimize for less rerenders
   return renderTrees.map((layerRenderTree) => (

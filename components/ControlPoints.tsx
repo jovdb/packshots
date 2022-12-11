@@ -13,7 +13,7 @@ function layerControlPointsFilter(layerConfig: ILayerConfig) {
 function useControlPointsInScreenCoordinates(size: { width: number; height: number }) {
   const allControlPoints = useAllControlPoints();
   const layersConfig = useLayersConfig();
-  const renderTrees = useRenderTrees();
+  const [renderTrees] = useRenderTrees();
   const { updateLayerRenderNodeConfig } = usePackshotActions();
 
   // Convert controlPoints to screen coordinates
