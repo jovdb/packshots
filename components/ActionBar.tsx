@@ -15,7 +15,7 @@ import WebIcon from "../icons/web.svg";
 import ZipIcon from "../icons/zip.svg";
 
 import { IConeRenderer, IImageRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
-import { loadPackShotFromFolderAsync, savePackShotToFolderAsync, usePackshotRoot } from "../src/stores/app";
+import { isFolderHandles, loadPackShotFromFolderAsync, savePackShotToFolderAsync, usePackshotRoot } from "../src/stores/app";
 import { useLayers, usePackshotActions, usePackshotStore } from "../src/stores/packshot";
 import { getSampleImageConfigAsync } from "../utils/image";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
@@ -117,7 +117,7 @@ export function ActionBar() {
                     isDisabled: true,
                     image: {
                       name: "",
-                      base64Url: "",
+                      url: "",
                     },
                   },
                   children: [planeRenderNode],
@@ -285,7 +285,7 @@ export function ActionBar() {
         <>
           <AccordionPanel>
             <strong>Save:</strong>
-            {root && typeof root !== "string" && (
+            {isFolderHandles(root) && (
               <div
                 style={style}
                 onClick={async () => {

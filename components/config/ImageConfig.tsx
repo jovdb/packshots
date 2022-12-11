@@ -1,11 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import { checkBoardStyle } from "../../src/checkboard";
-import { useImageUrl } from "../../src/stores/app";
+import { isFolderHandles, useImageUrl, usePackshotRoot } from "../../src/stores/app";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
-import { getSampleImageConfigAsync, loadImageToBase64UrlAsync } from "../../utils/image";
+import { getFileNamesAsync } from "../../src/stores/fileSystem";
+import { getSampleImageConfigAsync } from "../../utils/image";
+import { useQuery } from "@tanstack/react-query";
 
 export interface IImageConfig {
   /** Name is added because user can upload file blob that has no name */
@@ -25,10 +27,25 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
   const [type, setType] = useState(() => {
     if (config.url?.startsWith("./samples")) return `sample${/\d+/.exec(config.url ?? config.name)?.[0] || "sample1"}`;
     if (config.url?.startsWith("blob://")) return "local";
-    return "url";
+    if (config.url?.startsWith("http")) return "url";
+    return "folder";
   });
 
+  const [packshotRoot] = usePackshotRoot();
   const { data: url } = useImageUrl(config);
+
+  const {data: folderFiles} = useQuery([type, packshotRoot], async () => {
+    if (type !== "folder") return [];
+    if (isFolderHandles(packshotRoot)) {
+      const allFiles = await getFileNamesAsync(packshotRoot);
+      const imageFileNames = allFiles.filter(fileName => {
+        const lowerCaseFilename = fileName.toLowerCase();
+        return ["png", "jpg", "jpeg"].some(ext => lowerCaseFilename.endsWith("." + ext));
+      });
+      return imageFileNames;  
+    }
+    return [];
+  });
 
   return (
     <>
@@ -75,12 +92,15 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                   }
                 }}
               >
-                <option value="local">Local file</option>
-                <option value="url">URL</option>
-                <option value="sample1">Sample 1</option>
-                <option value="sample2">Sample 2</option>
-                <option value="sample3">Sample 3</option>
-                <option value="sample4">Sample 4</option>
+                <option value="folder">From packshot folder{isFolderHandles(packshotRoot) ? `: ${packshotRoot.name}`: ""}</option>
+                <option value="local">Select image</option>
+                <option value="url">From URL</option>
+                <optgroup label="Samples:">
+                  <option value="sample1">Sample 1</option>
+                  <option value="sample2">Sample 2</option>
+                  <option value="sample3">Sample 3</option>
+                  <option value="sample4">Sample 4</option>
+                </optgroup>
               </select>
             </td>
           </tr>
@@ -134,6 +154,25 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                 </td>
               </tr>
             </>
+          )}
+          {type === "folder" && (
+            <tr>
+              <td>Select file:</td>
+              <td>
+                <select
+                  value={config.url}
+                  onChange={(e) => {
+                    const { value: fileName } = e.target;
+                    onChange({
+                      name: fileName,
+                      url: fileName,
+                    });
+                  }}
+                >
+                  {folderFiles?.map(fileName => <option key={fileName} value={fileName}>{fileName}</option>)}
+                </select>
+              </td>
+            </tr>
           )}
           <tr>
             <td colSpan={2} style={{ textAlign: "center" }}>

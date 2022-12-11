@@ -104,3 +104,7 @@ export function useImageUrl(imageConfig: IImageConfig | undefined) {
   const [root] = usePackshotRoot();
   return useQuery([root, imageConfig], () => getImageUrl(root, imageConfig));
 }
+
+export function isFolderHandles(handle: unknown): handle is FileSystemDirectoryHandle {
+  return !!handle && typeof handle === "object" && ("getDirectoryHandle" in handle);
+}

@@ -39,12 +39,12 @@ export async function saveTextFileAsync(directoryHandle: FileSystemDirectoryHand
   return true;
 }
 
-export async function getFilesAsync(directoryHandle: FileSystemDirectoryHandle): Promise<string[]> {
+export async function getFileNamesAsync(directoryHandle: FileSystemDirectoryHandle): Promise<string[]> {
   const files = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for await (const entry of (directoryHandle as any).values()) {
-    if (entry.type !== "file") break;
-    files.push(entry);
+    if (entry.kind !== "file") break;
+    files.push(entry.name);
   }
   return files;
 }
