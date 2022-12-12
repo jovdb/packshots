@@ -1,4 +1,5 @@
 import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
+import { Exception } from "../../utils/error";
 import { createContext2d, getImageDataAsync } from "../../utils/image";
 import { getImageUrl, PackshotRoot } from "../stores/app";
 import { IRenderer, IRenderResult } from "./IRenderer";
@@ -37,7 +38,7 @@ export class MaskChannelRenderer implements IRenderer {
           await this.contextPromise; // Reuseprevious started loading
         } catch (err) {
           // Previous process will reset memeber variables
-          throw new Error("Error loading mask image", { cause: err });
+          throw new Exception("Error loading mask image", err);
         }
         return;
       }
@@ -72,7 +73,7 @@ export class MaskChannelRenderer implements IRenderer {
       this.contextPromise = undefined;
       this.cacheKey = "";
       this.imageContext = undefined;
-      throw new Error(`Error loading mask '${url}'`, { cause: err });
+      throw new Exception(`Error loading mask '${url}'`, err);
     } finally {
       this.contextPromise = undefined;
     }

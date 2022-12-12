@@ -5,8 +5,22 @@ import { ILayerConfig, IPackshotConfig, IRenderTree } from "../src/IPackshot";
 import { usePackshotRoot } from "../src/stores/app";
 import { useLayersConfig, usePackshotConfig, useRenderTrees } from "../src/stores/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
-import { handleError } from "../utils/error";
+import { Exception, handleError } from "../utils/error";
 import { ControlPoints } from "./ControlPoints";
+
+export class RenderException extends Exception {
+  public config?: {}
+
+  constructor(
+    message: string,
+    config: {},
+    /** Optional inner exception */
+    innerException?: unknown,
+  ) {
+    super(message, innerException);
+    this.config = {...config};
+  }
+}
 
 function render(
   targetContext: CanvasRenderingContext2D | null | undefined,
@@ -14,28 +28,28 @@ function render(
   layersConfig: ILayerConfig[],
   packshotConfig: IPackshotConfig,
 ) {
-  try {
-    if (!targetContext) return;
+  if (!targetContext) return;
 
-    // Clear Canvas
-    targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
-    let currentDrawContext = targetContext;
-    renderTrees.forEach((renderTree, layerIndex) => {
-      const layerConfig = layersConfig[layerIndex] || {};
+  // Clear Canvas
+  targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
+  let currentDrawContext = targetContext;
+  renderTrees.forEach((renderTree, layerIndex) => {
+    const layerConfig = layersConfig[layerIndex] || {};
 
-      if (layerConfig.isDisabled) return;
+    if (layerConfig.isDisabled) return;
 
-      currentDrawContext.save();
-      try {
-        const { composition } = layerConfig;
-        if (composition) {
-          currentDrawContext.globalCompositeOperation = composition as GlobalCompositeOperation;
-        }
+    currentDrawContext.save();
+    try {
+      const { composition } = layerConfig;
+      if (composition) {
+        currentDrawContext.globalCompositeOperation = composition as GlobalCompositeOperation;
+      }
 
-        walkTree(
-          renderTree,
-          (renderNode) => {
-            const { config, renderer } = renderNode;
+      walkTree(
+        renderTree,
+        (renderNode) => {
+          const { config, renderer } = renderNode;
+          try {
             if (!renderer) return;
 
             //           console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
@@ -53,15 +67,15 @@ function render(
               // Restore context
               currentDrawContext = restoreContext;
             };
-          },
-        );
-      } finally {
-        currentDrawContext.restore();
-      }
-    });
-  } catch (err) {
-    throw new Error("Error during rendering", { cause: err });
-  }
+          } catch (err) {
+            throw new RenderException(`Error rendering layer #${layerIndex}`, config, err);
+          }
+        },
+      );
+    } finally {
+      currentDrawContext.restore();
+    }
+  });
 }
 
 export function Renderer({
@@ -93,7 +107,7 @@ export function Renderer({
           ),
       )
       .catch(err => {
-        throw new Error("Error loading resources for rendering", { cause: err });
+        throw new Exception("Error loading resources for rendering", err);
       })
       .then(() => {
         render(targetContextRef.current, renderTrees, layersConfig, packshotConfig);

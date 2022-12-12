@@ -1,6 +1,11 @@
+import { Exception } from "../../utils/error";
+
 export function isSupported() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return typeof (window as any)["showDirectoryPicker"] !== "undefined";
+}
+
+export class FileSystemException extends Exception {
 }
 
 export async function loadFolderAsync() {
@@ -11,7 +16,7 @@ export async function loadFolderAsync() {
       mode: "readwrite",
     }) as unknown as FileSystemDirectoryHandle;
   } catch (err) {
-    throw new Error("Error showing folder dialog", { cause: err });
+    throw new FileSystemException("Error showing folder dialog", err);
   }
 }
 
@@ -24,7 +29,7 @@ export async function openTextFileAsync(
     const file = await fileHandle.getFile();
     return await file.text();
   } catch (err) {
-    throw new Error(`Error reading text file: ${name}`, { cause: err });
+    throw new FileSystemException(`Error reading text file: ${name}`, err);
   }
 }
 
@@ -40,7 +45,7 @@ export async function saveTextFileAsync(
     await writableStream.write(content);
     await writableStream.close();
   } catch (err) {
-    throw new Error(`Error saving text file: ${name}`, { cause: err });
+    throw new FileSystemException(`Error saving text file: ${name}`, err);
   }
 }
 
@@ -54,6 +59,6 @@ export async function getFileNamesAsync(directoryHandle: FileSystemDirectoryHand
     }
     return files;
   } catch (err) {
-    throw new Error("Error loading list of files", { cause: err });
+    throw new FileSystemException("Error loading list of files", err);
   }
 }

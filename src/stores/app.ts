@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import create from "zustand";
 import { IImageConfig } from "../../components/config/ImageConfig";
+import { Exception } from "../../utils/error";
 import { IPackshot } from "../IPackshot";
 import { loadFolderAsync, openTextFileAsync, saveTextFileAsync } from "./fileSystem";
 import { deserialize, serialize } from "./packshot";
@@ -55,7 +56,7 @@ export async function loadPackShotFromFolderAsync(directoryHandle?: FileSystemDi
       packShot,
     });
   } catch (err) {
-    throw new Error("Error loading packshot", { cause: err });
+    throw new Exception("Error loading packshot", err, "LoadPackshotError");
   }
 }
 
@@ -71,7 +72,7 @@ export async function savePackShotToFolderAsync(
     await saveTextFileAsync(directoryHandle, "packshot.json", content);
     return directoryHandle;
   } catch (err) {
-    throw new Error("Error saving packshot", { cause: err });
+    throw new Exception("Error saving packshot", err, "SavePackshotError");
   }
 }
 

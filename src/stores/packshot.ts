@@ -218,22 +218,21 @@ export function useLoadedRenderers() {
   );
 
   function loadRenderers() {
-    console.log("Load renderers");
-    const loadedPromise = Promise.all(
-      layersRenderers.flatMap((layerRenderers, layerIndex) => (
-        layerRenderers.map((renderer, rendererIndex) => {
-          console.log(`- Load renderer: ${renderer.constructor.name}`);
-          // TODO: find a better way, I think because react async behavior, this can become incorrect
-          const { config } = flattenTree(usePackshotStore.getState().layers[layerIndex].renderTree)[rendererIndex];
-          renderer.loadAsync?.(config, root, packshotConfig);
-        })
-      )),
-    );
-    console.log("Renderers loaded");
-    return loadedPromise;
+    const renderers = layersRenderers.flatMap((layerRenderers, layerIndex) => (
+      layerRenderers.map((renderer, rendererIndex) => {
+        // console.log(`- Load renderer: ${renderer.constructor.name}`);
+        // TODO: find a better way, I think because react async behavior, this can become incorrect
+        const { config } = flattenTree(usePackshotStore.getState().layers[layerIndex].renderTree)[rendererIndex];
+        renderer.loadAsync?.(config, root, packshotConfig);
+      })
+    ));
+
+    if (renderers.length <= 0) return []; 
+    console.log("Loading renderers...");
+    return Promise.all(renderers);
   }
 
-  const { isFetching } = useQuery([configs, root], loadRenderers);
+  const { isFetching } = useQuery([configs, root], loadRenderers, { refetchOnWindowFocus: false });
 
   return {
     layersRenderers,

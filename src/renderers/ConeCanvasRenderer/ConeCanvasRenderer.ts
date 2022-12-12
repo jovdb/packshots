@@ -21,7 +21,6 @@ function toCanvasPoint(
 }
 
 export class ConeCanvasRenderer implements IRenderer {
-  private imageUrl: string | undefined;
   private imageData: ImageData | undefined;
 
   async loadAsync(
@@ -29,13 +28,12 @@ export class ConeCanvasRenderer implements IRenderer {
     root: PackshotRoot,
   ) {
     const url = await getImageUrl(root, config.image);
-    this.imageUrl = url;
     if (!url) {
       this.imageData = undefined;
       return;
     }
     try {
-      this.imageData = await getImageDataAsync(url);
+      this.imageData = (await getImageDataAsync(url)).imageData;
     } catch (err) {
       this.imageData = undefined;
       throw err;
@@ -70,12 +68,11 @@ export class ConeCanvasRenderer implements IRenderer {
       0,    80.7, 0,
       0,    0,    1,
     ]);
-
+/*
     const a = this.controlPointsToCamera(config, drawOnContext.canvas, renderImageData);
     console.log(a);
-
-    const renderedContext: CanvasRenderingContext2D | undefined = undefined;
-    /*
+*/
+    // const renderedContext: CanvasRenderingContext2D | undefined = undefined;
     const renderedContext = rayTracer({
       targetSize: { width: drawOnContext.canvas.width, height: drawOnContext.canvas.height },
       geometry: new ConeGeometry({
@@ -88,7 +85,6 @@ export class ConeCanvasRenderer implements IRenderer {
       cameraToProjectionMatrix,
       uvMatrix,
     });
-    */
 
     if (renderedContext) {
       drawOnContext.drawImage(
@@ -110,7 +106,7 @@ export class ConeCanvasRenderer implements IRenderer {
    *         ^
    *      -----5-----
    *   4 ´           ` 6
-   *    \ `---------´ /
+   *    \`-----------´/
    *     \           /
    *      \         /
    *       \   2   /

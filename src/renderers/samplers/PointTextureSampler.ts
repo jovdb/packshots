@@ -5,9 +5,9 @@ export class PointTextureSampler implements ITextureSampler {
   public readonly width: number;
   public readonly height: number;
 
-  constructor(private readonly texture: ImageData) {
-    this.width = texture.width;
-    this.height = texture.height;
+  constructor(private readonly imageData: ImageData) {
+    this.width = imageData.width;
+    this.height = imageData.height;
   }
 
   /** Get RGBA as Vector4 on a texture */
@@ -15,10 +15,10 @@ export class PointTextureSampler implements ITextureSampler {
     const { x, y } = point;
     const offset = y * (this.width * 4) + x * 4;
     return new Vector4(
-      this.texture.data[offset],
-      this.texture.data[offset + 1],
-      this.texture.data[offset + 2],
-      this.texture.data[offset + 3],
+      this.imageData.data[offset],
+      this.imageData.data[offset + 1],
+      this.imageData.data[offset + 2],
+      this.imageData.data[offset + 3],
     );
   }
 }
