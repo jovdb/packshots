@@ -194,6 +194,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                     });
                   }}
                 >
+                  <option key="" value=""></option>
                   {folderFiles?.map(fileName => <option key={fileName} value={fileName}>{fileName}</option>)}
                 </select>
               </td>

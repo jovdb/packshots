@@ -4,9 +4,17 @@ export function getErrorMessage(err: unknown) {
     .join("\n")
 }
 
-export function hasAbortError(err: unknown) {
+export function hasError(err: unknown, name: string) {
   return getErrors(err)
-    .some(err => err instanceof Error && err.name === "AbortError");
+    .some(err => err instanceof Error && err.name === name);
+}
+
+export function hasNotAllowedError(err: unknown) {
+  return hasError(err, "NotAllowedError");
+}
+
+export function hasAbortError(err: unknown) {
+  return hasError(err, "AbortError");
 }
 
 export function getErrors(err: unknown): unknown[] {
@@ -22,6 +30,10 @@ export function getErrors(err: unknown): unknown[] {
 export function handleError(err: unknown) {
   // Don't show Abort Error
   if (hasAbortError(err)) return;
-  alert(getErrorMessage(err));
+  let message = getErrorMessage(err);
+  if (hasNotAllowedError(err)) {
+    message = "Make sure you didn't block file access in the browser.\n\n" + message;
+  }
+  alert(message);
   throw err;
 }

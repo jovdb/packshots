@@ -8,9 +8,10 @@ export async function loadFolderAsync() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return await (window as any)["showDirectoryPicker"]({
       id: "root",
+      mode: "readwrite",
     }) as unknown as FileSystemDirectoryHandle;
   } catch (err) {
-    throw new Error("Error loading folder dialog", { cause: err });
+    throw new Error("Error showing folder dialog", { cause: err });
   }
 }
 
