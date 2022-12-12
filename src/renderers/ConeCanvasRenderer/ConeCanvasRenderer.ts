@@ -30,6 +30,10 @@ export class ConeCanvasRenderer implements IRenderer {
   ) {
     const url = await getImageUrl(root, config.image);
     this.imageUrl = url;
+    if (!url) {
+      this.imageData = undefined;
+      return;
+    }
     try {
       this.imageData = await getImageDataAsync(url);
     } catch (err) {

@@ -15,8 +15,14 @@ import WebIcon from "../icons/web.svg";
 import ZipIcon from "../icons/zip.svg";
 
 import { IConeRenderer, IImageRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
-import { isFolderHandles, loadPackShotFromFolderAsync, savePackShotToFolderAsync, usePackshotRoot } from "../src/stores/app";
+import {
+  isFolderHandles,
+  loadPackShotFromFolderAsync,
+  savePackShotToFolderAsync,
+  usePackshotRoot,
+} from "../src/stores/app";
 import { useLayers, usePackshotActions, usePackshotStore } from "../src/stores/packshot";
+import { handleError } from "../utils/error";
 import { getSampleImageConfigAsync } from "../utils/image";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
 import { flowerPotPackshot } from "./samples/flowerpot";
@@ -187,12 +193,16 @@ export function ActionBar() {
             <div
               style={style}
               onClick={async () => {
-                const result = await loadPackShotFromFolderAsync();
-                if (!result) return;
-                const { packShot, directoryHandle } = result;
-                setRoot(directoryHandle);
-                setPackshot(packShot);
-                setAction(""); // close panel
+                try {
+                  const result = await loadPackShotFromFolderAsync();
+                  if (!result) return;
+                  const { packShot, directoryHandle } = result;
+                  setRoot(directoryHandle);
+                  setPackshot(packShot);
+                  setAction(""); // close panel
+                } catch (err) {
+                  handleError(err);
+                }
               }}
             >
               <a href="#">
@@ -209,7 +219,7 @@ export function ActionBar() {
             >
               <a href="#">
                 <WebIcon width="32" style={{ transform: "translateY(10px)", margin: "10px 10px 0px 10px" }} />Open from
-                URL
+                URL (TODO)
               </a>
             </div>
             <div
@@ -289,12 +299,16 @@ export function ActionBar() {
               <div
                 style={style}
                 onClick={async () => {
-                  const packshot = usePackshotStore.getState();
-                  const result = await savePackShotToFolderAsync(packshot, root);
-                  if (result) {
-                    alert("Saved");
-                  } else {
-                    alert("Error Saving");
+                  try {
+                    const packshot = usePackshotStore.getState();
+                    const result = await savePackShotToFolderAsync(packshot, root);
+                    if (result) {
+                      alert("Saved");
+                    } else {
+                      alert("Error Saving");
+                    }
+                  } catch (err) {
+                    handleError(err);
                   }
                 }}
               >
@@ -307,15 +321,19 @@ export function ActionBar() {
             <div
               style={style}
               onClick={async () => {
-                const packshot = usePackshotStore.getState();
-                const folderHandle = await savePackShotToFolderAsync(packshot, undefined);
-                if (folderHandle) {
-                  setRoot(folderHandle);
-                  alert("Saved");
-                } else {
-                  alert("Error Saving");
+                try {
+                  const packshot = usePackshotStore.getState();
+                  const folderHandle = await savePackShotToFolderAsync(packshot, undefined);
+                  if (folderHandle) {
+                    setRoot(folderHandle);
+                    alert("Saved");
+                  } else {
+                    alert("Error Saving");
+                  }
+                  setAction(""); // close panel
+                } catch (err) {
+                  handleError(err);
                 }
-                setAction(""); // close panel
               }}
             >
               <a href="#">

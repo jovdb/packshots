@@ -86,6 +86,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                       onChange(imageConfig);
                       break;
                     }
+                    case "url":
                     case "sample": {
                       break;
                     }

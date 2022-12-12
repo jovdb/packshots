@@ -26,8 +26,8 @@ export class ImageCache {
     // Load
     this.image = undefined; // Make sure if the images matches the url and not the previous error
     this.imageUrl = url;
-    this.imagePromise = loadImageAsync(url);
-    this.imagePromise.then(
+    this.imagePromise = url ? loadImageAsync(url) : undefined;
+    if (this.imagePromise) this.imagePromise.then(
       img => {
         this.image = img;
         this.imagePromise = undefined;

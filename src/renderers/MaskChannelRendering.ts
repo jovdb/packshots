@@ -24,46 +24,47 @@ export class MaskChannelRenderer implements IRenderer {
     root: PackshotRoot,
   ) {
     const url = await getImageUrl(root, config.image);
-    const colorChannelIndex = config.colorChannel || 0;
-    const imageDataCacheKey = `${colorChannelIndex}-${config.image.name};`;
-    // Already loaded/loading
-    if (this.cacheKey === imageDataCacheKey) {
-      if (!this.contextPromise) return; // Already Loaded
-
-      // Reuse current loading
-      try {
-        await this.contextPromise; // Reuseprevious started loading
-      } catch (err) {
-        // Previous process will reset memeber variables
-        console.error(err);
-        throw new Error("Error loading mask", { cause: err });
-      }
-      return;
-    }
-
-    async function loadImageChannelAsync() {
-      const { imageData, context } = await getImageDataAsync(url);
-      if (!imageData) return;
-
-      const numberOfPixels = imageData.width * imageData.height;
-      // Loop over colors
-      for (let pixelIndex = 0; pixelIndex < numberOfPixels; ++pixelIndex) {
-        // Use one color channel and create a greyscale image with it
-        let value = imageData.data[pixelIndex * 4 + colorChannelIndex];
-        if (colorChannelIndex === 3) value = 255 - value; // Inverted for alpha, so a transparent hole is visible and other channels are visisble
-
-        // Make greyscale image of the single channel as mask
-        imageData.data[pixelIndex * 4 + 0] = 255;
-        imageData.data[pixelIndex * 4 + 1] = 255;
-        imageData.data[pixelIndex * 4 + 2] = 255;
-        imageData.data[pixelIndex * 4 + 3] = value;
-      }
-
-      context.putImageData(imageData, 0, 0, 0, 0, imageData.width, imageData.height);
-      return context;
-    }
-
     try {
+      const colorChannelIndex = config.colorChannel || 0;
+      const imageDataCacheKey = `${colorChannelIndex}-${config.image.name};`;
+
+      // Already loaded/loading
+      if (this.cacheKey === imageDataCacheKey) {
+        if (!this.contextPromise) return; // Already Loaded
+
+        // Reuse current loading
+        try {
+          await this.contextPromise; // Reuseprevious started loading
+        } catch (err) {
+          // Previous process will reset memeber variables
+          throw new Error("Error loading mask image", { cause: err });
+        }
+        return;
+      }
+
+      async function loadImageChannelAsync() {
+        if (!url) return;
+        const { imageData, context } = await getImageDataAsync(url);
+        if (!imageData) return;
+
+        const numberOfPixels = imageData.width * imageData.height;
+        // Loop over colors
+        for (let pixelIndex = 0; pixelIndex < numberOfPixels; ++pixelIndex) {
+          // Use one color channel and create a greyscale image with it
+          let value = imageData.data[pixelIndex * 4 + colorChannelIndex];
+          if (colorChannelIndex === 3) value = 255 - value; // Inverted for alpha, so a transparent hole is visible and other channels are visisble
+
+          // Make greyscale image of the single channel as mask
+          imageData.data[pixelIndex * 4 + 0] = 255;
+          imageData.data[pixelIndex * 4 + 1] = 255;
+          imageData.data[pixelIndex * 4 + 2] = 255;
+          imageData.data[pixelIndex * 4 + 3] = value;
+        }
+
+        context.putImageData(imageData, 0, 0, 0, 0, imageData.width, imageData.height);
+        return context;
+      }
+
       this.contextPromise = loadImageChannelAsync();
       this.imageContext = await this.contextPromise;
       this.cacheKey = imageDataCacheKey;
@@ -71,8 +72,7 @@ export class MaskChannelRenderer implements IRenderer {
       this.contextPromise = undefined;
       this.cacheKey = "";
       this.imageContext = undefined;
-      console.error(err);
-      throw new Error("Error loading mask", { cause: err });
+      throw new Error(`Error loading mask '${url}'`, { cause: err });
     } finally {
       this.contextPromise = undefined;
     }

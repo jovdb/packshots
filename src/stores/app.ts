@@ -42,31 +42,37 @@ export function usePackshotRoot() {
 }
 
 export async function loadPackShotFromFolderAsync(directoryHandle?: FileSystemDirectoryHandle | undefined) {
-  if (!directoryHandle) directoryHandle = await loadFolderAsync();
-  if (!directoryHandle) return;
+  try {
+    if (!directoryHandle) directoryHandle = await loadFolderAsync();
+    if (!directoryHandle) return;
 
-  const data = await openTextFileAsync(directoryHandle, "packshot.json");
-  if (!data) return;
-  const packShot = deserialize(data);
+    const data = await openTextFileAsync(directoryHandle, "packshot.json");
+    if (!data) return;
+    const packShot = deserialize(data);
 
-  return ({
-    directoryHandle,
-    packShot,
-  });
+    return ({
+      directoryHandle,
+      packShot,
+    });
+  } catch (err) {
+    throw new Error("Error loading packshot", { cause: err });
+  }
 }
 
 export async function savePackShotToFolderAsync(
   packShot: IPackshot,
   directoryHandle?: FileSystemDirectoryHandle | undefined,
 ): Promise<FileSystemDirectoryHandle | undefined> {
-  if (!directoryHandle) directoryHandle = await loadFolderAsync();
-  if (!directoryHandle) return undefined;
+  try {
+    if (!directoryHandle) directoryHandle = await loadFolderAsync();
+    if (!directoryHandle) return undefined;
 
-  const content = serialize(packShot);
-  const saved = await saveTextFileAsync(directoryHandle, "packshot.json", content);
-  return saved
-    ? directoryHandle
-    : undefined;
+    const content = serialize(packShot);
+    await saveTextFileAsync(directoryHandle, "packshot.json", content);
+    return directoryHandle;
+  } catch (err) {
+    throw new Error("Error saving packshot", { cause: err });
+  }
 }
 
 export async function getImageUrl(root: PackshotRoot, imageConfig: IImageConfig | undefined) {

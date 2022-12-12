@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { CSSProperties, useEffect, useRef } from "react";
+import { CSSProperties, useRef } from "react";
 import { checkBoardStyle } from "../src/checkboard";
 import { ILayerConfig, IPackshotConfig, IRenderTree } from "../src/IPackshot";
 import { usePackshotRoot } from "../src/stores/app";
 import { useLayersConfig, usePackshotConfig, useRenderTrees } from "../src/stores/packshot";
 import { flattenTree, walkTree } from "../src/Tree";
+import { handleError } from "../utils/error";
 import { ControlPoints } from "./ControlPoints";
 
 function render(
@@ -13,60 +14,54 @@ function render(
   layersConfig: ILayerConfig[],
   packshotConfig: IPackshotConfig,
 ) {
-  if (!targetContext) return;
+  try {
+    if (!targetContext) return;
 
-  // Clear Canvas
-  targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
-  let currentDrawContext = targetContext;
-  renderTrees.forEach((renderTree, layerIndex) => {
-    const layerConfig = layersConfig[layerIndex] || {};
+    // Clear Canvas
+    targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
+    let currentDrawContext = targetContext;
+    renderTrees.forEach((renderTree, layerIndex) => {
+      const layerConfig = layersConfig[layerIndex] || {};
 
-    if (layerConfig.isDisabled) return;
+      if (layerConfig.isDisabled) return;
 
-    currentDrawContext.save();
-    try {
-      const { composition } = layerConfig;
-      if (composition) {
-        currentDrawContext.globalCompositeOperation = composition as GlobalCompositeOperation;
+      currentDrawContext.save();
+      try {
+        const { composition } = layerConfig;
+        if (composition) {
+          currentDrawContext.globalCompositeOperation = composition as GlobalCompositeOperation;
+        }
+
+        walkTree(
+          renderTree,
+          (renderNode) => {
+            const { config, renderer } = renderNode;
+            if (!renderer) return;
+
+            //           console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
+
+            // Render
+            const renderResult = renderer.render(currentDrawContext, config, packshotConfig, false);
+
+            // Set next drawing Context
+            const restoreContext = currentDrawContext;
+            currentDrawContext = renderResult?.nextContext || currentDrawContext;
+
+            // TODO shouldn't we restore the drawContext ouself?
+            return () => {
+              renderResult?.afterChildren?.();
+              // Restore context
+              currentDrawContext = restoreContext;
+            };
+          },
+        );
+      } finally {
+        currentDrawContext.restore();
       }
-
-      walkTree(
-        renderTree,
-        (renderNode) => {
-          const { config, renderer } = renderNode;
-          if (!renderer) return;
-
-          //           console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
-
-          // Render
-          const renderResult = renderer.render(currentDrawContext, config, packshotConfig, false);
-
-          // Set next drawing Context
-          const restoreContext = currentDrawContext;
-          currentDrawContext = renderResult?.nextContext || currentDrawContext;
-
-          // TODO shouldn't we restore the drawContext ouself?
-          return () => {
-            renderResult?.afterChildren?.();
-            // Restore context
-            currentDrawContext = restoreContext;
-          };
-        },
-      );
-    } finally {
-      currentDrawContext.restore();
-    }
-  });
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function useDebugDeps(deps: any[]) {
-  deps.forEach((dep) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      console.log("dep changed", dep);
-    }, [dep])
-  });
+    });
+  } catch (err) {
+    throw new Error("Error during rendering", { cause: err });
+  }
 }
 
 export function Renderer({
@@ -88,9 +83,8 @@ export function Renderer({
   const [packshotConfig] = usePackshotConfig();
   const [root] = usePackshotRoot();
 
-  useQuery(["renderDeps", renderTreeId, layersConfig, packshotConfig, root], () => {
-    console.log("useQuery rerun")
-    return Promise
+  useQuery(["renderDeps", renderTreeId, layersConfig, packshotConfig, root], () =>
+    Promise
       .all(
         renderTrees
           .flatMap(renderTree =>
@@ -98,21 +92,17 @@ export function Renderer({
               .map(renderNode => renderNode.renderer?.loadAsync?.(renderNode.config, root, packshotConfig))
           ),
       )
-      .catch((err) => {
-        console.error("Error Loading renderers", err);
+      .catch(err => {
+        throw new Error("Error loading resources for rendering", { cause: err });
       })
       .then(() => {
         render(targetContextRef.current, renderTrees, layersConfig, packshotConfig);
         return Math.random(); // Return a unique result that can be used in a dependency array
       })
       .catch((err) => {
-        console.error("Error rendering", err);
+        handleError(err);
         return Math.random();
-      })
-    }, {
-      retry: false,
-      
-    });
+      }));
   /*
     useLayoutEffect(() => {
         if(isLoadingRenderer) render(targetContextRef.current, renderTrees);

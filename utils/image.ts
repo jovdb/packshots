@@ -3,8 +3,8 @@ export function loadImageAsync(url: string) {
   img.crossOrigin = "anonymous";
   return new Promise<HTMLImageElement>((resolve, reject) => {
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`Loading image '${url} failed.`));
-    img.onabort = () => reject(new Error(`Loading image '${url} aborted.`));
+    img.onerror = () => reject(new Error(`Loading image '${url}' failed.`));
+    img.onabort = () => reject(new Error(`Loading image '${url}' aborted.`));
     img.src = url;
   }).finally(() => {
     img.onload = null;
@@ -21,7 +21,7 @@ export async function loadImageToBase64UrlAsync(url: string) {
     // Read the Blob as DataURL using the FileReader API
     const reader = new FileReader();
     reader.onloadend = () => {
-      resolve(reader.result);
+      resolve(reader.result as string);
     };
     reader.onabort = () => {
       reject(new Error("Reader image aborted"));
