@@ -133,13 +133,13 @@ vec3 coneIntersect(in vec3 rayOri, in vec3 rayDir, vec4 shapeDimentions) {
     float c = dot(vec3(rayOrigin.xy, B), vec3(rayOrigin.xy, -B));
 
     // Solution of quadratic equation is (-b ± sqrt(b*b - 4*a*c))/(2*a)
-    float d = b * b - 4.0 * a * c;
-    if (d < 0.0) return vec3(0, 0, 0); // prevent the SQRT of a negative number
+    float discriminant = b * b - 4.0 * a * c;
+    if (discriminant < 0.0) return vec3(0, 0, 0); // prevent the SQRT of a negative number
 
     // we have two solutions, -sqrt(d) and +sqrt(d)
     // we take the one closest to the camera (pointing in the negative Y
     // direction)
-    float hitDistance = (-b + sqrt(d)) / (2.0 * a);
+    float hitDistance = (-b + sqrt(discriminant)) / (2.0 * a);
     vec3 rayConeIntersection = rayOrigin + hitDistance * rayDirection;
     float y = rayConeIntersection.z;
 

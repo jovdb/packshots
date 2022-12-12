@@ -82,11 +82,19 @@ export function errorToJson(err: unknown) {
 export function handleError(err: unknown) {
   // Don't show Abort Error
   if (hasAbortError(err)) return;
+
+  // Log to console
+  console.error(errorToJson(err));
+
+  // TODO: Log To Server?
+
+  // Log to user
   let message = getErrorMessage(err);
   if (hasNotAllowedError(err)) {
     message = "Make sure you didn't block file access in the browser.\n\n" + message;
   }
-  console.error(errorToJson(err));
   alert(message);
-  throw err;
+
+  // Retrhow?
+  // throw err;
 }

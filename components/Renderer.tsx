@@ -29,6 +29,7 @@ function render(
   packshotConfig: IPackshotConfig,
 ) {
   if (!targetContext) return;
+  console.log("Rendering...");
 
   // Clear Canvas
   targetContext.clearRect(0, 0, targetContext.canvas.width, targetContext.canvas.height);
@@ -52,7 +53,7 @@ function render(
           try {
             if (!renderer) return;
 
-            //           console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
+            // console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
 
             // Render
             const renderResult = renderer.render(currentDrawContext, config, packshotConfig, false);
@@ -76,6 +77,7 @@ function render(
       currentDrawContext.restore();
     }
   });
+  console.log("Rendering ended...");
 }
 
 export function Renderer({
