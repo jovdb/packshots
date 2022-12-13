@@ -24,6 +24,10 @@ export const ConeRendererConfig: ConfigComponent<IConeRendererConfig> = ({
         <table style={{ width: "100%" }}>
           <tbody>
             <tr>
+              <td colSpan={2}><b>TODO:<br/>- use WebGL (VERY SLOW NOW)<br/>- Support control points</b></td>
+            </tr>
+
+            <tr>
               <td>Diameter Top (cm):</td>
               <td>
                 <input

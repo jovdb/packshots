@@ -68,23 +68,25 @@ export class ConeCanvasRenderer implements IRenderer {
       0,    80.7, 0,
       0,    0,    1,
     ]);
-/*
+
     const a = this.controlPointsToCamera(config, drawOnContext.canvas, renderImageData);
     console.log(a);
-*/
-    // const renderedContext: CanvasRenderingContext2D | undefined = undefined;
-    const renderedContext = rayTracer({
-      targetSize: { width: drawOnContext.canvas.width, height: drawOnContext.canvas.height },
-      geometry: new ConeGeometry({
-        diameterTop: config.diameterTop,
-        diameterBottom: config.diameterBottom ?? config.diameterTop,
-        height: config.height,
-      }),
-      spreadSampler: new PointTextureSampler(renderImageData),
-      cameraPosition,
-      cameraToProjectionMatrix,
-      uvMatrix,
-    });
+
+    let renderedContext: CanvasRenderingContext2D | undefined = undefined;
+    if (true) {
+      renderedContext = rayTracer({
+        targetSize: { width: drawOnContext.canvas.width, height: drawOnContext.canvas.height },
+        geometry: new ConeGeometry({
+          diameterTop: config.diameterTop,
+          diameterBottom: config.diameterBottom ?? config.diameterTop,
+          height: config.height,
+        }),
+        spreadSampler: new PointTextureSampler(renderImageData),
+        cameraPosition,
+        cameraToProjectionMatrix,
+        uvMatrix,
+      });
+    }
 
     if (renderedContext) {
       drawOnContext.drawImage(
@@ -233,11 +235,10 @@ export class ConeCanvasRenderer implements IRenderer {
 
     const worldPoints = this.getWorldPoints(config);
     const canvasPoints = controlPoints.map(p => toCanvasPoint(p, canvasSize, packshotSize));
-    console.log(worldPoints, canvasPoints);
+    // console.log(worldPoints, canvasPoints);
   }
 
   dispose(): void {
-    this.imageUrl = undefined;
     this.imageData = undefined;
   }
 }
