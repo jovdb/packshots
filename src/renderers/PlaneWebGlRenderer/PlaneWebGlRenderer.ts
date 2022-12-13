@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as twgl from "twgl.js/dist/5.x/twgl-full";
 import { IPlaneRendererConfig } from "../../../components/config/PlaneRendererConfig";
 import { ControlPoint } from "../../controlPoints/IControlPoints";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 
+// @ts-expect-error
 import vertexShader from "./vertex.glsl?raw";
+// @ts-expect-error
 import fragmentShader from "./fragment.glsl?raw";
 import { getImageUrl, PackshotRoot } from "../../stores/app";
 

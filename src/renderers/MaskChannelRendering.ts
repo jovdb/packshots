@@ -43,7 +43,7 @@ export class MaskChannelRenderer implements IRenderer {
         return;
       }
 
-      async function loadImageChannelAsync() {
+      const loadImageChannelAsync = async () => {
         if (!url) return;
         const { imageData, context } = await getImageDataAsync(url);
         if (!imageData) return;
@@ -64,7 +64,7 @@ export class MaskChannelRenderer implements IRenderer {
 
         context.putImageData(imageData, 0, 0, 0, 0, imageData.width, imageData.height);
         return context;
-      }
+      };
 
       this.contextPromise = loadImageChannelAsync();
       this.imageContext = await this.contextPromise;

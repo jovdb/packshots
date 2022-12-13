@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as twgl from "twgl.js/dist/5.x/twgl-full";
 import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
 import { ControlPoint } from "../../controlPoints/IControlPoints";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 
+// @ts-expect-error
 import vertexShader from "./vertex.glsl?raw";
+// @ts-expect-error
 import fragmentShader from "./fragment.glsl?raw";
 import { getImageUrl, PackshotRoot } from "../../stores/app";
 
@@ -102,7 +105,7 @@ export class ConeWebGlRenderer implements IRenderer {
     if (!uniforms.texture || !image || !programInfo) {
       throw new Error("Only call render after a succesful loadAsync");
     }
-    const { m4, v3 } = twgl;
+    const { m4 } = twgl;
     const webGlCanvas = gl.canvas as HTMLCanvasElement;
     const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
 
@@ -176,7 +179,7 @@ export class ConeWebGlRenderer implements IRenderer {
 
     const topRadius = uniforms.shapeDim[0];
     const bottomRadius = uniforms.shapeDim[1];
-    const coneHeight = uniforms.shapeDim[2];
+    // const coneHeight = uniforms.shapeDim[2];
     const invConeHeight = uniforms.shapeDim[3];
     const dRadius = bottomRadius - topRadius; // Positive if bottom radius is larger
 

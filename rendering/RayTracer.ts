@@ -1,7 +1,7 @@
 import { Vector2, Vector3 } from "three";
+import { IGeometry } from "../src/renderers/geometries/IGeometry";
+import { ITextureSampler } from "../src/renderers/samplers/ITextureSampler";
 import { createContext2d } from "../utils/image";
-import { IGeometry } from "./geometries/IGeometry";
-import { ITextureSampler } from "./samplers/ITextureSampler";
 
 export function render({
 	targetContext,

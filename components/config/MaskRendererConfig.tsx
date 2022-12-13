@@ -1,9 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { useId, useState } from "react";
-import { checkBoardStyle } from "../../src/checkboard";
+import { useId } from "react";
 import { IRendererConfig } from "../../src/IPackshot";
-import { useImageUrl } from "../../src/stores/app";
-import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig } from "./ImageConfig";
 
@@ -17,12 +14,6 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
   config,
   onChange,
 }) => {
-  const [type, setType] = useState(() => {
-    if (config.image.url?.startsWith("blob://")) return "local";
-    return "url";
-  });
-  const { data: url } = useImageUrl(config.image);
-
   const isEnabled = !config.isDisabled;
   const id = useId();
   return (

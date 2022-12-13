@@ -1,14 +1,16 @@
-import { Matrix3, Matrix4, Vector2, Vector3 } from "three";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Matrix3, Matrix4, Vector3 } from "three";
 import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
 import { getImageDataAsync } from "../../../utils/image";
-import { ControlPoint } from "../../controlPoints/IControlPoints";
+// import { ControlPoint } from "../../controlPoints/IControlPoints";
 import { getImageUrl, PackshotRoot } from "../../stores/app";
 import { ConeGeometry } from "../geometries/ConeGeometry";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 import { PointTextureSampler } from "../samplers/PointTextureSampler";
-import { controlPointsToCamera } from "./ControlPoints";
+// import { controlPointsToCamera } from "./ControlPoints";
 import { rayTracer } from "./RayTracer";
 
+/*
 function toCanvasPoint(
   controlPoint: ControlPoint,
   canvasSize: { width: number; height: number },
@@ -19,6 +21,7 @@ function toCanvasPoint(
   const y = canvasSize.height / 2 + controlPoint[1] * packshotImageSize.height / 2;
   return new Vector2(x * superSamplingFactor, y * superSamplingFactor);
 }
+*/
 
 export class ConeCanvasRenderer implements IRenderer {
   private imageData: ImageData | undefined;
@@ -73,20 +76,18 @@ export class ConeCanvasRenderer implements IRenderer {
     console.log(a);
 
     let renderedContext: CanvasRenderingContext2D | undefined = undefined;
-    if (true) {
-      renderedContext = rayTracer({
-        targetSize: { width: drawOnContext.canvas.width, height: drawOnContext.canvas.height },
-        geometry: new ConeGeometry({
-          diameterTop: config.diameterTop,
-          diameterBottom: config.diameterBottom ?? config.diameterTop,
-          height: config.height,
-        }),
-        spreadSampler: new PointTextureSampler(renderImageData),
-        cameraPosition,
-        cameraToProjectionMatrix,
-        uvMatrix,
-      });
-    }
+    renderedContext = rayTracer({
+      targetSize: { width: drawOnContext.canvas.width, height: drawOnContext.canvas.height },
+      geometry: new ConeGeometry({
+        diameterTop: config.diameterTop,
+        diameterBottom: config.diameterBottom ?? config.diameterTop,
+        height: config.height,
+      }),
+      spreadSampler: new PointTextureSampler(renderImageData),
+      cameraPosition,
+      cameraToProjectionMatrix,
+      uvMatrix,
+    });
 
     if (renderedContext) {
       drawOnContext.drawImage(
@@ -131,8 +132,8 @@ export class ConeCanvasRenderer implements IRenderer {
 
   public controlPointsToCamera(
     config: IConeRendererConfig,
-    canvasSize: { width: number; height: number },
-    packshotSize: { width: number; height: number },
+    _canvasSize: { width: number; height: number },
+    _packshotSize: { width: number; height: number },
   ) {
     /*
       I wasn't able to find a C# library that implemented the "Direct Linear Transform" that is needed.
@@ -233,8 +234,8 @@ export class ConeCanvasRenderer implements IRenderer {
     const { controlPoints } = config;
     if (controlPoints.length !== 6) throw new Error("6 control points required");
 
-    const worldPoints = this.getWorldPoints(config);
-    const canvasPoints = controlPoints.map(p => toCanvasPoint(p, canvasSize, packshotSize));
+    // const worldPoints = this.getWorldPoints(config);
+    // const canvasPoints = controlPoints.map(p => toCanvasPoint(p, canvasSize, packshotSize));
     // console.log(worldPoints, canvasPoints);
   }
 
