@@ -21,7 +21,7 @@ import {
   savePackShotToFolderAsync,
   usePackshotRoot,
 } from "../src/stores/app";
-import { useLayers, usePackshotActions, usePackshotStore } from "../src/stores/packshot";
+import { useLayers, usePackshotActions, usePackshotName, usePackshotStore } from "../src/stores/packshot";
 import { handleError } from "../utils/error";
 import { getSampleImageConfigAsync } from "../utils/image";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
@@ -35,12 +35,18 @@ export function ActionBar() {
   const layers = useLayers();
   const style: CSSProperties = { color: "blue", textDecoration: "none", cursor: "pointer" };
 
+  const [packshotName, setPackshotName] = usePackshotName();
   const [root, setRoot] = usePackshotRoot();
 
+  const title = packshotName.trim() || "<Untitled>";
   return (
     <Accordion
       isExpanded={!!action}
-      title=""
+      title={title}
+      isTitleEditable
+      onTitleChange={(title) => {
+        setPackshotName(title);
+      }}
       left={
         <>
           <AccordionButton

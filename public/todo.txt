@@ -13,14 +13,7 @@ Renderer
 - Cone Renderer (exp/pv/BAC-3614)
 
 Storage
-- Use the File System Access API?
-- Save configuration
-- Save fixed images (background / mask):
-  - inline (base64) (for local images)
-    - do we want to store inline images in json? = large json
-    - Export as folder (ZIP in browser): creates an output folder with all images + config file with relative links
-  - Provide a image path prefix? "http://folder-with-images/" and relative images "./Mask.png"
-  - Export optimized mask (RGB channels)
+- Export optimized mask (RGB channels)
 
 General
 - undo/redo

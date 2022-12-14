@@ -25,6 +25,12 @@ type IPackShotStore = IPackshot & {
 
 export const usePackshotStore = create<IPackShotStore>((set) => {
   function setPackshot(packshot: IPackshot) {
+
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any)["usePackshotStore"] = usePackshotStore;
+    }
+
     set((state) => {
       // Dispose previous renderers
       state.layers.forEach(layer => {
@@ -227,7 +233,7 @@ export function useLoadedRenderers() {
       })
     ));
 
-    if (renderers.length <= 0) return []; 
+    if (renderers.length <= 0) return [];
     console.log("Loading renderers...");
     return Promise.all(renderers);
   }
@@ -264,13 +270,14 @@ export function useRenderTrees(onlyDisabled = false) {
 
   // Return the same array when no renderTree changes
   return useMemo(
-    () => [
+    () =>
+      [
         layers
           .filter(l => !onlyDisabled || !l.config?.isDisabled)
           .map(l => l.renderTree),
-        
-          // Returned also a unique number
-          // reason: When renderTree was used in the dependency key of useQuery, it caused an infinite loop
+
+        // Returned also a unique number
+        // reason: When renderTree was used in the dependency key of useQuery, it caused an infinite loop
         Math.random(),
       ] as const,
     [layers, onlyDisabled],
