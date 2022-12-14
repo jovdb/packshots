@@ -15,6 +15,7 @@ interface IPackshotActions {
   addLayer(layer: ILayer, layerIndex?: number): void;
   deleteLayer(layerIndex: number): void;
   updateLayerConfig(layerIndex: number, config: Partial<ILayerConfig>): void;
+  updateLayerName(layerIndex: number, name: string): void;
   updateLayerRenderTree(layerIndex: number, renderTree: IRenderTree): void;
   updateLayerRenderNodeConfig(layerIndex: number, renderNode: IRenderTree, config: {}): void;
 }
@@ -97,6 +98,22 @@ export const usePackshotStore = create<IPackShotStore>((set) => {
           const newLayer = {
             ...oldLayer,
             config: { ...oldConfig, ...config },
+          };
+          const newLayers = state.layers.slice();
+          newLayers.splice(layerIndex, 1, newLayer);
+
+          return {
+            layers: newLayers,
+          };
+        });
+      },
+
+      updateLayerName(layerIndex, name) {
+        set((state) => {
+          const oldLayer = state.layers[layerIndex];
+          const newLayer = {
+            ...oldLayer,
+            name,
           };
           const newLayers = state.layers.slice();
           newLayers.splice(layerIndex, 1, newLayer);

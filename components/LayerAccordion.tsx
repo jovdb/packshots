@@ -17,7 +17,7 @@ export function LayerAccordion({
   layerIndex: number;
   children: ReactNode;
 }) {
-  const { deleteLayer, updateLayerConfig, updateLayerRenderTree } = usePackshotActions();
+  const { deleteLayer, updateLayerConfig, updateLayerRenderTree, updateLayerName} = usePackshotActions();
   const maskRenderNode = findTreeNode(layer.renderTree, treeNode => treeNode.type === "mask") as
     | IMaskRenderer
     | undefined;
@@ -26,6 +26,10 @@ export function LayerAccordion({
   return (
     <Accordion
       title={layer.name ?? ""}
+      isTitleEditable
+      onTitleChange={(newTitle) => {
+        updateLayerName(layerIndex, newTitle);
+      }}
       isExpanded={!!(layer.config?.isRenderConfigExpanded || layer.config?.isLayerOptionExpanded)}
       onExpandClick={() => {
         updateLayerConfig(layerIndex, {
