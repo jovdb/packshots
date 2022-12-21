@@ -1,27 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Matrix3, Matrix4, Vector3 } from "three";
+import { Matrix3, Matrix4, Vector2, Vector3 } from "three";
 import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
 import { getImageDataAsync } from "../../../utils/image";
-// import { ControlPoint } from "../../controlPoints/IControlPoints";
+import { ControlPoint } from "../../controlPoints/IControlPoints";
 import { getImageUrl, PackshotRoot } from "../../stores/app";
 import { ConeGeometry } from "../geometries/ConeGeometry";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 import { PointTextureSampler } from "../samplers/PointTextureSampler";
 // import { controlPointsToCamera } from "./ControlPoints";
 import { rayTracer } from "./RayTracer";
+import matrix from "matrix-js";
 
-/*
 function toCanvasPoint(
   controlPoint: ControlPoint,
   canvasSize: { width: number; height: number },
   packshotImageSize: { width: number; height: number },
-  superSamplingFactor = 1,
+  superSamplingFactor = 4,
 ): Vector2 {
   const x = canvasSize.width / 2 + controlPoint[0] * packshotImageSize.width / 2;
   const y = canvasSize.height / 2 + controlPoint[1] * packshotImageSize.height / 2;
   return new Vector2(x * superSamplingFactor, y * superSamplingFactor);
 }
-*/
 
 export class ConeCanvasRenderer implements IRenderer {
   private imageData: ImageData | undefined;
@@ -72,7 +71,7 @@ export class ConeCanvasRenderer implements IRenderer {
       0,    0,    1,
     ]);
 
-    const a = this.controlPointsToCamera(config, drawOnContext.canvas, renderImageData);
+    const a = this.controlPointsToCamera(config, drawOnContext.canvas, { width: 900, height: 900 });
     console.log(a);
 
     let renderedContext: CanvasRenderingContext2D | undefined = undefined;
@@ -95,7 +94,7 @@ export class ConeCanvasRenderer implements IRenderer {
         0,
         0,
         targetWidth,
-        targetWidth,
+        targetHeight,
         0,
         0,
         targetWidth,
@@ -132,8 +131,8 @@ export class ConeCanvasRenderer implements IRenderer {
 
   public controlPointsToCamera(
     config: IConeRendererConfig,
-    _canvasSize: { width: number; height: number },
-    _packshotSize: { width: number; height: number },
+    canvasSize: { width: number; height: number },
+    packshotSize: { width: number; height: number },
   ) {
     /*
       I wasn't able to find a C# library that implemented the "Direct Linear Transform" that is needed.
@@ -234,9 +233,36 @@ export class ConeCanvasRenderer implements IRenderer {
     const { controlPoints } = config;
     if (controlPoints.length !== 6) throw new Error("6 control points required");
 
-    // const worldPoints = this.getWorldPoints(config);
-    // const canvasPoints = controlPoints.map(p => toCanvasPoint(p, canvasSize, packshotSize));
-    // console.log(worldPoints, canvasPoints);
+    const worldPoints = this.getWorldPoints(config);
+    const canvasPoints = controlPoints.map(p => toCanvasPoint(p, canvasSize, packshotSize));
+    console.log(JSON.stringify(canvasPoints));
+
+    const rows = canvasPoints.flatMap(
+      (canvasPoint, i) => {
+        const worldPoint = worldPoints[i];
+
+        return [
+          // dprint-ignore
+          [
+            worldPoint.x, worldPoint.y, worldPoint.z, 1,
+            0, 0, 0, 0,
+            -canvasPoint.x * worldPoint.x, -canvasPoint.x * worldPoint.y, -canvasPoint.x * worldPoint.z, -canvasPoint.x,
+          ],
+          // dprint-ignore
+          [
+            0, 0, 0, 0,
+            worldPoint.x, worldPoint.y, worldPoint.z, 1,
+            -canvasPoint.y * worldPoint.x, -canvasPoint.y * worldPoint.y, -canvasPoint.y * worldPoint.z, -canvasPoint.y,
+          ],
+        ];
+      },
+    );
+    console.log(rows);
+
+    const mat1 = matrix(rows);
+    console.log(mat1);
+    const mat2 = matrix(mat1.trans()).mul(mat1);
+    console.log(mat2);
   }
 
   dispose(): void {
