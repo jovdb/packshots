@@ -1,4 +1,5 @@
 import { IControlPointsConfig } from "../../src/controlPoints/IControlPoints";
+import { FieldSet } from "../FieldSet";
 import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig, imageDefaultConfig } from "./ImageConfig";
 
@@ -16,8 +17,7 @@ export const PlaneRendererConfig: ConfigComponent<IPlaneRendererConfig> = ({
 
   return (
     <>
-      <fieldset>
-        <legend>Image</legend>
+      <FieldSet label="Image">
         <ImageConfig
           config={image}
           onChange={(newConfig) => {
@@ -27,7 +27,7 @@ export const PlaneRendererConfig: ConfigComponent<IPlaneRendererConfig> = ({
             });
           }}
         />
-      </fieldset>
+      </FieldSet>
     </>
   );
 };

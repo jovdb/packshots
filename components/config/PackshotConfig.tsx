@@ -1,5 +1,7 @@
 import { IPackshotConfig } from "../../src/IPackshot";
 import { ConfigComponent } from "./factory";
+import { NumberInput } from '@mantine/core';
+import { FieldSet } from "../FieldSet";
 
 export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({
   config,
@@ -11,48 +13,43 @@ export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({
   } = config || {};
 
   return (
-    <fieldset>
-      <legend>Export dimentions</legend>
+    <FieldSet
+      label="Export dimentions"
+    >
       <table style={{ width: "100%" }}>
         <tbody>
           <tr>
-            <td>Width:</td>
+            <td>Width (px):</td>
             <td>
-              <input
-                type="number"
+              <NumberInput 
+                size="xs"
+                min={100}
                 value={width}
-                min={1}
-                step={1}
-                style={{ width: 60 }}
                 onChange={(e) => {
-                  const newValue = parseFloat(e.target.value) || 0;
+                  const newValue = e || 900;
                   onChange({
                     ...config,
                     width: newValue,
                   });
                 }}
               />
-              &nbsp;px
             </td>
           </tr>
           <tr>
-            <td>Height:</td>
+            <td>Height (px):</td>
             <td>
-              <input
-                type="number"
+              <NumberInput 
+                size="xs"
+                min={100}
                 value={height}
-                min={1}
-                step={1}
-                style={{ width: 60 }}
                 onChange={(e) => {
-                  const newValue = parseFloat(e.target.value) || 0;
+                  const newValue = e || 900;
                   onChange({
                     ...config,
                     height: newValue,
                   });
                 }}
               />
-              &nbsp;px
             </td>
           </tr>
           {
@@ -76,6 +73,6 @@ export const PackshotConfig: ConfigComponent<IPackshotConfig> = ({
           }
         </tbody>
       </table>
-    </fieldset>
+    </FieldSet>
   );
 };

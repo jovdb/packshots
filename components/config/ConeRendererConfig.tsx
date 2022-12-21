@@ -1,4 +1,5 @@
 import { IControlPointsConfig } from "../../src/controlPoints/IControlPoints";
+import { FieldSet } from "../FieldSet";
 import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig, imageDefaultConfig } from "./ImageConfig";
 
@@ -19,8 +20,7 @@ export const ConeRendererConfig: ConfigComponent<IConeRendererConfig> = ({
 
   return (
     <>
-      <fieldset>
-        <legend>Cylinder / Cone</legend>
+      <FieldSet label="Cylinder / Cone">
         <table style={{ width: "100%" }}>
           <tbody>
             <tr>
@@ -80,9 +80,8 @@ export const ConeRendererConfig: ConfigComponent<IConeRendererConfig> = ({
             </tr>
           </tbody>
         </table>
-      </fieldset>
-      <fieldset>
-        <legend>Image</legend>
+      </FieldSet>
+      <FieldSet label="Image">
         <ImageConfig
           config={image}
           onChange={(newConfig) => {
@@ -92,7 +91,7 @@ export const ConeRendererConfig: ConfigComponent<IConeRendererConfig> = ({
             });
           }}
         />
-      </fieldset>
+      </FieldSet>
     </>
   );
 };

@@ -5,9 +5,10 @@ import { isFolderHandles, useImageUrl, usePackshotRoot } from "../../src/stores/
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
+import { Button, Select, TextInput } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
 import { getFileNamesAsync, loadFolderAsync } from "../../src/stores/fileSystem";
 import { getSampleImageConfigAsync } from "../../utils/image";
-import { useQuery } from "@tanstack/react-query";
 
 export interface IImageConfig {
   /** Name is added because user can upload file blob that has no name */
@@ -25,7 +26,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
   onChange,
 }) => {
   const [packshotRoot, setPackshotRoot] = usePackshotRoot();
-  
+
   const [type, setType] = useState(() => {
     if (config.url?.startsWith("./samples")) return `sample${/\d+/.exec(config.url ?? config.name)?.[0] || "sample1"}`;
     if (config.url?.startsWith("blob://")) return "local";
@@ -36,7 +37,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
 
   const { data: url } = useImageUrl(config);
 
-  const {data: folderFiles} = useQuery([type, packshotRoot], async () => {
+  const { data: folderFiles } = useQuery([type, packshotRoot], async () => {
     if (type !== "folder") return [];
     if (isFolderHandles(packshotRoot)) {
       const allFiles = await getFileNamesAsync(packshotRoot);
@@ -44,10 +45,24 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
         const lowerCaseFilename = fileName.toLowerCase();
         return ["png", "jpg", "jpeg"].some(ext => lowerCaseFilename.endsWith("." + ext));
       });
-      return imageFileNames;  
+      return imageFileNames;
     }
     return [];
   });
+
+  const imageTypes = [
+    { value: "folder", label: `From packshot folder${isFolderHandles(packshotRoot) ? `: ${packshotRoot.name}` : ""}` },
+    { value: "local", label: "Select image" },
+    { value: "url", label: "From URL" },
+  ];
+
+  if (type === "sample") imageTypes.push({ value: "sample", label: "Sample" });
+  imageTypes.push(
+    { value: "sample1", label: "Sample 1" },
+    { value: "sample2", label: "Sample 2" },
+    { value: "sample3", label: "Sample 3" },
+    { value: "sample4", label: "Sample 4" },
+  );
 
   return (
     <>
@@ -56,10 +71,12 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
           <tr>
             <td style={{ minWidth: 60 }}>Type:</td>
             <td>
-              <select
+              <Select
                 value={type}
+                size="xs"
+                data={imageTypes}
                 onChange={async (e) => {
-                  const { value } = e.target;
+                  const value = e || "";
                   setType(value);
                   switch (value) {
                     case "local": {
@@ -97,20 +114,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                     }
                   }
                 }}
-              >
-                <option value="folder">From packshot folder{isFolderHandles(packshotRoot) ? `: ${packshotRoot.name}`: ""}</option>
-                <option value="local">Select image</option>
-                <option value="url">From URL</option>
-                {type === "sample" && (
-                  <option value="sample">Sample</option>
-                )}
-                <optgroup label="Samples:">
-                  <option value="sample1">Sample 1</option>
-                  <option value="sample2">Sample 2</option>
-                  <option value="sample3">Sample 3</option>
-                  <option value="sample4">Sample 4</option>
-                </optgroup>
-              </select>
+              />
             </td>
           </tr>
           {type === "local" && (
@@ -119,12 +123,18 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                 <td colSpan={2}>
                   File name:
                   <div style={{ display: "flex" }}>
-                    <input
-                      value={config?.name || config?.url || ""}
-                      style={{ width: "100%", marginRight: 5 }}
-                      readOnly
-                      disabled
-                    />
+                    {
+                      /*
+                      <TextInput
+                        value={config?.name || config?.url || ""}
+                        size="xs"
+                        mr={5}
+                        readOnly
+                        disabled
+                      />
+                      */
+                    }
+                    <br />
                     <ImageSelection
                       onSelect={(info) => {
                         onChange({
@@ -147,9 +157,9 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
               </tr>
               <tr>
                 <td colSpan={2}>
-                  <input
+                  <TextInput
                     value={config?.url || ""}
-                    style={{ width: "100%" }}
+                    size="xs"
                     onChange={(e) => {
                       const { value } = e.target;
                       const lastSlashIndex = value.lastIndexOf("/");
@@ -168,7 +178,8 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
             <tr>
               <td>Select folder:</td>
               <td>
-                <button
+                <Button
+                  size="xs"
                   onClick={async () => {
                     const folderhandle = await loadFolderAsync();
                     if (!folderhandle) return;
@@ -176,7 +187,7 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
                   }}
                 >
                   Select
-                </button>
+                </Button>
               </td>
             </tr>
           )}
@@ -184,19 +195,24 @@ export const ImageConfig: ConfigComponent<IImageConfig> = ({
             <tr>
               <td>Select file:</td>
               <td>
-                <select
+                <Select
+                  size="xs"
+                  data={[
+                    { label: "", value: "" },
+                    ...folderFiles?.map(fileName => ({
+                      value: fileName,
+                      label: fileName,
+                    })) ?? [],
+                  ]}
                   value={config.url}
-                  onChange={(e) => {
-                    const { value: fileName } = e.target;
+                  onChange={(value) => {
+                    const fileName = value ?? "";
                     onChange({
                       name: fileName,
                       url: fileName,
                     });
                   }}
-                >
-                  <option key="" value=""></option>
-                  {folderFiles?.map(fileName => <option key={fileName} value={fileName}>{fileName}</option>)}
-                </select>
+                />
               </td>
             </tr>
           )}

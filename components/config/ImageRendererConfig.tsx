@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { FieldSet } from "../FieldSet";
 import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig } from "./ImageConfig";
 
@@ -7,8 +8,7 @@ export interface IImageRendererConfig {
 }
 
 export const ImageRendererConfig: ConfigComponent<IImageRendererConfig> = ({ config, onChange }) => (
-  <fieldset>
-    <legend>Image</legend>
+  <FieldSet label="Image">
     <ImageConfig
       config={config.image}
       onChange={(newConfig) => {
@@ -18,5 +18,5 @@ export const ImageRendererConfig: ConfigComponent<IImageRendererConfig> = ({ con
         });
       }}
     />
-  </fieldset>
+  </FieldSet>
 );

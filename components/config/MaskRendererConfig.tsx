@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
+import { Select } from "@mantine/core";
 import { useId } from "react";
 import { IRendererConfig } from "../../src/IPackshot";
+import { FieldSet } from "../FieldSet";
 import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig } from "./ImageConfig";
 
@@ -17,23 +19,12 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
   const isEnabled = !config.isDisabled;
   const id = useId();
   return (
-    <fieldset>
-      <legend style={{ userSelect: "none" }}>
-        <input
-          type="checkbox"
-          id={`mask_${id}`}
-          checked={isEnabled}
-          style={{ transform: "translate(0, 2px)" }}
-          onChange={(e) => {
-            const isChecked = e.target.checked;
-            onChange({
-              ...config,
-              isDisabled: !isChecked,
-            });
-          }}
-        />
-        <label htmlFor={`mask_${id}`} style={{ cursor: "pointer" }}>Mask</label>
-      </legend>
+    <FieldSet label="Mask" checked={isEnabled} onChecked={(isChecked) => {
+      onChange({
+        ...config,
+        isDisabled: !isChecked,
+      });
+    }}>
       {isEnabled
         && (
           <>
@@ -53,21 +44,23 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                     Mask Color:
                   </td>
                   <td>
-                    <select
+                    <Select
+                      size="xs"
                       value={(config.colorChannel ?? 0).toString()}
                       onChange={(e) => {
-                        const { value } = e.target;
+                        const value  = e || "0"
                         onChange({
                           ...config,
                           colorChannel: parseInt(value) || 0,
                         });
                       }}
-                    >
-                      <option value="0">Red</option>
-                      <option value="1">Green</option>
-                      <option value="2">Blue</option>
-                      <option value="3">Alpha</option>
-                    </select>
+                      data={[
+                        { value: "0", label: "Red" },
+                        { value: "1", label: "Green" },
+                        { value: "2", label: "Blue" },
+                        { value: "3", label: "Alpha" },
+                      ]}
+                    />
                   </td>
                 </tr>
                 <tr>
@@ -79,6 +72,6 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
             </table>
           </>
         )}
-    </fieldset>
+    </FieldSet>
   );
 };
