@@ -7,7 +7,7 @@ import { ConfigComponent } from "./factory";
 
 import { Button, Select, TextInput } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { getFileNamesAsync, loadFolderAsync } from "../../src/stores/fileSystem";
+import { getFileNamesAsync, loadFolderAsync } from "../../src/fileSystem";
 import { getSampleImageConfigAsync } from "../../utils/image";
 
 export interface IImageConfig {

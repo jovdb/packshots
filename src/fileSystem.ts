@@ -1,4 +1,4 @@
-import { Exception } from "../../utils/error";
+import { Exception } from "../utils/error";
 
 export function isSupported() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

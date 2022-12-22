@@ -3,7 +3,7 @@ import create from "zustand";
 import { IImageConfig } from "../../components/config/ImageConfig";
 import { Exception } from "../../utils/error";
 import { IPackshot } from "../IPackshot";
-import { loadFolderAsync, openTextFileAsync, saveTextFileAsync } from "./fileSystem";
+import { loadFolderAsync, openTextFileAsync, saveTextFileAsync } from "../fileSystem";
 import { deserialize, serialize } from "./packshot";
 
 export type PackshotRoot = string | FileSystemDirectoryHandle | undefined;
