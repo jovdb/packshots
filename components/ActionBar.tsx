@@ -77,10 +77,22 @@ export function ActionBar() {
       }
       right={
         <>
-          <AccordionButton onClick={() => undo()} title="Undo" disabled={!canUndo}>
+          <AccordionButton
+            onClick={() => {
+              undo();
+            }}
+            title="Undo"
+            disabled={!canUndo}
+          >
             <UndoIcon width={20} style={{ marginRight: 5, opacity: canUndo ? 1 : 0.5 }} />
           </AccordionButton>
-          <AccordionButton onClick={() => redo()} title="Redo" disabled={!canRedo}>
+          <AccordionButton
+            onClick={() => {
+              redo();
+            }}
+            title="Redo"
+            disabled={!canRedo}
+          >
             <RedoIcon width={20} style={{ marginRight: 5, opacity: canRedo ? 1 : 0.5 }} />
           </AccordionButton>
           <AccordionButton onClick={() => setAction(action === "add" ? "" : "add")} title="Add layer">

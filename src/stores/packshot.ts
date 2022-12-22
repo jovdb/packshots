@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { debounce } from "throttle-debounce";
 import { temporal } from "zundo";
 import create from "zustand";
 import shallow from "zustand/shallow";
@@ -171,6 +172,12 @@ export const usePackshotStore = create<IPackShotStore>()(temporal((set) => {
   };
 
   return state;
+}, {
+  handleSet: (handleSet) => (
+    debounce(1000, (state: IPackShotStore) => {
+      handleSet(state);
+    })
+  ),
 }));
 
 export function usePackshotActions() {
@@ -340,3 +347,8 @@ export function deserialize(data: string) {
 }
 
 export const useHistory = create(usePackshotStore.temporal);
+
+if (typeof window !== "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any)["__history"] = usePackshotStore.temporal;
+}
