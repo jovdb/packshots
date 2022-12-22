@@ -9,7 +9,9 @@ import JsonIcon from "../icons/json.svg";
 import MugIcon from "../icons/mug.svg";
 import OpenIcon from "../icons/open.svg";
 import PlaneIcon from "../icons/plane.svg";
+import RedoIcon from "../icons/redo.svg";
 import SaveIcon from "../icons/save.svg";
+import UndoIcon from "../icons/undo.svg";
 import VaseIcon from "../icons/vase.svg";
 import WebIcon from "../icons/web.svg";
 import ZipIcon from "../icons/zip.svg";
@@ -21,7 +23,7 @@ import {
   savePackShotToFolderAsync,
   usePackshotRoot,
 } from "../src/stores/app";
-import { useLayers, usePackshotActions, usePackshotName, usePackshotStore } from "../src/stores/packshot";
+import { useHistory, useLayers, usePackshotActions, usePackshotName, usePackshotStore } from "../src/stores/packshot";
 import { handleError } from "../utils/error";
 import { getSampleImageConfigAsync } from "../utils/image";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";
@@ -38,7 +40,13 @@ export function ActionBar() {
   const [packshotName, setPackshotName] = usePackshotName();
   const [root, setRoot] = usePackshotRoot();
 
+  // History
+  const { undo, redo, clear, futureStates, pastStates } = useHistory();
+  const canUndo = pastStates.length > 0;
+  const canRedo = futureStates.length > 0;
+
   const title = packshotName.trim() || "<Untitled>";
+
   return (
     <Accordion
       isExpanded={!!action}
@@ -68,9 +76,17 @@ export function ActionBar() {
         </>
       }
       right={
-        <AccordionButton onClick={() => setAction(action === "add" ? "" : "add")} title="Add layer">
-          <AddLayer width={20} style={{ marginRight: 5 }} />
-        </AccordionButton>
+        <>
+          <AccordionButton onClick={() => undo()} title="Undo" disabled={!canUndo}>
+            <UndoIcon width={20} style={{ marginRight: 5, opacity: canUndo ? 1 : 0.5 }} />
+          </AccordionButton>
+          <AccordionButton onClick={() => redo()} title="Redo" disabled={!canRedo}>
+            <RedoIcon width={20} style={{ marginRight: 5, opacity: canRedo ? 1 : 0.5 }} />
+          </AccordionButton>
+          <AccordionButton onClick={() => setAction(action === "add" ? "" : "add")} title="Add layer">
+            <AddLayer width={20} style={{ marginRight: 5 }} />
+          </AccordionButton>
+        </>
       }
     >
       {action === "add" && (
@@ -205,6 +221,7 @@ export function ActionBar() {
                   const { packShot, directoryHandle } = result;
                   setRoot(directoryHandle);
                   setPackshot(packShot);
+                  clear(); // Clear undo queue
                   setAction(""); // close panel
                 } catch (err) {
                   handleError(err);
@@ -239,6 +256,7 @@ export function ActionBar() {
                   },
                   layers: [],
                 });
+                clear(); // Clear undo queue
               }}
             >
               <a href="#">
@@ -252,6 +270,7 @@ export function ActionBar() {
               style={style}
               onClick={() => {
                 setPackshot(photobookPackshot);
+                clear(); // Clear undo queue
                 setRoot("./products/Book");
                 setAction(""); // close panel
               }}
@@ -267,6 +286,7 @@ export function ActionBar() {
               style={style}
               onClick={() => {
                 setPackshot(mugPackshot);
+                clear(); // Clear undo queue
                 setRoot("./products/Mug");
                 setAction(""); // close panel
               }}
@@ -282,6 +302,7 @@ export function ActionBar() {
               style={style}
               onClick={() => {
                 setPackshot(flowerPotPackshot);
+                clear(); // Clear undo queue
                 setRoot("./products/Pot");
                 setAction(""); // close panel
               }}

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { temporal } from "zundo";
 import create from "zustand";
 import shallow from "zustand/shallow";
 import { IControlPointsConfig } from "../controlPoints/IControlPoints";
@@ -24,9 +25,8 @@ type IPackShotStore = IPackshot & {
   actions: IPackshotActions;
 };
 
-export const usePackshotStore = create<IPackShotStore>((set) => {
+export const usePackshotStore = create<IPackShotStore>()(temporal((set) => {
   function setPackshot(packshot: IPackshot) {
-
     if (typeof window !== "undefined") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any)["usePackshotStore"] = usePackshotStore;
@@ -171,7 +171,7 @@ export const usePackshotStore = create<IPackShotStore>((set) => {
   };
 
   return state;
-});
+}));
 
 export function usePackshotActions() {
   return usePackshotStore(s => s.actions);
@@ -338,3 +338,5 @@ export function deserialize(data: string) {
 
   return packshot;
 }
+
+export const useHistory = create(usePackshotStore.temporal);
