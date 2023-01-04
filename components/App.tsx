@@ -13,23 +13,31 @@ import { Renderer } from "./Renderer";
 export function useZoom(
   imagesSize: { width: number; height: number },
   previewSize: { width: number; height: number },
-  margin: number,
+  margin: number
 ) {
   return useMemo(
-    () => (
-      fitRectTransform({
-        top: 0,
-        left: 0,
-        width: imagesSize.width,
-        height: imagesSize.height,
-      }, {
-        top: margin,
-        left: margin,
-        width: previewSize.width - margin * 2,
-        height: previewSize.height - margin * 2,
-      })
-    ),
-    [imagesSize.height, imagesSize.width, margin, previewSize.height, previewSize.width],
+    () =>
+      fitRectTransform(
+        {
+          top: 0,
+          left: 0,
+          width: imagesSize.width,
+          height: imagesSize.height,
+        },
+        {
+          top: margin,
+          left: margin,
+          width: previewSize.width - margin * 2,
+          height: previewSize.height - margin * 2,
+        }
+      ),
+    [
+      imagesSize.height,
+      imagesSize.width,
+      margin,
+      previewSize.height,
+      previewSize.width,
+    ]
   );
 }
 
@@ -48,22 +56,26 @@ export function App() {
   const centerPreviewToPreviewArea = useZoom(
     packshotConfig,
     previewAreaRect,
-    15,
+    15
   );
 
-  const centerPreviewToPreviewStyle = useMemo(() => ({
-    position: "absolute",
-    width: packshotConfig.width * centerPreviewToPreviewArea.scale,
-    height: packshotConfig.height * centerPreviewToPreviewArea.scale,
-    left: centerPreviewToPreviewArea.x,
-    top: centerPreviewToPreviewArea.y,
-  } as const), [
-    centerPreviewToPreviewArea.scale,
-    centerPreviewToPreviewArea.x,
-    centerPreviewToPreviewArea.y,
-    packshotConfig.height,
-    packshotConfig.width,
-  ]);
+  const centerPreviewToPreviewStyle = useMemo(
+    () =>
+      ({
+        position: "absolute",
+        width: packshotConfig.width * centerPreviewToPreviewArea.scale,
+        height: packshotConfig.height * centerPreviewToPreviewArea.scale,
+        left: centerPreviewToPreviewArea.x,
+        top: centerPreviewToPreviewArea.y,
+      } as const),
+    [
+      centerPreviewToPreviewArea.scale,
+      centerPreviewToPreviewArea.x,
+      centerPreviewToPreviewArea.y,
+      packshotConfig.height,
+      packshotConfig.width,
+    ]
+  );
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -90,11 +102,14 @@ export function App() {
             title="Export"
             isExpanded={isExportExpanded}
             onExpandClick={() => {
-              setIsExportExpanded(prev => !prev);
+              setIsExportExpanded((prev) => !prev);
             }}
           >
             <AccordionPanel>
-              <PackshotConfig config={packshotConfig} onChange={setPackshotConfig} />
+              <PackshotConfig
+                config={packshotConfig}
+                onChange={setPackshotConfig}
+              />
             </AccordionPanel>
           </Accordion>
         </ConfigPanel>

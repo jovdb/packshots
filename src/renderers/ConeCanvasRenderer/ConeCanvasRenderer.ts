@@ -8,27 +8,25 @@ import { ConeGeometry } from "../geometries/ConeGeometry";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 import { PointTextureSampler } from "../samplers/PointTextureSampler";
 // import { controlPointsToCamera } from "./ControlPoints";
-import { rayTracer } from "./RayTracer";
-import matrix from "matrix-js";
+// import matrix from "matrix-js";
 
 function toCanvasPoint(
   controlPoint: ControlPoint,
   canvasSize: { width: number; height: number },
   packshotImageSize: { width: number; height: number },
-  superSamplingFactor = 4,
+  superSamplingFactor = 4
 ): Vector2 {
-  const x = canvasSize.width / 2 + controlPoint[0] * packshotImageSize.width / 2;
-  const y = canvasSize.height / 2 + controlPoint[1] * packshotImageSize.height / 2;
+  const x =
+    canvasSize.width / 2 + (controlPoint[0] * packshotImageSize.width) / 2;
+  const y =
+    canvasSize.height / 2 + (controlPoint[1] * packshotImageSize.height) / 2;
   return new Vector2(x * superSamplingFactor, y * superSamplingFactor);
 }
 
 export class ConeCanvasRenderer implements IRenderer {
   private imageData: ImageData | undefined;
 
-  async loadAsync(
-    config: IConeRendererConfig,
-    root: PackshotRoot,
-  ) {
+  async loadAsync(config: IConeRendererConfig, root: PackshotRoot) {
     const url = await getImageUrl(root, config.image);
     if (!url) {
       this.imageData = undefined;
@@ -44,39 +42,35 @@ export class ConeCanvasRenderer implements IRenderer {
 
   render(
     drawOnContext: CanvasRenderingContext2D,
-    config: IConeRendererConfig,
+    config: IConeRendererConfig
   ): IRenderResult | undefined | void {
     const renderImageData = this.imageData;
     if (!renderImageData || !config) return undefined;
     const { width: targetWidth, height: targetHeight } = drawOnContext.canvas;
 
-    const cameraPosition = new Vector3(
-      1.4183631,
-      57.543503,
-      -6.3503857,
-    );
+    const cameraPosition = new Vector3(1.4183631, 57.543503, -6.3503857);
 
     // dprint-ignore
     const cameraToProjectionMatrix = new Matrix4().fromArray([
-      -0.0010906963,  0.00010193007,  -1.9692556E-05, 0,
-      4.993524E-06,   -0.00020674475, -0.0010858503,  0,
-      2.2639997,      13.13533,       1,              0,
-      0,              0,              0,              1, 
+      -0.0010906963, 0.00010193007, -1.9692556e-5, 0, 4.993524e-6,
+      -0.00020674475, -0.0010858503, 0, 2.2639997, 13.13533, 1, 0, 0, 0, 0, 1,
     ]);
 
     // dprint-ignore
-    const uvMatrix = new Matrix3().fromArray([
-      80.7, 0,    0,
-      0,    80.7, 0,
-      0,    0,    1,
-    ]);
+    const uvMatrix = new Matrix3().fromArray([80.7, 0, 0, 0, 80.7, 0, 0, 0, 1]);
 
-    const a = this.controlPointsToCamera(config, drawOnContext.canvas, { width: 900, height: 900 });
+    const a = this.controlPointsToCamera(config, drawOnContext.canvas, {
+      width: 900,
+      height: 900,
+    });
     console.log(a);
 
     let renderedContext: CanvasRenderingContext2D | undefined = undefined;
     renderedContext = rayTracer({
-      targetSize: { width: drawOnContext.canvas.width, height: drawOnContext.canvas.height },
+      targetSize: {
+        width: drawOnContext.canvas.width,
+        height: drawOnContext.canvas.height,
+      },
       geometry: new ConeGeometry({
         diameterTop: config.diameterTop,
         diameterBottom: config.diameterBottom ?? config.diameterTop,
@@ -98,7 +92,7 @@ export class ConeCanvasRenderer implements IRenderer {
         0,
         0,
         targetWidth,
-        targetHeight,
+        targetHeight
       );
     }
   }
@@ -132,7 +126,7 @@ export class ConeCanvasRenderer implements IRenderer {
   public controlPointsToCamera(
     config: IConeRendererConfig,
     canvasSize: { width: number; height: number },
-    packshotSize: { width: number; height: number },
+    packshotSize: { width: number; height: number }
   ) {
     /*
       I wasn't able to find a C# library that implemented the "Direct Linear Transform" that is needed.
@@ -231,32 +225,51 @@ export class ConeCanvasRenderer implements IRenderer {
     */
 
     const { controlPoints } = config;
-    if (controlPoints.length !== 6) throw new Error("6 control points required");
+    if (controlPoints.length !== 6)
+      throw new Error("6 control points required");
 
     const worldPoints = this.getWorldPoints(config);
-    const canvasPoints = controlPoints.map(p => toCanvasPoint(p, canvasSize, packshotSize));
+    const canvasPoints = controlPoints.map((p) =>
+      toCanvasPoint(p, canvasSize, packshotSize)
+    );
     console.log(JSON.stringify(canvasPoints));
 
-    const rows = canvasPoints.flatMap(
-      (canvasPoint, i) => {
-        const worldPoint = worldPoints[i];
+    const rows = canvasPoints.flatMap((canvasPoint, i) => {
+      const worldPoint = worldPoints[i];
 
-        return [
-          // dprint-ignore
-          [
-            worldPoint.x, worldPoint.y, worldPoint.z, 1,
-            0, 0, 0, 0,
-            -canvasPoint.x * worldPoint.x, -canvasPoint.x * worldPoint.y, -canvasPoint.x * worldPoint.z, -canvasPoint.x,
-          ],
-          // dprint-ignore
-          [
-            0, 0, 0, 0,
-            worldPoint.x, worldPoint.y, worldPoint.z, 1,
-            -canvasPoint.y * worldPoint.x, -canvasPoint.y * worldPoint.y, -canvasPoint.y * worldPoint.z, -canvasPoint.y,
-          ],
-        ];
-      },
-    );
+      return [
+        // dprint-ignore
+        [
+          worldPoint.x,
+          worldPoint.y,
+          worldPoint.z,
+          1,
+          0,
+          0,
+          0,
+          0,
+          -canvasPoint.x * worldPoint.x,
+          -canvasPoint.x * worldPoint.y,
+          -canvasPoint.x * worldPoint.z,
+          -canvasPoint.x,
+        ],
+        // dprint-ignore
+        [
+          0,
+          0,
+          0,
+          0,
+          worldPoint.x,
+          worldPoint.y,
+          worldPoint.z,
+          1,
+          -canvasPoint.y * worldPoint.x,
+          -canvasPoint.y * worldPoint.y,
+          -canvasPoint.y * worldPoint.z,
+          -canvasPoint.y,
+        ],
+      ];
+    });
     console.log(rows);
 
     const mat1 = matrix(rows);

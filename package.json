@@ -18,6 +18,7 @@
     "@tanstack/react-query": "^4.13.0",
     "@use-gesture/react": "^10.2.21",
     "glfx": "^0.0.4",
+    "immer": "^9.0.16",
     "matrix-js": "^1.6.1",
     "next": "^13.0.5",
     "react": "experimental",
