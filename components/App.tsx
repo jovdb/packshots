@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useElementSize } from "../src/hooks/useElementSize";
+import { useUnhandledErrorHandler } from "../src/hooks/useErrorHandling";
 import { useLoadedRenderers, usePackshotConfig } from "../src/stores/packshot";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionPanel } from "./Accordion";
@@ -37,6 +38,7 @@ export function App() {
   const [isExportExpanded, setIsExportExpanded] = useState(false);
   const [packshotConfig, setPackshotConfig] = usePackshotConfig();
 
+  useUnhandledErrorHandler();
   useLoadedRenderers();
 
   // Scale and center canvas

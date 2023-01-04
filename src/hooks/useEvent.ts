@@ -5,7 +5,8 @@ import { useCallback, useRef } from "react";
  * identity and will not be called after component unmounts
  */
 export function useEvent<
-  TFn extends ((...args: unknown[]) => unknown) | null | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TFn extends ((...args: any[]) => unknown) | null | undefined
 >(cb: TFn): NonNullable<TFn> {
   // Create a mutable object that holds the callback
   const callbackRef = useRef<TFn>(cb);
@@ -16,6 +17,6 @@ export function useEvent<
   // return a stable callback to prevent rerenders
   return useCallback(
     (...args: unknown[]) => callbackRef.current && callbackRef.current(...args),
-    [],
+    []
   ) as NonNullable<TFn>;
 }

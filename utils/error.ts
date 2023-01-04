@@ -11,13 +11,16 @@ export function flattenErrors(err: unknown): unknown[] {
 /** Get a message of the entire error tree */
 export function getErrorMessage(err: unknown) {
   return flattenErrors(err)
-    .map(err => err instanceof Error ? `${err.name}: ${err.message}` : `${err}`)
+    .map((err) =>
+      err instanceof Error ? `${err.name}: ${err.message}` : `${err}`
+    )
     .join("\n");
 }
 
 export function hasError(err: unknown, name: string) {
-  return flattenErrors(err)
-    .some(err => err instanceof Error && err.name === name);
+  return flattenErrors(err).some(
+    (err) => err instanceof Error && err.name === name
+  );
 }
 
 export function hasNotAllowedError(err: unknown) {
@@ -35,7 +38,7 @@ export class Exception extends Error {
     /** Optional inner exception */
     innerException?: unknown,
     /** Without extending class, we can specify a custom error name */
-    name?: string,
+    name?: string
   ) {
     super(message);
     this.name = name ?? this.constructor.name;
@@ -91,10 +94,83 @@ export function handleError(err: unknown) {
   // Log to user
   let message = getErrorMessage(err);
   if (hasNotAllowedError(err)) {
-    message = "Make sure you didn't block file access in the browser.\n\n" + message;
+    message =
+      "Make sure you didn't block file access in the browser.\n\n" + message;
   }
   alert(message);
 
   // Retrhow?
   // throw err;
+}
+
+export class UnhandledException extends Exception {
+  public readonly source?: string;
+  public readonly lineNo?: number;
+  public readonly colNo?: number;
+
+  constructor(
+    message: string | undefined,
+    innerException: any,
+    source?: string,
+    lineNo?: number,
+    colNo?: number
+  ) {
+    super(message || "Unhandled error", innerException);
+
+    if (source !== undefined) this.source = source;
+    if (lineNo !== undefined) this.lineNo = lineNo;
+    if (colNo !== undefined) this.colNo = colNo;
+  }
+}
+
+export function onUnhandledError(onError: (error: UnhandledException) => void) {
+  const errorHandler: (this: unknown, ev: ErrorEvent) => any = (event) => {
+    const { lineno, colno, error, filename, message } = event;
+
+    debugger;
+
+    // Wrap information into an Exception
+    const exception = new UnhandledException(
+      message,
+      error,
+      filename,
+      lineno,
+      colno
+    );
+
+    onError?.(exception);
+  };
+
+  globalThis.addEventListener("error", errorHandler);
+
+  return () => {
+    globalThis.removeEventListener("error", errorHandler);
+  };
+}
+
+export function onUnhandledRejection(
+  onError: (error: UnhandledException) => void
+) {
+  const errorHandler: (this: unknown, ev: PromiseRejectionEvent) => any = (
+    event
+  ) => {
+    const { reason } = event;
+
+    // Wrap information into an Exception
+    const exception = new Exception(
+      "Unhandled Promose Rejection",
+      reason,
+      "UnhandledPromiseException"
+    );
+
+    debugger;
+
+    onError?.(exception);
+  };
+
+  globalThis.addEventListener("unhandledrejection", errorHandler);
+
+  return () => {
+    globalThis.removeEventListener("unhandledrejection", errorHandler);
+  };
 }
