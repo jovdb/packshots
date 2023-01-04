@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { Select } from "@mantine/core";
+import { useId } from "react";
 import { IRendererConfig } from "../../src/IPackshot";
 import { FieldSet } from "../FieldSet";
 import { ConfigComponent } from "./factory";
@@ -16,17 +17,14 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
   onChange,
 }) => {
   const isEnabled = !config.isDisabled;
+  const id = useId();
   return (
-    <FieldSet
-      label="Mask"
-      checked={isEnabled}
-      onChecked={(isChecked) => {
-        onChange({
-          ...config,
-          isDisabled: !isChecked,
-        });
-      }}
-    >
+    <FieldSet label="Mask" checked={isEnabled} onChecked={(isChecked) => {
+      onChange({
+        ...config,
+        isDisabled: !isChecked,
+      });
+    }}>
       {isEnabled
         && (
           <>
@@ -50,7 +48,7 @@ export const MaskRendererConfig: ConfigComponent<IMaskRenderingConfig> = ({
                       size="xs"
                       value={(config.colorChannel ?? 0).toString()}
                       onChange={(e) => {
-                        const value = e || "0";
+                        const value  = e || "0"
                         onChange({
                           ...config,
                           colorChannel: parseInt(value) || 0,

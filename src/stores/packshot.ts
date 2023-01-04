@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { debounce } from "throttle-debounce";
 import { temporal } from "zundo";
-import { produceWithPatches, enablePatches } from "immer";
 import create from "zustand";
 import shallow from "zustand/shallow";
 import { IControlPointsConfig } from "../controlPoints/IControlPoints";
@@ -11,7 +10,6 @@ import { createRenderer } from "../renderers/factory";
 import { flattenTree, replaceTreeNode, walkTree } from "../Tree";
 import { usePackshotRoot } from "./app";
 
-enablePatches();
 interface IPackshotActions {
   setPackshot(packshot: IPackshot): void;
   updatePackshotName(name: string): void;
@@ -180,10 +178,6 @@ export const usePackshotStore = create<IPackShotStore>()(temporal((set) => {
       handleSet(state);
     })
   ),
-  onSave: (pastState, currentState) => {
-    const result = produceWithPatches(pastState, () => currentState);
-    console.log(result);
-  }
 }));
 
 export function usePackshotActions() {
