@@ -110,7 +110,7 @@ export class UnhandledException extends Exception {
 
   constructor(
     message: string | undefined,
-    innerException: any,
+    innerException: unknown,
     source?: string,
     lineNo?: number,
     colNo?: number
@@ -124,10 +124,8 @@ export class UnhandledException extends Exception {
 }
 
 export function onUnhandledError(onError: (error: UnhandledException) => void) {
-  const errorHandler: (this: unknown, ev: ErrorEvent) => any = (event) => {
+  const errorHandler: (this: unknown, ev: ErrorEvent) => unknown = (event) => {
     const { lineno, colno, error, filename, message } = event;
-
-    debugger;
 
     // Wrap information into an Exception
     const exception = new UnhandledException(
@@ -141,36 +139,48 @@ export function onUnhandledError(onError: (error: UnhandledException) => void) {
     onError?.(exception);
   };
 
-  globalThis.addEventListener("error", errorHandler);
+  globalThis?.addEventListener?.("error", errorHandler);
 
   return () => {
-    globalThis.removeEventListener("error", errorHandler);
+    globalThis?.removeEventListener?.("error", errorHandler);
   };
 }
 
+export class UnhandledRejectionException extends Exception {
+  public readonly promise?: Promise<unknown>;
+
+  constructor(
+    message: string | undefined,
+    innerException: unknown,
+    promise?: Promise<unknown>
+  ) {
+    super(message || "Unhandled error", innerException);
+
+    if (promise !== undefined) this.promise = promise;
+  }
+}
+
 export function onUnhandledRejection(
-  onError: (error: UnhandledException) => void
+  onError: (error: UnhandledRejectionException) => void
 ) {
   const errorHandler: (this: unknown, ev: PromiseRejectionEvent) => any = (
     event
   ) => {
-    const { reason } = event;
+    const { reason, promise } = event;
 
     // Wrap information into an Exception
-    const exception = new Exception(
+    const exception = new UnhandledRejectionException(
       "Unhandled Promose Rejection",
       reason,
-      "UnhandledPromiseException"
+      promise
     );
-
-    debugger;
 
     onError?.(exception);
   };
 
-  globalThis.addEventListener("unhandledrejection", errorHandler);
+  globalThis?.addEventListener?.("unhandledrejection", errorHandler);
 
   return () => {
-    globalThis.removeEventListener("unhandledrejection", errorHandler);
+    globalThis?.removeEventListener?.("unhandledrejection", errorHandler);
   };
 }
