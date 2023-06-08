@@ -76,6 +76,7 @@ export async function savePackShotToFolderAsync(
   }
 }
 
+/** Get image url from config, if filesystem is used if is converted to a base64url*/
 export async function getImageUrl(root: PackshotRoot, imageConfig: IImageConfig | undefined) {
   if (!imageConfig?.url) {
     console.error("No image configuration available");

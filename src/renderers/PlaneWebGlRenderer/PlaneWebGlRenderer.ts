@@ -22,8 +22,8 @@ export class PlaneWebGlRenderer implements IRenderer {
   private readonly uniforms: {
     texture: WebGLTexture | undefined;
     textureMatrix: twgl.m4.Mat4 | undefined;
-    matrix: twgl.m4.Mat4 | undefined;
-    /** 0: Texture (default), 1: Checkboard, 2: None */
+    projectionMatrix: twgl.m4.Mat4 | undefined;
+    /** 0: Texture (default), 1: Checkerboard, 2: None */
     textureStyle: 0 | 1 | 2;
   };
 
@@ -43,7 +43,7 @@ export class PlaneWebGlRenderer implements IRenderer {
     this.uniforms = {
       texture: undefined,
       textureMatrix: twgl.m4.identity(),
-      matrix: undefined,
+      projectionMatrix: undefined,
       textureStyle: 1,
     };
 
@@ -59,6 +59,8 @@ export class PlaneWebGlRenderer implements IRenderer {
     root: PackshotRoot,
   ) {
     if (this.image) return; // TODO, compare if same image is loaded (add loadedUrl member variable to compare?)
+
+    // If No image if configured, show a checkerboard as image
     if (!config.image.url) {
       this.uniforms.textureStyle = 1;
       return;
@@ -66,6 +68,7 @@ export class PlaneWebGlRenderer implements IRenderer {
 
     const url = await getImageUrl(root, config.image);
 
+    // load url in texture
     return new Promise<void>((resolve, reject) => {
       const { gl } = this;
       this.image = undefined;
@@ -80,7 +83,7 @@ export class PlaneWebGlRenderer implements IRenderer {
           this.image = undefined;
           if (this.uniforms.texture) this.gl.deleteTexture(this.uniforms.texture);
           this.uniforms.texture = undefined;
-          this.uniforms.textureStyle = 1;
+          this.uniforms.textureStyle = 1; // Show checkerboard
           reject(err);
         } else {
           this.image = img as HTMLImageElement;
@@ -114,17 +117,16 @@ export class PlaneWebGlRenderer implements IRenderer {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Calculate matrix
+    // Get the 4x4 orthographic projection matrix
     const matrix = m4.ortho(0, targetWidth, targetHeight, 0, -1, 1); // Convert from pixels to clip space
+    m4.scale(matrix, [targetWidth, targetHeight, 1], matrix); // stretch to canvas size
 
-    // Get perspective matrix
+    // Get perspective matrix 
     const projectionMatrix = this.getProjectionMatrixFromControlPoints(config.controlPoints);
     if (projectionMatrix) {
-      m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
       m4.multiply(matrix, projectionMatrix, matrix);
-    } else {
-      m4.scale(matrix, [targetWidth, targetHeight, 1], matrix);
     }
-    uniforms.matrix = matrix;
+    uniforms.projectionMatrix = matrix;
 
     // Render
     twgl.setUniforms(programInfo, uniforms);
@@ -145,9 +147,7 @@ export class PlaneWebGlRenderer implements IRenderer {
   }
 
   /**
-   * Get matrix to convert controlPoints (range: -1 to 1) to a matrix (range: 0 to canvas size)
-   * TODO:  I would like to use control points in (0-1 range) to normalized matrix (range: 0 to 1)
-   * At this way the default is a identity matrix and independent of the LOD used for the image
+   * Get matrix to convert a normalized image (from range: 0 to 1) to the control points (range:  -1 to 1) 
    */
   public getProjectionMatrixFromControlPoints(
     controlPoints: ControlPoint[] | undefined,
@@ -155,7 +155,7 @@ export class PlaneWebGlRenderer implements IRenderer {
     if (!controlPoints) return twgl.m4.identity();
 
     /** Convert control point (range [-1,1]) to image range (0-1) */
-    function getCanvasControlPoint(x: number, y: number) {
+    function getNormalizedControlPoint(x: number, y: number) {
       return [
         0.5 + x * 0.5,
         0.5 + y * 0.5,
@@ -198,13 +198,13 @@ export class PlaneWebGlRenderer implements IRenderer {
       const q3 = p0;
       const q4 = p2;
 
-      // Remark: WebGL matrices have horizontal columns!
+      // Remark: WebGL matrices are row-major! (have horizontal columns)
       // dprint-ignore
       const mat = [
         q1[0], q2[0], q3[0], 0,
         q1[1], q2[1], q3[1], 0,
-        1,     1,     1,     0,
-        0,     0,     0,     1,
+        1, 1, 1, 0,
+        0, 0, 0, 1,
       ];
 
       const inv = twgl.m4.inverse(mat);
@@ -216,7 +216,7 @@ export class PlaneWebGlRenderer implements IRenderer {
       return [
         q1[0] * s1, q1[1] * s1, 0, s1,
         q2[0] * s2, q2[1] * s2, 0, s2,
-        0,          0,          1, 0,
+        0, 0, 1, 0,
         q3[0] * s3, q3[1] * s3, 0, s3,
       ];
     }
@@ -226,10 +226,10 @@ export class PlaneWebGlRenderer implements IRenderer {
     const src2 = [1, 1] as ControlPoint;
     const src3 = [0, 1] as ControlPoint;
 
-    const dst0 = getCanvasControlPoint(...controlPoints[0]);
-    const dst1 = getCanvasControlPoint(...controlPoints[1]);
-    const dst2 = getCanvasControlPoint(...controlPoints[2]);
-    const dst3 = getCanvasControlPoint(...controlPoints[3]);
+    const dst0 = getNormalizedControlPoint(...controlPoints[0]);
+    const dst1 = getNormalizedControlPoint(...controlPoints[1]);
+    const dst2 = getNormalizedControlPoint(...controlPoints[2]);
+    const dst3 = getNormalizedControlPoint(...controlPoints[3]);
 
     const matrixA = getMapping(src0, src1, src2, src3);
     const matrixB = getMapping(dst0, dst1, dst2, dst3);
@@ -246,16 +246,21 @@ export class PlaneWebGlRenderer implements IRenderer {
   dispose(): void {
     if (this.uniforms.texture) {
       this.gl.deleteTexture(this.uniforms.texture);
+      this.uniforms.texture = undefined;
+      this.image = undefined;
     }
-    /*
-        if (this.bufferInfo) {
-            this.gl.deleteBuffer(this.bufferInfo);
-        }
 
-        if (this.programInfo) {
-            this.gl.deleteProgram(this.programInfo);
-        }
-        */
+    if (this.bufferInfo) {
+      this.gl.deleteBuffer(this.bufferInfo);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this as any).bufferInfo = undefined;
+    }
+
+    if (this.programInfo) {
+      this.gl.deleteProgram(this.programInfo);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this as any).programInfo = undefined;
+    }
   }
 }
 
