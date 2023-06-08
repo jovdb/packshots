@@ -64,11 +64,20 @@ export function Accordion({
         </span>
         <span style={{ display: "inline-flex" }}>{left}</span>
         <span
-          ref={contentEditableRef}
           style={{ flex: "1", padding: "0 5px" }}
-          contentEditable={isTitleEditable}
-          spellCheck={false}
         >
+          <span
+            ref={contentEditableRef}
+            style={{ minWidth: 20, display: "inline-block", cursor: "initial" }}
+            contentEditable={isTitleEditable}
+            spellCheck={false}
+            onClick={(e) => {
+              if (isTitleEditable) {
+                e.stopPropagation();
+              }
+            }}
+          >
+          </span>
         </span>
         <span style={{ display: "inline-flex" }}>{right}</span>
       </AccordionBar>
