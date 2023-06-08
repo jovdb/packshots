@@ -8,6 +8,7 @@ import { useEvent } from "./useEvent";
 export function useUnhandledErrorHandler() {
   const stableOnError = useEvent((error: Exception) => {
     console.log(error);
+    // eslint-disable-next-line no-debugger
     debugger;
   });
 

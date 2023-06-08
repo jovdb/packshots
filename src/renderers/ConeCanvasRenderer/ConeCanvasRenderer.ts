@@ -9,7 +9,7 @@ import type { IRenderer, IRenderResult } from "../IRenderer";
 import { PointTextureSampler } from "../samplers/PointTextureSampler";
 // import { controlPointsToCamera } from "./ControlPoints";
 import { rayTracer } from "./RayTracer";
-import matrix from "matrix-js";
+// import matrix from "matrix-js";
 
 function toCanvasPoint(
   controlPoint: ControlPoint,
@@ -258,11 +258,12 @@ export class ConeCanvasRenderer implements IRenderer {
       },
     );
     console.log(rows);
-
+/*
     const mat1 = matrix(rows);
     console.log(mat1);
     const mat2 = matrix(mat1.trans()).mul(mat1);
     console.log(mat2);
+    */
   }
 
   dispose(): void {
