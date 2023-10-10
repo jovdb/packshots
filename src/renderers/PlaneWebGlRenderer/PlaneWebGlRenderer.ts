@@ -34,6 +34,7 @@ export class PlaneWebGlRenderer implements IRenderer {
     if (!gl) throw new Error("WebGL not supported");
     this.gl = gl;
 
+    // return a 2x2 quad with values from -1 to +1.
     this.bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
 
     this.programInfo = twgl.createProgramInfo(gl, [vertexShader, fragmentShader], (err) => {
@@ -251,13 +252,15 @@ export class PlaneWebGlRenderer implements IRenderer {
     }
 
     if (this.bufferInfo) {
-      this.gl.deleteBuffer(this.bufferInfo);
+      const buffer = this.bufferInfo.indices;
+      if (buffer) this.gl.deleteBuffer(buffer);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this as any).bufferInfo = undefined;
     }
 
     if (this.programInfo) {
-      this.gl.deleteProgram(this.programInfo);
+      const program = this.programInfo.program;
+      if (program) this.gl.deleteProgram(program);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this as any).programInfo = undefined;
     }
