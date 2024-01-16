@@ -3,7 +3,7 @@ import { PackshotRoot } from "../stores/app";
 
 export interface IRenderResult {
   /**
-   * The context on which the childs nodes should draw
+   * The context on which the child nodes should draw
    * This previous draw context is restored after this node.
    */
   nextContext?: CanvasRenderingContext2D | undefined;

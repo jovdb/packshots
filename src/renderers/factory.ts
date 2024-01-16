@@ -1,10 +1,9 @@
-import { ImageRenderer } from "./ImageRenderer";
 import { IRenderer } from "./IRenderer";
-// import { MaskRenderer } from "./MaskRendering";
+
 import { PlaneWebGlRenderer } from "./PlaneWebGlRenderer/PlaneWebGlRenderer";
-// import { ConeWebGlRenderer } from "./ConeWebglRenderer/ConeWebGlRenderer";
 import { ConeCanvasRenderer } from "./ConeCanvasRenderer/ConeCanvasRenderer";
-import { MaskChannelRenderer } from "./MaskChannelRendering";
+import { ImageRenderer } from "./ImageRenderer";
+import { MaskChannelRenderer } from "./MaskChannelRenderer";
 
 export function createRenderer(
   type: string,
