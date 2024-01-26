@@ -1,4 +1,4 @@
-import { IControlPointsConfig } from "../../src/controlPoints/IControlPoints";
+import { IControlPointsConfig } from "../../controlPoints/IControlPoints";
 import { FieldSet } from "../FieldSet";
 import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig, imageDefaultConfig } from "./ImageConfig";

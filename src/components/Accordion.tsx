@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, PropsWithChildren, ReactNode, useRef } from "react";
 import DownIcon from "../icons/down.svg";
 
-import { useEditableContent } from "../src/hooks/useEditableContent";
+import { useEditableContent } from "../hooks/useEditableContent";
 
 export function Accordion({
   title,

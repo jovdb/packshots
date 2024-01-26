@@ -1,4 +1,4 @@
-import { ILayerConfig } from "../src/IPackshot";
+import { ILayerConfig } from "../IPackshot";
 
 export function LayerConfig({
   config,

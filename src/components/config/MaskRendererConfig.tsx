@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { Select } from "@mantine/core";
-import { IRendererConfig } from "../../src/IPackshot";
+import { IRendererConfig } from "../../IPackshot";
 import { FieldSet } from "../FieldSet";
 import { ConfigComponent } from "./factory";
 import { IImageConfig, ImageConfig } from "./ImageConfig";

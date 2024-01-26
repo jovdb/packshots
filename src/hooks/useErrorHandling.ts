@@ -2,7 +2,7 @@ import {
   Exception,
   onUnhandledError,
   onUnhandledRejection,
-} from "../../utils/error";
+} from "../utils/error";
 import { useEvent } from "./useEvent";
 
 export function useUnhandledErrorHandler() {

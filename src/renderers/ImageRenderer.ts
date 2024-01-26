@@ -1,4 +1,4 @@
-import { IImageRendererConfig } from "../../components/config/ImageRendererConfig";
+import { IImageRendererConfig } from "../components/config/ImageRendererConfig";
 import { ImageCache } from "../ImageCache";
 import { getImageUrl, PackshotRoot } from "../stores/app";
 import type { IRenderer, IRenderResult } from "./IRenderer";

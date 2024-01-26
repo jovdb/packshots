@@ -16,14 +16,14 @@ import VaseIcon from "../icons/vase.svg";
 import WebIcon from "../icons/web.svg";
 import ZipIcon from "../icons/zip.svg";
 
-import { IConeRenderer, IImageRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../src/IPackshot";
+import { IConeRenderer, IImageRenderer, ILayer, IMaskRenderer, IPlaneRenderer } from "../IPackshot";
 import {
   isFolderHandles,
   loadPackShotFromFolderAsync,
   savePackShotToFolderAsync,
   usePackshotRoot,
-} from "../src/stores/app";
-import { useHistory, useLayers, usePackshotActions, usePackshotName, usePackshotStore } from "../src/stores/packshot";
+} from "../stores/app";
+import { useHistory, useLayers, usePackshotActions, usePackshotName, usePackshotStore } from "../stores/packshot";
 import { handleError } from "../utils/error";
 import { getSampleImageConfigAsync } from "../utils/image";
 import { Accordion, AccordionButton, AccordionPanel } from "./Accordion";

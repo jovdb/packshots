@@ -1,5 +1,5 @@
-import { IImageRendererConfig } from "../../components/config/ImageRendererConfig";
-import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
+import { IImageRendererConfig } from "../components/config/ImageRendererConfig";
+import { IMaskRenderingConfig } from "../components/config/MaskRendererConfig";
 import { ImageCache } from "../ImageCache";
 import { getImageUrl, PackshotRoot } from "../stores/app";
 import { IRenderer, IRenderResult } from "./IRenderer";

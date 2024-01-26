@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { CSSProperties, useRef } from "react";
-import { checkBoardStyle } from "../src/checkboard";
-import { ILayerConfig, IPackshotConfig, IRenderTree } from "../src/IPackshot";
-import { usePackshotRoot } from "../src/stores/app";
-import { useLayersConfig, usePackshotConfig, useRenderTrees } from "../src/stores/packshot";
-import { flattenTree, walkTree } from "../src/Tree";
+import { checkBoardStyle } from "../checkboard";
+import { ILayerConfig, IPackshotConfig, IRenderTree } from "../IPackshot";
+import { usePackshotRoot } from "../stores/app";
+import { useLayersConfig, usePackshotConfig, useRenderTrees } from "../stores/packshot";
+import { flattenTree, walkTree } from "../Tree";
 import { Exception, handleError } from "../utils/error";
 import { ControlPoints } from "./ControlPoints";
 

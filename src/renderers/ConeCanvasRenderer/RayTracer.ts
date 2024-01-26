@@ -1,5 +1,5 @@
 import { Vector3, Matrix3, Matrix4 } from "three";
-import { createContext2d } from "../../../utils/image";
+import { createContext2d } from "../../utils/image";
 import { IGeometry } from "../geometries/IGeometry";
 import { ITextureSampler } from "../samplers/ITextureSampler";
 

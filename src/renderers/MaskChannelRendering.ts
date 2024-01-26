@@ -1,6 +1,6 @@
-import { IMaskRenderingConfig } from "../../components/config/MaskRendererConfig";
-import { Exception } from "../../utils/error";
-import { createContext2d, getImageDataAsync } from "../../utils/image";
+import { IMaskRenderingConfig } from "../components/config/MaskRendererConfig";
+import { Exception } from "../utils/error";
+import { createContext2d, getImageDataAsync } from "../utils/image";
 import { getImageUrl, PackshotRoot } from "../stores/app";
 import { IRenderer, IRenderResult } from "./IRenderer";
 

@@ -1,4 +1,4 @@
-import { IPackshotConfig } from "../../src/IPackshot";
+import { IPackshotConfig } from "../../IPackshot";
 import { ConfigComponent } from "./factory";
 import { NumberInput } from '@mantine/core';
 import { FieldSet } from "../FieldSet";

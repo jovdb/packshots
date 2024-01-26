@@ -1,4 +1,4 @@
-import { IPackshot } from "../../src/IPackshot";
+import { IPackshot } from "../../IPackshot";
 
 export const photobookPackshot: IPackshot = {
   name: "PhotoBook",

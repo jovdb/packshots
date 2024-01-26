@@ -1,5 +1,5 @@
-import { ILayer } from "../src/IPackshot";
-import { usePackshotActions } from "../src/stores/packshot";
+import { ILayer } from "../IPackshot";
+import { usePackshotActions } from "../stores/packshot";
 
 import { LayerAccordion } from "./LayerAccordion";
 import { LayerConfig } from "./LayerConfig";

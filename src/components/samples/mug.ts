@@ -1,7 +1,7 @@
-import { IPackshot } from "../../src/IPackshot";
+import { IPackshot } from "../../IPackshot";
 
-export const flowerPotPackshot: IPackshot = {
-  name: "Flowerpot",
+export const mugPackshot: IPackshot = {
+  name: "Mug",
   config: {
     width: 900,
     height: 900,
@@ -13,7 +13,7 @@ export const flowerPotPackshot: IPackshot = {
         type: "image",
         config: {
           image: {
-            name: "Background.png",
+            name: "Mug.png",
             url: "Background.png",
           },
         },
@@ -37,16 +37,13 @@ export const flowerPotPackshot: IPackshot = {
                 name: "Spread3.jpg",
                 url: "Spread.jpg",
               },
-              diameterTop : 9.2,
-              diameterBottom: 6.3,
-              height: 10,
               controlPoints: [
-                [-0.53444445, -0.34111112],
-                [-0.007777778, -0.34],
-                [0.5277778, -0.35777777],
-                [-0.34888887, 0.77111113],
-                [-0.0044444446, 0.8422222],
-                [0.35555556, 0.77111113],
+                [-0.6683706155600259, -0.6204472745950229],
+                [-0.04472837966090193, -0.5744409043187151],
+                [0.5686900531902861, -0.630670907017522],
+                [-0.6249201412018115, 0.4964856035031451],
+                [-0.04472837966090193, 0.637060780875599],
+                [0.5507987573885689, 0.519489032391923],
               ],
             },
           },

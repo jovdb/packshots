@@ -32,10 +32,10 @@
                                                  ╚═══════════════════╝
 */
 
-import { IConeRendererConfig } from "../components/config/ConeRendererConfig";
-import { IImageRendererConfig } from "../components/config/ImageRendererConfig";
-import { IMaskRenderingConfig } from "../components/config/MaskRendererConfig";
-import { IPlaneRendererConfig } from "../components/config/PlaneRendererConfig";
+import { IConeRendererConfig } from "./components/config/ConeRendererConfig";
+import { IImageRendererConfig } from "./components/config/ImageRendererConfig";
+import { IMaskRenderingConfig } from "./components/config/MaskRendererConfig";
+import { IPlaneRendererConfig } from "./components/config/PlaneRendererConfig";
 import { IRenderer } from "./renderers/IRenderer";
 
 export interface IRendererConfig {

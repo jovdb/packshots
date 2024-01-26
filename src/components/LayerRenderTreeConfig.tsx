@@ -1,6 +1,6 @@
-import { ILayer } from "../src/IPackshot";
-import { usePackshotActions } from "../src/stores/packshot";
-import { flattenTree, replaceTreeNode } from "../src/Tree";
+import { ILayer } from "../IPackshot";
+import { usePackshotActions } from "../stores/packshot";
+import { flattenTree, replaceTreeNode } from "../Tree";
 import { ConfigComponent, getConfigComponent } from "./config/factory";
 
 export function LayerRenderTreeConfig({

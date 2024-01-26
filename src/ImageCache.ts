@@ -1,4 +1,4 @@
-import { loadImageAsync } from "../utils/image";
+import { loadImageAsync } from "./utils/image";
 
 export class ImageCache {
   private image: HTMLImageElement | undefined;

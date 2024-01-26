@@ -1,9 +1,9 @@
 import { CSSProperties, useCallback, useMemo, useRef } from "react";
-import { ControlPoint } from "../src/controlPoints/IControlPoints";
-import { useElementSize } from "../src/hooks/useElementSize";
-import { ILayerConfig } from "../src/IPackshot";
-import { useAllControlPoints, useLayersConfig, usePackshotActions, useRenderTrees } from "../src/stores/packshot";
-import { flattenTree } from "../src/Tree";
+import { ControlPoint } from "../controlPoints/IControlPoints";
+import { useElementSize } from "../hooks/useElementSize";
+import { ILayerConfig } from "../IPackshot";
+import { useAllControlPoints, useLayersConfig, usePackshotActions, useRenderTrees } from "../stores/packshot";
+import { flattenTree } from "../Tree";
 import { DrawPoints, useLayersControlPointsDragging } from "./DrawPoints";
 
 function layerControlPointsFilter(layerConfig: ILayerConfig) {

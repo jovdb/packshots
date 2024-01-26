@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as twgl from "twgl.js/dist/5.x/twgl-full";
-import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
+import { IConeRendererConfig } from "../../components/config/ConeRendererConfig";
 import { ControlPoint } from "../../controlPoints/IControlPoints";
 import type { IRenderer, IRenderResult } from "../IRenderer";
 

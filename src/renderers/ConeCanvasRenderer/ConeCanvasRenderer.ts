@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Matrix3, Matrix4, Vector2, Vector3 } from "three";
-import { IConeRendererConfig } from "../../../components/config/ConeRendererConfig";
-import { getImageDataAsync } from "../../../utils/image";
+import { IConeRendererConfig } from "../../components/config/ConeRendererConfig";
+import { getImageDataAsync } from "../../utils/image";
 import { ControlPoint } from "../../controlPoints/IControlPoints";
 import { getImageUrl, PackshotRoot } from "../../stores/app";
 import { ConeGeometry } from "../geometries/ConeGeometry";

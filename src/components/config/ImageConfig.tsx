@@ -1,13 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
-import { checkBoardStyle } from "../../src/checkboard";
-import { isFolderHandles, useImageUrl, usePackshotRoot } from "../../src/stores/app";
+import { checkBoardStyle } from "../../checkboard";
+import { isFolderHandles, useImageUrl, usePackshotRoot } from "../../stores/app";
 import { ImageSelection } from "../FileSelection";
 import { ConfigComponent } from "./factory";
 
 import { Button, Select, TextInput } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { getFileNamesAsync, loadFolderAsync } from "../../src/fileSystem";
+import { getFileNamesAsync, loadFolderAsync } from "../../fileSystem";
 import { getSampleImageConfigAsync } from "../../utils/image";
 
 export interface IImageConfig {

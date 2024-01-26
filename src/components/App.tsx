@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
-import { useElementSize } from "../src/hooks/useElementSize";
-import { useUnhandledErrorHandler } from "../src/hooks/useErrorHandling";
-import { useLoadedRenderers, usePackshotConfig } from "../src/stores/packshot";
+import { useElementSize } from "../hooks/useElementSize";
+import { useUnhandledErrorHandler } from "../hooks/useErrorHandling";
+import { useLoadedRenderers, usePackshotConfig } from "../stores/packshot";
 import { fitRectTransform } from "../utils/rect";
 import { Accordion, AccordionPanel } from "./Accordion";
 import { ActionBar } from "./ActionBar";
