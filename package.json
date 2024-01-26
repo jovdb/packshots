@@ -11,6 +11,9 @@
     "lint": "next lint",
     "fmt": "dprint fmt"
   },
+  "engines": {
+    "node": "20.9.0"
+  },
   "dependencies": {
     "@mantine/core": "^5.9.5",
     "@mantine/hooks": "^5.9.5",
