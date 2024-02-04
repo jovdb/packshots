@@ -42,7 +42,7 @@ export const usePackshotStore = create<IPackShotStore>()(temporal((set) => {
       // Create new renderers
       packshot?.layers?.forEach(layer => {
         walkTree(layer.renderTree, renderNode => {
-          renderNode.renderer = createRenderer(renderNode.type);
+          renderNode.renderer = createRenderer(renderNode.type, renderNode.config);
         });
       });
 
@@ -138,7 +138,7 @@ export const usePackshotStore = create<IPackShotStore>()(temporal((set) => {
           // Update renderers
           walkTree(oldLayer.renderTree, renderNode => renderNode.renderer?.dispose?.());
           walkTree(newLayer.renderTree, renderNode => {
-            renderNode.renderer = createRenderer(renderNode.type);
+            renderNode.renderer = createRenderer(renderNode.type, renderNode.config);
           });
 
           return {
@@ -225,7 +225,7 @@ export function useRenderers() {
 
       // Create new renderers
       return usePackshotStore.getState().layers.map((layer) => (
-        flattenTree(layer.renderTree).map(rendererInfo => createRenderer(rendererInfo.type))
+        flattenTree(layer.renderTree).map(rendererInfo => createRenderer(rendererInfo.type, rendererInfo.config))
       ));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

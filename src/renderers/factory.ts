@@ -7,6 +7,7 @@ import { MaskChannelRenderer } from "./MaskChannelRenderer";
 
 export function createRenderer(
   type: string,
+  config: IRendererConfig | undefined,
 ): IRenderer {
   switch (type) {
     case "image":
