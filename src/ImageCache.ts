@@ -1,11 +1,12 @@
 import { loadImageAsync } from "./utils/image";
 
+/** A helper class to load an image once */
 export class ImageCache {
   private image: HTMLImageElement | undefined;
   private imageUrl: string | undefined;
   private imagePromise: Promise<HTMLImageElement> | undefined;
 
-  /** Get image or load image */
+  /** Get or load image */
   public loadImage(url: string | undefined): HTMLImageElement | undefined | Promise<HTMLImageElement> {
     url ||= undefined;
 
@@ -42,19 +43,19 @@ export class ImageCache {
     return this.imagePromise;
   }
 
-  /** Synchroniously get image */
+  /** Synchronously get image */
   public getImage(required?: boolean) {
     if (this.isLoaded()) return this.image;
     if (required && this.imageUrl && !this.image) throw new Error("Loaded image expected.");
     return undefined; // No or other image is loaded
   }
 
-  /** Synchroniously get image */
+  /** Asynchronously get image */
   public getImagePromise() {
-    return this.imagePromise || Promise.resolve(this.image);
+    return this.imagePromise ?? Promise.resolve(this.image);
   }
 
   public isLoaded() {
-    return this.image;
+    return !!this.image;
   }
 }
