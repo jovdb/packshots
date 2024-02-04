@@ -4,6 +4,7 @@ import { PlaneWebGlRenderer } from "./PlaneWebGlRenderer/PlaneWebGlRenderer";
 import { ConeCanvasRenderer } from "./ConeCanvasRenderer/ConeCanvasRenderer";
 import { ImageRenderer } from "./ImageRenderer";
 import { MaskChannelRenderer } from "./MaskChannelRenderer";
+import { NegativeRenderer } from "./NegativeRenderer";
 
 export function createRenderer(
   type: string,
@@ -18,6 +19,8 @@ export function createRenderer(
       return new PlaneWebGlRenderer();
     case "cone":
       return new ConeCanvasRenderer();
+    case "negative":
+      return new NegativeRenderer();
     default:
       throw new Error(`Unknown render type: ${type}`);
   }

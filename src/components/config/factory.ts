@@ -22,6 +22,8 @@ export function getConfigComponent(
       return ConeRendererConfig;
     case "mask":
       return MaskRendererConfig;
+    case "negative":
+      return null;
     default:
       throw new Error(`Unknown config type: ${type}`);
   }

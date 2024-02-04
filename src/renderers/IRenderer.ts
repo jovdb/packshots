@@ -10,7 +10,7 @@ export interface IRenderResult {
   /** The context on which the child nodes should draw */
   childContext?: CanvasRenderingContext2D | undefined;
 
-  /** A function that will executed after this node with it children is rendered. */
+  /** A function that will be executed after this node with it children is rendered. */
   afterChildren?: () => void;
 }
 

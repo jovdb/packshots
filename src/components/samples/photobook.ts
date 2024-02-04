@@ -66,20 +66,26 @@ export const photobookPackshot: IPackshot = {
         },
         children: [
           {
-            type: "plane",
-            config: {
-              image: {
-                name: "Spread2.jpg",
-                url: "Spread2.jpg",
+            type: "negative",
+            config: {},
+            children: [
+              {
+                type: "plane",
+                config: {
+                  image: {
+                    name: "Spread2.jpg",
+                    url: "Spread2.jpg",
+                  },
+                  controlPoints: [
+                    [-0.414, -0.499],
+                    [0.612, -0.37],
+                    [0.614, 0.68],
+                    [-0.414, 0.412],
+                  ],
+                },
               },
-              controlPoints: [
-                [-0.414, -0.499],
-                [0.612, -0.37],
-                [0.614, 0.68],
-                [-0.414, 0.412],
-              ],
-            },
-          },
+            ]
+          }
         ],
       },
       config: {
