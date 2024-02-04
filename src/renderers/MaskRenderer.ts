@@ -6,6 +6,8 @@ import { IRenderer, IRenderResult } from "./IRenderer";
 
 export class MaskRenderer implements IRenderer {
   public imageCache: ImageCache;
+
+  /** Context to draw the children on */
   private context: CanvasRenderingContext2D;
 
   constructor() {
