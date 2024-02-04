@@ -22,6 +22,13 @@ export class RenderException extends Exception {
   }
 }
 
+/**
+ * Render multiple layers on a canvas to create a packshot
+ * @param targetContext The canvas Context where we draw on
+ * @param renderTrees An array of layers to render, each layer is a tree (example when masking is performed)
+ * @param layersConfig The configuration (like layer composition, hidden layers, etc) of each layer in the same order as the renderTrees passed
+ * @param packshotConfig General config of the Packshot (like image size)
+ */
 function render(
   targetContext: CanvasRenderingContext2D | null | undefined,
   renderTrees: IRenderTree[],
@@ -55,14 +62,16 @@ function render(
 
             // console.log(`${new Array(depth * 2).fill(" ")}- Rendering '${renderTree.name ?? renderTree.renderer?.constructor?.name ?? "?"}'`);
 
-            // Render
+            // Render on current drawing context
             const renderResult = renderer.render(currentDrawContext, config, packshotConfig, false);
 
-            // Set next drawing Context
+            // Set next drawing Context the the context returned by the renderer
             const restoreContext = currentDrawContext;
-            currentDrawContext = renderResult?.nextContext || currentDrawContext;
+            if (renderResult?.childContext) currentDrawContext = renderResult?.childContext;
 
-            // TODO shouldn't we restore the drawContext ouself?
+            // TODO: shouldn't we restore the drawContext ourself?
+            // The returned function will be called after all children are processed
+            // We will call (if available) the renders afterChildren function
             return () => {
               renderResult?.afterChildren?.();
               // Restore context
@@ -80,15 +89,16 @@ function render(
   console.log("Rendering ended...");
 }
 
+/** A React component the renders the packshot */
 export function Renderer({
   width,
   height,
   style,
-}: {
+}: Readonly<{
   width: number;
   height: number;
   style?: CSSProperties;
-}) {
+}>) {
   // Create a render target
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetContextRef = useRef<CanvasRenderingContext2D | null>(null);

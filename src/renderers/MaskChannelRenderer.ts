@@ -35,9 +35,9 @@ export class MaskChannelRenderer implements IRenderer {
 
         // Reuse current loading
         try {
-          await this.contextPromise; // Reuseprevious started loading
+          await this.contextPromise; // Reuse previous started loading
         } catch (err) {
-          // Previous process will reset memeber variables
+          // Previous process will reset member variables
           throw new Exception("Error loading mask image", err);
         }
         return;
@@ -51,11 +51,11 @@ export class MaskChannelRenderer implements IRenderer {
         const numberOfPixels = imageData.width * imageData.height;
         // Loop over colors
         for (let pixelIndex = 0; pixelIndex < numberOfPixels; ++pixelIndex) {
-          // Use one color channel and create a greyscale image with it
+          // Use one color channel and create a grayscale image with it
           let value = imageData.data[pixelIndex * 4 + colorChannelIndex];
-          if (colorChannelIndex === 3) value = 255 - value; // Inverted for alpha, so a transparent hole is visible and other channels are visisble
+          if (colorChannelIndex === 3) value = 255 - value; // Inverted for alpha, so a transparent hole is visible and other channels are visible
 
-          // Make greyscale image of the single channel as mask
+          // Make grayscale image of the single channel as mask
           imageData.data[pixelIndex * 4 + 0] = 255;
           imageData.data[pixelIndex * 4 + 1] = 255;
           imageData.data[pixelIndex * 4 + 2] = 255;
@@ -105,7 +105,7 @@ export class MaskChannelRenderer implements IRenderer {
       context.globalCompositeOperation = "source-in";
 
       return {
-        nextContext: this.debugMask
+        childContext: this.debugMask
           ? createContext2d(drawOnContext.canvas.width, drawOnContext.canvas.width, 1) // Temporary unused context so we can see mask
           : context, // Draw on this separate context
         afterChildren: () => {

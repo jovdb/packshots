@@ -163,14 +163,14 @@ export class UnhandledRejectionException extends Exception {
 export function onUnhandledRejection(
   onError: (error: UnhandledRejectionException) => void
 ) {
-  const errorHandler: (this: unknown, ev: PromiseRejectionEvent) => any = (
+  const errorHandler: (this: unknown, ev: PromiseRejectionEvent) => unknown = (
     event
   ) => {
     const { reason, promise } = event;
 
     // Wrap information into an Exception
     const exception = new UnhandledRejectionException(
-      "Unhandled Promose Rejection",
+      "Unhandled Promise Rejection",
       reason,
       promise
     );

@@ -53,7 +53,7 @@ export class MaskRenderer implements IRenderer {
       context.globalCompositeOperation = "source-in";
 
       return {
-        nextContext: context,
+        childContext: context,
         afterChildren: () => {
           context.globalCompositeOperation = "source-out";
 

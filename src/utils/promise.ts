@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function isPromise(promise: null | undefined): false;
 export function isPromise<T>(promise: Promise<T>): promise is Promise<T>;
 export function isPromise(promise: any): promise is Promise<unknown>;

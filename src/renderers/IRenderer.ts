@@ -1,19 +1,22 @@
 import { IPackshotConfig } from "../IPackshot";
 import { PackshotRoot } from "../stores/app";
 
+
+/**
+ * The IRenderResult is useful for nested renderings
+ * When you expect child renderings, like Masking, ColorEffects
+ */
 export interface IRenderResult {
-  /**
-   * The context on which the child nodes should draw
-   * This previous draw context is restored after this node.
-   */
-  nextContext?: CanvasRenderingContext2D | undefined;
+  /** The context on which the child nodes should draw */
+  childContext?: CanvasRenderingContext2D | undefined;
 
   /** A function that will executed after this node with it children is rendered. */
   afterChildren?: () => void;
 }
+
 export interface IRenderer {
   /**
-   * Returns a function to call after the children are rendered
+   * Can return a function to call after the children are rendered
    * Can be used for nested renders like a mask renderer
    */
   render(
@@ -24,7 +27,7 @@ export interface IRenderer {
   ): IRenderResult | undefined | void;
 
   // Prepare this renderer with the specified data
-  // If missing or returns undefined, no async data is needed are already available.
+  // If missing or returns undefined, no async data is needed or already available.
   loadAsync?(
     config: {},
     root: PackshotRoot,

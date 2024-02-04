@@ -45,10 +45,11 @@ export interface IRendererConfig {
 /** Render information from packshot configuration */
 export interface IRenderTree {
   name?: string;
+  /** Type is used by the factory to create the correct Renderer for this */
   type: string;
   /** That code that will do the rendering, added by store */
   renderer?: IRenderer;
-  /** A tree of render information (example a mask with as child an image) */
+  /** A tree of render information (example a mask with as child an ImageRenderer) */
   children?: IRenderTree[];
   /** Render Node Configuration */
   config: {};
