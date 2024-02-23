@@ -67,7 +67,10 @@ export const photobookPackshot: IPackshot = {
         children: [
           {
             type: "negative",
-            config: {},
+            config: {
+              method: "wasm",
+              isDisabled: false,
+            },
             children: [
               {
                 type: "plane",

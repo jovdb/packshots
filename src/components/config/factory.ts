@@ -3,6 +3,7 @@ import { ConeRendererConfig } from "./ConeRendererConfig";
 import { ImageRendererConfig } from "./ImageRendererConfig";
 import { MaskRendererConfig } from "./MaskRendererConfig";
 import { PlaneRendererConfig } from "./PlaneRendererConfig";
+import { NegativeRendererConfig } from "./NegativeRendererConfig";
 
 export type ConfigComponent<T extends {}, TExtraProps extends {} = {}> = FC<{
   config: T;
@@ -23,7 +24,7 @@ export function getConfigComponent(
     case "mask":
       return MaskRendererConfig;
     case "negative":
-      return null;
+      return NegativeRendererConfig;
     default:
       throw new Error(`Unknown config type: ${type}`);
   }
