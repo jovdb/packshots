@@ -18,7 +18,7 @@ uniform mat4 textureMatrix;
 varying vec2 fragCoord;
 
 void main () {
-    // Position of the vertices
-    gl_Position = projectionMatrix * position;
-    fragCoord = (textureMatrix * position).xy;
-}
+    // gl_Position must be set
+    gl_Position = position;
+    fragCoord = (textureMatrix * gl_Position).xy;
+} 

@@ -89,7 +89,7 @@ export class UvWebGlRenderer implements IRenderer {
         } else {
           this.image = img as HTMLImageElement;
           this.uniforms.texture = tex;
-          this.uniforms.textureStyle = 0;
+          this.uniforms.textureStyle = 1;
           resolve();
         }
       });
